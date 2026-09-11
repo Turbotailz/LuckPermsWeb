@@ -1,0 +1,23 @@
+[build]
+  command = "git clone --depth 1 --branch v3-structure https://github.com/LuckPerms/wiki.git /tmp/luckperms-wiki && WIKI_PATH=/tmp/luckperms-wiki pnpm generate"
+  publish = ".output/public"
+
+[build.environment]
+  NODE_VERSION = "22"
+  WIKI_BRANCH = "v3-structure"
+
+# SPA fallback only for the three tool prefixes. Wiki misses stay 404.
+[[redirects]]
+  from = "/editor/*"
+  to = "/editor/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/verbose/*"
+  to = "/verbose/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/treeview/*"
+  to = "/treeview/index.html"
+  status = 200

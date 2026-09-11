@@ -1,0 +1,8 @@
+{
+  "bytebinUrl": "/data/",
+  "bytesocksHost": "bytesocks",
+  "bytesocksUrl": "/ws/",
+  "apiUrl": "https://metadata.luckperms.net/",
+  "selfHosted": true,
+  "siteUrl": "http://localhost:8080"
+}

@@ -1,0 +1,45 @@
+# LuckPerms Web (v3)
+
+Nuxt 4 + Nuxt UI rebuild of [luckperms.net](https://luckperms.net). Vue 2 remains on the `production` branch until cutover.
+
+## Develop
+
+Requirements: Node 22+, pnpm.
+
+```bash
+# Clone the wiki beside this repo for hot-reload
+git clone https://github.com/LuckPerms/wiki.git ../luckperms-wiki
+# checkout the v3 folder layout until it is merged to master
+git -C ../luckperms-wiki checkout v3-structure
+
+cp .env.example .env
+# WIKI_PATH should point at the wiki clone
+pnpm install
+pnpm dev
+```
+
+Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_BRANCH`, default `v3-structure`).
+
+## Scripts
+
+- `pnpm dev` — local server
+- `pnpm build` — Node/Nitro build
+- `pnpm generate` — static output for Netlify (`/.output/public`)
+- `pnpm preview` — preview production build
+
+## Runtime config (self-host)
+
+| Env | Default | Purpose |
+| --- | --- | --- |
+| `NUXT_PUBLIC_BYTEBIN_URL` | `https://usercontent.luckperms.net/` | Session JSON GET/POST |
+| `NUXT_PUBLIC_BYTESOCKS_HOST` | `usersockets.luckperms.net` | WebSocket host |
+| `NUXT_PUBLIC_BYTESOCKS_URL` | `wss://usersockets.luckperms.net/` | Full WebSocket URL (include this when self-hosting) |
+| `NUXT_PUBLIC_API_URL` | `https://metadata.luckperms.net/` | Versions + Crowdin catalogs |
+| `NUXT_PUBLIC_SELF_HOSTED` | `false` | Hides download/sponsor/wiki |
+| `NUXT_PUBLIC_SITE_URL` | `https://luckperms.net` | Canonicals |
+| `WIKI_PATH` | — | Local wiki clone for Content |
+| `WIKI_BRANCH` | `v3-structure` | GitHub branch for remote Content |
+
+Docker Compose still runs bytebin + bytesocks behind nginx. Tool routes (`/editor`, `/verbose`, `/treeview`) are SPA; wiki misses are real 404s.
+
+See [CUTOVER.md](./CUTOVER.md) for the production checklist. Vue 2 source history: `README.vue2.md` and the `production` branch.

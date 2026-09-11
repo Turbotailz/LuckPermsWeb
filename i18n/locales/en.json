@@ -1,9 +1,14 @@
 {
   "description": "A permissions plugin for Minecraft servers.",
+  "skipToContent": "Skip to content",
   "close": "Close",
   "copy": "Copy",
   "wiki": "Wiki",
   "wikiLocaleWarning": "Note: the wiki is only available in English.",
+  "wikiPage": {
+    "lastUpdated": "Last updated",
+    "edit": "Edit this page"
+  },
   "localeUpdate": "New! Use the LuckPerms website in your preferred language. See our Discord for more info.",
   "avatar": "{name}'s avatar",
   "sponsor": "Proudly sponsored by <strong>BisectHosting</strong>.<br/>Create your own Minecraft server today!",
@@ -46,7 +51,6 @@
     "wiki": "Learn how to install, setup, configure and effectively use LuckPerms",
     "github": "Browse the source code, report issues and contribute to the project",
     "discord": "Join {count} others to discuss the project and ask/answer questions",
-    "patreon": "Join {count} others supporting the project on Patreon",
     "partner": {
       "title": "Create your own Minecraft Server",
       "description": "Easily create your very own Minecraft Server with our hosting partner, Bisect Hosting!"
@@ -65,6 +69,7 @@
     "neoforge": "NeoForge ({version})",
     "nukkit": "NukkitX",
     "velocity": "Velocity ({version})",
+    "hytale": "Hytale ({version})",
     "bukkitLegacy": "Paper, Spigot etc. (1.7.10 only)",
     "changelog": "Recent Changelog",
     "install": {
@@ -94,18 +99,33 @@
       "defaultAssignmentsInfo": "Provides an alternate approach for assigning {wiki} if the recommended way is impractical.",
       "groups": "default groups",
       "version": "LuckPerms 5.0 and above"
+    },
+    "additional": {
+      "title": "Additional Plugins",
+      "description": "Additional plugins can provide more complex features, but may not be available on all platforms.",
+      "extracontexts": "ExtraContexts Plugin",
+      "extracontextsMeta": "LuckPerms 5.0 and above, Bukkit only",
+      "extracontextsInfo": "Add more contexts, including some for other plugins"
+    },
+    "placeholders": {
+      "title": "Placeholder Expansions",
+      "description": "LuckPerms adds {wiki} to PlaceholderAPI and MVdWPlaceholderAPI.",
+      "link": "placeholders",
+      "bukkitOnly": "Bukkit only",
+      "fabricMeta": "Fabric for MC 1.21.11, not needed on newer versions"
     }
   },
   "editor": {
     "description": "Web Permissions Editor",
     "start": "To start a new editor session, use one of the following commands:",
     "loading": "Loading data...",
-    "permissions": "Permissions",
+    "permissions": "Node",
     "key": "Key",
     "value": "Value",
     "expiry": "Expiry",
     "contexts": "Contexts",
     "search": "Search",
+    "filter": "Filter",
     "add": "Add",
     "copy": "Copy",
     "move": "Move",
@@ -115,6 +135,14 @@
     "update": "Update",
     "save": "Save",
     "apply": "Apply",
+    "undo": "Undo",
+    "redo": "Redo",
+    "socketConnected": "Connected via socket",
+    "demoNoSave": "Demo sessions are not saved to production bytebin.",
+    "history": {
+      "undone": "Undid {action}",
+      "redone": "Redid {action}"
+    },
     "saveAndGenerate": "Save and generate code",
     "saving": "Saving...",
     "saved": "Data was saved!",
@@ -128,6 +156,13 @@
       "tracks": "Tracks",
       "groups": "Groups",
       "users": "Users"
+    },
+    "index": {
+      "nodes": "Nodes",
+      "weight": "Weight",
+      "members": "Groups",
+      "count": "Count",
+      "notFound": "This item is not in the current editor session."
     },
     "reusedsession": {
       "title": "Reused Session",
@@ -162,10 +197,41 @@
       "toggleUsers": "Show/hide users"
     },
     "nodes": {
-      "add": "Add node",
+      "add": "Add nodes",
       "update": "Update nodes",
-      "permissionsCount": "Permission nodes <span>({count})</span>",
-      "addPermissions": "Add permissions",
+      "permissionsCount": "Nodes <span>({count})</span>",
+      "nodeType": "Node Type",
+      "types": {
+        "permission": "Permission",
+        "inheritance": "Inheritance",
+        "prefix": "Prefix",
+        "suffix": "Suffix",
+        "meta": "Meta",
+        "weight": "Weight",
+        "displayname": "Display Name"
+      },
+      "labels": {
+        "permissions": "Permissions",
+        "groupName": "Group Name",
+        "weight": "Weight",
+        "prefixText": "Prefix Text",
+        "suffixText": "Suffix Text",
+        "key": "Key",
+        "value": "Value",
+        "weightValue": "Weight Value",
+        "displayName": "Display Name"
+      },
+      "weightLabel": "weight",
+      "permissionPlaceholder": "Enter permissions or paste many",
+      "groupNamePlaceholder": "Group name",
+      "weightPlaceholder": "Weight (priority)",
+      "prefixPlaceholder": "Prefix text",
+      "suffixPlaceholder": "Suffix text",
+      "metaKeyPlaceholder": "Meta key",
+      "metaValuePlaceholder": "Meta value",
+      "weightValuePlaceholder": "Weight value",
+      "displayNamePlaceholder": "Display name",
+      "displayNameWarning": "Display Name nodes are frequently misused and should ideally only be used to add aliases (eg default -> member) or change capitalization (eg admin -> Admin).",
       "addContext": "Add context",
       "addContexts": "Add contexts",
       "deselect": "Deselect all nodes",
@@ -178,7 +244,6 @@
       "never": "never",
       "deleteExpiry": "Delete expiry",
       "contexts": "Click to edit the contexts for this node",
-      "enter": "Enter permissions or paste many",
       "enterToSelect": "Press enter to select",
       "contextsCount": "Contexts <span>({count})</span>",
       "selected": "<span>{count}</span> selected node | <span>{count}</span> selected nodes",
@@ -215,7 +280,8 @@
     "meta": {
       "add": "Add a group to {id}",
       "parents": "Parent groups",
-      "weight": "Weight: ",
+      "weight": "Weight",
+      "multiple": "Multiple",
       "gotoParent": "Go to the {parent} group",
       "removeParent": "Remove {parent} as a parent"
     },
@@ -266,7 +332,7 @@
     "context": "Context",
     "origin": "Origin",
     "processor": "Processor",
-    "cause": "Cause",
+    "cause": "Cause Node",
     "thread": "Thread",
     "trace": "Trace",
     "exclude": "Exclude",
@@ -297,5 +363,22 @@
   "notFound": {
     "title": "Not found!",
     "message": "The page {path} doesn't exist"
+  },
+  "sponsorPage": {
+    "title": "Sponsor",
+    "heading": "LuckPerms has partnered with BisectHosting!",
+    "intro": "BisectHosting are Minecraft server hosting experts, ready to help you create and host your very own server! They also have special discounts available for LuckPerms users - read on to find out more!",
+    "ctaCreate": "Create your server now!",
+    "ctaSupport": "Chat to BisectHosting support",
+    "whyTitle": "Why BisectHosting?",
+    "why1": "BisectHosting is a <strong>trusted</strong> and well established hosting provider in the community, and have already been serving many of our users for a number of years.",
+    "why2": "They provide an <strong>outstanding</strong> level of service we're happy to recommend. We've personally used their product and can vouch for how awesome it is!",
+    "why3": "By using our discount code, not only do you get a better deal on your hosting plan, but it also directly <strong>supports</strong> us in return, allowing us to continue developing and providing LuckPerms for everyone to enjoy!",
+    "thanks": "We'd like to thank Bisect for sponsoring open source projects like ours and enabling us to continue to provide LuckPerms for free to the community, for all to enjoy. They're awesome and their support is much appreciated!",
+    "offerTitle": "Special Offer for LuckPerms users (that's you!)",
+    "offer1": "BisectHosting are generously giving LuckPerms users a massive <strong>25% off</strong> the first month of any of their game server hosting plans.",
+    "offer2": "Already have a server hosted somewhere else? Not to worry! Bisect are offering to give <strong>two weeks of hosting for free</strong> and <strong>match the price of your existing plan</strong> if you transfer your server to them!",
+    "offer3": "To get the <strong>25% off</strong> discount, all you need to do is enter the promo code \"luck\" when you checkout!",
+    "offer4": "To take advantage of their <strong>2 weeks free + price-match</strong> offer, just get in touch with their support team and let them know you've come via us!"
   }
 }
