@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { wikiRouteRules } from './config/wiki-redirects'
 import { wikiFileUpdatedAt } from './config/wiki-git'
+import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
 
 function gitHash() {
   try {
@@ -42,7 +43,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     wikiPath: wikiPath || '',
-    wikiBranch: process.env.WIKI_BRANCH || 'v3-structure',
+    wikiBranch: wikiBranchName(),
+    wikiRepo: wikiRepoUrl(),
     public: {
       bytebinUrl: 'https://usercontent.luckperms.net/',
       bytesocksHost: 'usersockets.luckperms.net',
@@ -51,8 +53,8 @@ export default defineNuxtConfig({
       selfHosted,
       siteUrl: 'https://luckperms.net',
       gitHash: gitHash(),
-      wikiRepo: 'https://github.com/LuckPerms/wiki',
-      wikiBranch: process.env.WIKI_BRANCH || 'v3-structure'
+      wikiRepo: wikiRepoUrl(),
+      wikiBranch: wikiBranchName()
     }
   },
   app: {

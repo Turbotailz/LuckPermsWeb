@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { defineCollection, defineContentConfig } from '@nuxt/content'
 import { z } from 'zod'
+import { wikiContentRepository } from './config/wiki-source'
 
 const wikiSchema = z.object({
   title: z.string(),
@@ -9,7 +10,6 @@ const wikiSchema = z.object({
 })
 
 const wikiPath = process.env.WIKI_PATH
-const wikiBranch = process.env.WIKI_BRANCH || 'v3-structure'
 
 const wikiSource = wikiPath
   ? {
@@ -18,7 +18,7 @@ const wikiSource = wikiPath
       prefix: '/wiki'
     }
   : {
-      repository: `https://github.com/LuckPerms/wiki/tree/${wikiBranch}`,
+      repository: wikiContentRepository(),
       include: 'en/**' as const,
       prefix: '/wiki'
     }

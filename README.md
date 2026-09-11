@@ -8,7 +8,7 @@ Requirements: Node 22+, pnpm.
 
 ```bash
 # Clone the wiki beside this repo for hot-reload
-git clone https://github.com/LuckPerms/wiki.git ../luckperms-wiki
+git clone https://github.com/Turbotailz/wiki.git ../luckperms-wiki
 # checkout the v3 folder layout until it is merged to master
 git -C ../luckperms-wiki checkout v3-structure
 
@@ -18,7 +18,7 @@ pnpm install
 pnpm dev
 ```
 
-Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_BRANCH`, default `v3-structure`).
+Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_REPO` + `WIKI_BRANCH`, default `Turbotailz/wiki` @ `v3-structure`).
 
 ## Scripts
 
@@ -38,6 +38,7 @@ Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_BRANCH`, de
 | `NUXT_PUBLIC_SELF_HOSTED` | `false` | Hides download/sponsor/wiki |
 | `NUXT_PUBLIC_SITE_URL` | `https://luckperms.net` | Canonicals |
 | `WIKI_PATH` | — | Local wiki clone for Content |
+| `WIKI_REPO` | `https://github.com/Turbotailz/wiki` | GitHub wiki repo when `WIKI_PATH` is unset |
 | `WIKI_BRANCH` | `v3-structure` | GitHub branch for remote Content |
 
 Docker Compose still runs bytebin + bytesocks behind nginx. Tool routes (`/editor`, `/verbose`, `/treeview`) are SPA; wiki misses are real 404s.

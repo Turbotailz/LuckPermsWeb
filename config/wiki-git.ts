@@ -1,9 +1,7 @@
 import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
-
-const WIKI_REPO = 'https://github.com/LuckPerms/wiki'
-const WIKI_BRANCH = 'v3-structure'
+import { wikiBranchName, wikiRepoUrl } from './wiki-source'
 
 let dates: Map<string, string> | null = null
 
@@ -64,8 +62,6 @@ export function wikiFileUpdatedAt(wikiPath: string, filePath?: string): string |
   return loadWikiGitDates(wikiPath).get(key)
 }
 
-export function wikiEditUrl(relativePath: string, branch = WIKI_BRANCH, repo = WIKI_REPO): string {
+export function wikiEditUrl(relativePath: string, branch = wikiBranchName(), repo = wikiRepoUrl()): string {
   return `${repo}/edit/${branch}/${relativePath}`
 }
-
-export { WIKI_REPO, WIKI_BRANCH }
