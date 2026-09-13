@@ -17,6 +17,27 @@
   --color-lime-950: #1a2e05;
 }
 
+@theme {
+  --container-8xl: 90rem;
+  --container-9xl: 96rem;
+}
+
+:root {
+  --ui-container: 80rem;
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --ui-container: var(--container-8xl);
+  }
+}
+
+@media (min-width: 96rem) {
+  :root {
+    --ui-container: var(--container-9xl);
+  }
+}
+
 @layer base {
   html {
     @apply font-sans antialiased;

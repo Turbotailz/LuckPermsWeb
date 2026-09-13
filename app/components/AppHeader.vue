@@ -54,6 +54,8 @@ const languageItems = computed<DropdownMenuItem[][]>(() => [
     onSelect: () => language.setUserLocale(item.code)
   }))
 ])
+
+const isWiki = computed(() => route.path === '/wiki' || route.path.startsWith('/wiki/'))
 </script>
 
 <template>
@@ -122,6 +124,12 @@ const languageItems = computed<DropdownMenuItem[][]>(() => [
 
     <template #body>
       <UNavigationMenu :items="mobileItems" orientation="vertical" class="-mx-2.5" />
+      <div v-if="isWiki && !selfHosted" class="mt-6 border-t border-default pt-4">
+        <p class="mb-3 text-sm font-semibold text-highlighted">
+          {{ t('wiki') }}
+        </p>
+        <WikiNav />
+      </div>
     </template>
   </UHeader>
 </template>
