@@ -19,8 +19,27 @@ const quizOpen = ref(false)
 
 useSeoMeta({
   title: () => t('download.title'),
-  description: () => t('download.title')
+  description: () => t('download.hero.description')
 })
+
+const heroUi = {
+  root: 'relative overflow-hidden',
+  container: 'py-10 sm:py-14 lg:py-16 gap-10 lg:gap-12',
+  title: 'text-5xl sm:text-7xl text-pretty tracking-tight font-bold text-highlighted',
+  description: 'mt-6 text-lg sm:text-xl/8 text-muted text-pretty max-w-xl',
+  links: 'flex flex-wrap items-center gap-3'
+}
+
+const sectionUi = {
+  container: 'py-12 sm:py-16 lg:py-20 gap-8 sm:gap-10',
+  body: 'mt-10',
+  footer: 'mt-8'
+}
+
+const primaryLink = {
+  activeClass: 'text-primary font-medium',
+  inactiveClass: 'text-primary font-medium hover:underline'
+}
 
 const relativeTimestamp = computed(() => {
   if (!app.versionTimestamp) {
@@ -40,6 +59,8 @@ const platformImages: Record<string, string> = {
   nukkit: nukkitImg,
   bungeecord: bungeeImg
 }
+
+const mosaic = ['bukkit', 'velocity', 'fabric', 'forge', 'neoforge', 'sponge'] as const
 
 const platforms = computed(() => [
   { key: 'bukkit', name: 'Bukkit', img: 'bukkit', href: app.downloads.bukkit, small: t('download.bukkit', { version: '1.8.8 - 1.21.x' }) },
@@ -61,18 +82,58 @@ function logDownload(platform: string) {
 
 <template>
   <div>
-    <UPageHero :title="t('download.title')">
+    <UPageHero
+      orientation="horizontal"
+      :title="t('download.title')"
+      :description="t('download.hero.description')"
+      :ui="heroUi"
+    >
       <template #headline>
-        <UBadge color="primary" variant="subtle" size="lg">v{{ app.version || '…' }}</UBadge>
+        <UBadge v-if="app.version" color="primary" variant="subtle" size="lg">
+          v{{ app.version }}
+        </UBadge>
       </template>
-      <template #description>
-        <p v-if="relativeTimestamp">{{ t('download.build', { time: relativeTimestamp }) }}</p>
+      <template #body>
+        <p v-if="relativeTimestamp" class="text-muted">
+          {{ t('download.build', { time: relativeTimestamp }) }}
+        </p>
       </template>
+      <template #links>
+        <UButton size="xl" to="#platforms" icon="i-lucide-circle-arrow-down">
+          {{ t('download.typeChoose') }}
+        </UButton>
+        <UButton
+          size="xl"
+          color="neutral"
+          variant="outline"
+          to="/wiki/getting-started"
+          trailing-icon="i-lucide-arrow-right"
+        >
+          {{ t('download.install.wiki') }}
+        </UButton>
+      </template>
+      <div class="relative mx-auto flex w-full max-w-md items-center justify-center py-6 lg:py-0">
+        <div class="absolute size-48 rounded-full bg-primary/20 blur-3xl sm:size-64" />
+        <div class="relative grid grid-cols-3 gap-3">
+          <div
+            v-for="key in mosaic"
+            :key="key"
+            class="flex size-16 items-center justify-center rounded-xl bg-muted/80 p-2 ring ring-default sm:size-20"
+          >
+            <img :src="platformImages[key]" :alt="key" class="size-full object-contain">
+          </div>
+        </div>
+      </div>
     </UPageHero>
 
-    <UPageSection :title="t('download.typeChoose')">
+    <UPageSection
+      id="platforms"
+      :title="t('download.typeChoose')"
+      :ui="sectionUi"
+      class="scroll-mt-(--ui-header-height)"
+    >
       <template #body>
-        <UPageList class="mx-auto max-w-2xl">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <UPageCard
             v-for="platform in platforms"
             :key="platform.key"
@@ -81,15 +142,16 @@ function logDownload(platform: string) {
             :to="platform.href"
             target="_blank"
             variant="subtle"
-            orientation="horizontal"
             @click="logDownload(platform.key)"
           >
             <template #leading>
               <UAvatar :src="platformImages[platform.img]" :alt="platform.name" size="md" class="rounded-md bg-muted p-1" />
             </template>
           </UPageCard>
-        </UPageList>
-        <div class="mt-6 text-center">
+        </div>
+      </template>
+      <template #footer>
+        <div class="text-center">
           <UButton color="neutral" variant="subtle" icon="i-lucide-circle-help" @click="quizOpen = true">
             {{ t('download.typeHelp') }}
           </UButton>
@@ -97,147 +159,174 @@ function logDownload(platform: string) {
       </template>
     </UPageSection>
 
-    <UPageSection :title="t('download.changelog')">
+    <UPageSection :title="t('download.changelog')" :ui="sectionUi">
       <template #body>
-        <UPageList divide class="mx-auto max-w-3xl">
-          <div
-            v-for="entry in app.changeLog"
-            :key="entry.version"
-            class="flex items-center justify-between gap-4 py-3"
-          >
-            <span class="min-w-0">
-              <ULink :to="`https://github.com/LuckPerms/LuckPerms/commit/${entry.commit}`" target="_blank" class="font-mono">
-                v{{ entry.version }}
-              </ULink>
-              <span class="ms-2 text-default">{{ entry.title }}</span>
-            </span>
-            <span class="shrink-0 text-sm text-muted">{{ relativeDate(entry.timestamp, locale) }}</span>
-          </div>
-        </UPageList>
+        <UPageCard variant="subtle" class="mx-auto max-w-3xl">
+          <UPageList divide>
+            <div
+              v-for="entry in app.changeLog"
+              :key="entry.version"
+              class="flex items-center justify-between gap-4 py-3"
+            >
+              <span class="min-w-0">
+                <ULink
+                  :to="`https://github.com/LuckPerms/LuckPerms/commit/${entry.commit}`"
+                  target="_blank"
+                  class="font-mono"
+                  v-bind="primaryLink"
+                >
+                  v{{ entry.version }}
+                </ULink>
+                <span class="ms-2 text-default">{{ entry.title }}</span>
+              </span>
+              <span class="shrink-0 text-sm text-muted">{{ relativeDate(entry.timestamp, locale) }}</span>
+            </div>
+          </UPageList>
+        </UPageCard>
       </template>
     </UPageSection>
 
-    <UPageSection :title="t('download.install.title')">
+    <UPageSection :title="t('download.install.title')" :ui="sectionUi">
       <template #body>
-        <ol class="mx-auto max-w-2xl list-decimal space-y-3 ps-5 text-left text-default">
-          <li><TrustedHtml :html="t('download.install.add')" /></li>
-          <li><TrustedHtml :html="t('download.install.restart')" /></li>
-          <li><TrustedHtml :html="t('download.install.config')" /></li>
-          <i18n-t keypath="download.install.setup" tag="li">
-            <template #wiki>
-              <ULink to="/wiki/getting-started">{{ t('download.install.wiki') }}</ULink>
-            </template>
-          </i18n-t>
-        </ol>
+        <UPageCard variant="subtle" class="mx-auto max-w-2xl">
+          <ol class="list-decimal space-y-3 ps-5 text-left text-default">
+            <li><TrustedHtml :html="t('download.install.add')" /></li>
+            <li><TrustedHtml :html="t('download.install.restart')" /></li>
+            <li><TrustedHtml :html="t('download.install.config')" /></li>
+            <i18n-t keypath="download.install.setup" tag="li">
+              <template #wiki>
+                <ULink to="/wiki/getting-started" v-bind="primaryLink">{{ t('download.install.wiki') }}</ULink>
+              </template>
+            </i18n-t>
+          </ol>
+        </UPageCard>
       </template>
     </UPageSection>
 
-    <UPageSection :title="t('download.trouble.title')">
+    <UPageSection :title="t('download.trouble.title')" :ui="sectionUi">
       <template #body>
-        <ul class="mx-auto max-w-2xl list-disc space-y-3 ps-5 text-left text-default">
-          <li>{{ t('download.trouble.console') }}</li>
-          <i18n-t keypath="download.trouble.read" tag="li">
-            <template #wiki>
-              <ULink to="/wiki/install">{{ t('download.trouble.wiki') }}</ULink>
-            </template>
-          </i18n-t>
-          <i18n-t keypath="download.trouble.support" tag="li">
-            <template #discord>
-              <ULink to="https://discord.gg/luckperms" target="_blank">Discord</ULink>
-            </template>
-          </i18n-t>
-        </ul>
+        <UPageCard variant="subtle" class="mx-auto max-w-2xl">
+          <ul class="list-disc space-y-3 ps-5 text-left text-default">
+            <li>{{ t('download.trouble.console') }}</li>
+            <i18n-t keypath="download.trouble.read" tag="li">
+              <template #wiki>
+                <ULink to="/wiki/install" v-bind="primaryLink">{{ t('download.trouble.wiki') }}</ULink>
+              </template>
+            </i18n-t>
+            <i18n-t keypath="download.trouble.support" tag="li">
+              <template #discord>
+                <ULink to="https://discord.gg/luckperms" target="_blank" v-bind="primaryLink">Discord</ULink>
+              </template>
+            </i18n-t>
+          </ul>
+        </UPageCard>
       </template>
     </UPageSection>
 
-    <UPageSection :title="t('download.extensions.title')">
+    <UPageSection :title="t('download.extensions.title')" :ui="sectionUi">
       <template #description>
         <i18n-t keypath="download.extensions.description" tag="span">
           <template #wiki>
-            <ULink to="/wiki/guides/extensions">{{ t('download.extensions.descriptionWiki') }}</ULink>
+            <ULink to="/wiki/guides/extensions" v-bind="primaryLink">{{ t('download.extensions.descriptionWiki') }}</ULink>
           </template>
         </i18n-t>
       </template>
-      <UPageGrid>
-        <UPageCard
-          :title="t('download.extensions.legacy')"
-          :description="t('download.extensions.legacyInfo')"
-          :to="app.extensions['extension-legacy-api']"
-          target="_blank"
-          variant="subtle"
-          @click="logDownload('extension-legacy-api')"
-        >
-          <template #footer>
-            <p class="text-sm text-muted">{{ t('download.extensions.version') }}</p>
-          </template>
-        </UPageCard>
-        <UPageCard
-          :title="t('download.extensions.defaultAssignments')"
-          :to="app.extensions['extension-default-assignments']"
-          target="_blank"
-          variant="subtle"
-          @click="logDownload('extension-default-assignments')"
-        >
-          <template #description>
-            <i18n-t keypath="download.extensions.defaultAssignmentsInfo" tag="span">
-              <template #wiki>
-                <ULink to="/wiki/features/default-groups">{{ t('download.extensions.groups') }}</ULink>
-              </template>
-            </i18n-t>
-          </template>
-          <template #footer>
-            <p class="text-sm text-muted">{{ t('download.extensions.version') }}</p>
-          </template>
-        </UPageCard>
-      </UPageGrid>
+      <template #body>
+        <UPageGrid>
+          <UPageCard
+            :title="t('download.extensions.legacy')"
+            :description="t('download.extensions.legacyInfo')"
+            :to="app.extensions['extension-legacy-api']"
+            target="_blank"
+            variant="subtle"
+            spotlight
+            @click="logDownload('extension-legacy-api')"
+          >
+            <template #footer>
+              <p class="text-sm text-muted">{{ t('download.extensions.version') }}</p>
+            </template>
+          </UPageCard>
+          <UPageCard
+            :title="t('download.extensions.defaultAssignments')"
+            :to="app.extensions['extension-default-assignments']"
+            target="_blank"
+            variant="subtle"
+            spotlight
+            @click="logDownload('extension-default-assignments')"
+          >
+            <template #description>
+              <i18n-t keypath="download.extensions.defaultAssignmentsInfo" tag="span">
+                <template #wiki>
+                  <ULink to="/wiki/features/default-groups" v-bind="primaryLink">{{ t('download.extensions.groups') }}</ULink>
+                </template>
+              </i18n-t>
+            </template>
+            <template #footer>
+              <p class="text-sm text-muted">{{ t('download.extensions.version') }}</p>
+            </template>
+          </UPageCard>
+        </UPageGrid>
+      </template>
     </UPageSection>
 
-    <UPageSection :title="t('download.additional.title')" :description="t('download.additional.description')">
-      <UPageCard
-        :title="t('download.additional.extracontexts')"
-        :description="t('download.additional.extracontextsInfo')"
-        :to="app.additionalPlugins.extracontexts"
-        target="_blank"
-        variant="subtle"
-        class="mx-auto max-w-xl"
-      >
-        <template #footer>
-          <p class="text-sm text-muted">{{ t('download.additional.extracontextsMeta') }}</p>
-        </template>
-      </UPageCard>
+    <UPageSection
+      :title="t('download.additional.title')"
+      :description="t('download.additional.description')"
+      :ui="sectionUi"
+    >
+      <template #body>
+        <UPageCard
+          :title="t('download.additional.extracontexts')"
+          :description="t('download.additional.extracontextsInfo')"
+          :to="app.additionalPlugins.extracontexts"
+          target="_blank"
+          variant="subtle"
+          spotlight
+          class="mx-auto max-w-xl"
+        >
+          <template #footer>
+            <p class="text-sm text-muted">{{ t('download.additional.extracontextsMeta') }}</p>
+          </template>
+        </UPageCard>
+      </template>
     </UPageSection>
 
-    <UPageSection :title="t('download.placeholders.title')">
+    <UPageSection :title="t('download.placeholders.title')" :ui="sectionUi">
       <template #description>
         <i18n-t keypath="download.placeholders.description" tag="span">
           <template #wiki>
-            <ULink to="/wiki/about/placeholders#placeholders">{{ t('download.placeholders.link') }}</ULink>
+            <ULink to="/wiki/about/placeholders#placeholders" v-bind="primaryLink">{{ t('download.placeholders.link') }}</ULink>
           </template>
         </i18n-t>
       </template>
-      <UPageGrid>
-        <UPageCard
-          title="PlaceholderAPI"
-          :description="t('download.placeholders.bukkitOnly')"
-          :to="app.placeholderExpansions['bukkit-placeholderapi']"
-          target="_blank"
-          variant="subtle"
-        />
-        <UPageCard
-          title="MVdWPlaceholderAPI"
-          :description="t('download.placeholders.bukkitOnly')"
-          :to="app.placeholderExpansions['bukkit-mvdw']"
-          target="_blank"
-          variant="subtle"
-        />
-        <UPageCard
-          title="Fabric PlaceholderAPI"
-          :description="t('download.placeholders.fabricMeta')"
-          :to="app.placeholderExpansions['fabric-placeholderapi']"
-          target="_blank"
-          variant="subtle"
-        />
-      </UPageGrid>
+      <template #body>
+        <UPageGrid>
+          <UPageCard
+            title="PlaceholderAPI"
+            :description="t('download.placeholders.bukkitOnly')"
+            :to="app.placeholderExpansions['bukkit-placeholderapi']"
+            target="_blank"
+            variant="subtle"
+            spotlight
+          />
+          <UPageCard
+            title="MVdWPlaceholderAPI"
+            :description="t('download.placeholders.bukkitOnly')"
+            :to="app.placeholderExpansions['bukkit-mvdw']"
+            target="_blank"
+            variant="subtle"
+            spotlight
+          />
+          <UPageCard
+            title="Fabric PlaceholderAPI"
+            :description="t('download.placeholders.fabricMeta')"
+            :to="app.placeholderExpansions['fabric-placeholderapi']"
+            target="_blank"
+            variant="subtle"
+            spotlight
+          />
+        </UPageGrid>
+      </template>
     </UPageSection>
 
     <DownloadQuiz v-model:open="quizOpen" :downloads="app.downloads" />

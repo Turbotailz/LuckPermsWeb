@@ -15,115 +15,171 @@ useSeoMeta({
   ogDescription: () => t('description')
 })
 
+const platforms = ['Paper', 'Velocity', 'Fabric', 'Forge', 'NeoForge', 'Sponge']
+
+const sectionUi = {
+  container: 'py-12 sm:py-16 lg:py-20 gap-8 sm:gap-10',
+  body: 'mt-10',
+  footer: 'mt-8'
+}
+
 const whyCards = computed(() => [
-  { key: 'home.why.fast' as const, icon: 'i-lucide-zap' },
-  { key: 'home.why.reliable' as const, icon: 'i-lucide-shield-check' },
-  { key: 'home.why.easy' as const, icon: 'i-lucide-sparkles' },
-  { key: 'home.why.flexible' as const, icon: 'i-lucide-layers' },
-  { key: 'home.why.extensive' as const, icon: 'i-lucide-sliders-horizontal' },
-  { key: 'home.why.free' as const, icon: 'i-lucide-heart' }
+  { title: t('home.why.fastTitle'), description: t('home.why.fastDescription'), icon: 'i-lucide-zap' },
+  { title: t('home.why.reliableTitle'), description: t('home.why.reliableDescription'), icon: 'i-lucide-shield-check' },
+  { title: t('home.why.easyTitle'), description: t('home.why.easyDescription'), icon: 'i-lucide-sparkles' },
+  { title: t('home.why.flexibleTitle'), description: t('home.why.flexibleDescription'), icon: 'i-lucide-layers' },
+  { title: t('home.why.extensiveTitle'), description: t('home.why.extensiveDescription'), icon: 'i-lucide-sliders-horizontal' },
+  { title: t('home.why.freeTitle'), description: t('home.why.freeDescription'), icon: 'i-lucide-heart' }
 ])
 
 const toolCards = computed(() => [
-  { title: t('links.editor'), description: t('editor.description'), icon: 'i-lucide-pencil', to: '/editor' },
-  { title: t('links.verbose'), description: t('verbose.title'), icon: 'i-lucide-scroll-text', to: '/verbose' },
-  { title: t('links.tree'), description: t('tree.title'), icon: 'i-lucide-git-fork', to: '/treeview' }
+  { title: t('links.editor'), description: t('home.apps.editor'), icon: 'i-lucide-pencil', to: '/editor' },
+  { title: t('links.verbose'), description: t('home.apps.verbose'), icon: 'i-lucide-scroll-text', to: '/verbose' },
+  { title: t('links.tree'), description: t('home.apps.tree'), icon: 'i-lucide-git-fork', to: '/treeview' }
 ])
 </script>
 
 <template>
   <div>
     <UPageHero
+      orientation="horizontal"
       title="LuckPerms"
-      :description="t('description')"
+      :description="t('home.hero.description')"
+      :ui="{
+        root: 'relative overflow-hidden',
+        container: 'py-10 sm:py-14 lg:py-16 gap-10 lg:gap-12',
+        title: 'text-5xl sm:text-7xl lg:text-8xl text-pretty tracking-tight font-bold text-highlighted',
+        description: 'mt-6 text-lg sm:text-xl/8 text-muted text-pretty max-w-xl',
+        links: 'flex flex-col items-start gap-5'
+      }"
     >
       <template #headline>
-        <BrandLogo size="size-28" />
+        <span class="font-semibold text-primary">{{ t('home.hero.eyebrow') }}</span>
       </template>
       <template #links>
-        <template v-if="!selfHosted">
+        <div v-if="!selfHosted" class="flex flex-wrap items-center gap-3">
           <UButton size="xl" to="/download" icon="i-lucide-circle-arrow-down">
             {{ t('links.download') }}
             <UBadge color="neutral" variant="subtle" class="ms-2">v{{ app.version || '…' }}</UBadge>
           </UButton>
-          <p class="max-w-lg text-sm text-muted">{{ t('home.supported') }}</p>
-        </template>
+          <UButton
+            size="xl"
+            color="neutral"
+            variant="outline"
+            to="/wiki"
+            trailing-icon="i-lucide-arrow-right"
+          >
+            {{ t('wiki') }}
+          </UButton>
+        </div>
+        <div v-if="!selfHosted" class="flex max-w-xl flex-wrap gap-2">
+          <UBadge
+            v-for="platform in platforms"
+            :key="platform"
+            color="neutral"
+            variant="subtle"
+            size="md"
+          >
+            {{ platform }}
+          </UBadge>
+        </div>
       </template>
+      <div class="relative mx-auto flex w-full items-center justify-center py-6 lg:py-0">
+        <div class="absolute size-48 rounded-full bg-primary/20 blur-3xl sm:size-64 lg:size-72" />
+        <BrandLogo size="size-32 sm:size-44 lg:size-56" class="relative" />
+      </div>
     </UPageHero>
 
     <template v-if="!selfHosted">
       <UPageSection
         :title="t('home.why.title')"
-        :description="`${t('home.why.description')} ${t('home.why.its')}`"
+        :description="t('home.why.description')"
+        :ui="sectionUi"
       >
-        <UPageGrid>
-          <UPageCard
-            v-for="card in whyCards"
-            :key="card.key"
-            :icon="card.icon"
-            variant="subtle"
-          >
-            <template #description>
-              <TrustedHtml :html="t(card.key)" />
+        <template #body>
+          <UPageGrid>
+            <UPageCard
+              v-for="card in whyCards"
+              :key="card.title"
+              :icon="card.icon"
+              :title="card.title"
+              :description="card.description"
+              variant="subtle"
+            />
+          </UPageGrid>
+        </template>
+        <template #footer>
+          <i18n-t keypath="home.why.more" tag="p" class="text-center text-muted">
+            <template #wiki>
+              <ULink
+                to="/wiki/about/why-luckperms"
+                active-class="text-primary font-medium"
+                inactive-class="text-primary font-medium hover:underline"
+              >
+                {{ t('home.why.why') }}
+              </ULink>
             </template>
-          </UPageCard>
-        </UPageGrid>
-        <i18n-t keypath="home.why.more" tag="p" class="mt-8 text-center text-muted">
-          <template #wiki>
-            <ULink to="/wiki/about/why-luckperms">{{ t('home.why.why') }}</ULink>
-          </template>
-        </i18n-t>
+          </i18n-t>
+        </template>
       </UPageSection>
 
       <UPageSection
         :title="t('home.apps.title')"
         :description="`${t('home.apps.description1')} ${t('home.apps.description2')}`"
+        :ui="sectionUi"
       >
-        <UPageGrid>
-          <UPageCard
-            v-for="card in toolCards"
-            :key="card.to"
-            v-bind="card"
-            variant="subtle"
-            spotlight
-          />
-        </UPageGrid>
+        <template #body>
+          <UPageGrid>
+            <UPageCard
+              v-for="card in toolCards"
+              :key="card.to"
+              v-bind="card"
+              variant="subtle"
+              spotlight
+            />
+          </UPageGrid>
+        </template>
       </UPageSection>
 
-      <UPageSection>
-        <UPageGrid>
-          <UPageCard
-            :title="t('links.wiki')"
-            :description="t('home.wiki')"
-            icon="i-lucide-book"
-            to="/wiki"
-            variant="outline"
-          />
-          <UPageCard
-            title="GitHub"
-            :description="t('home.github')"
-            icon="i-simple-icons-github"
-            to="https://github.com/LuckPerms/LuckPerms"
-            target="_blank"
-            variant="outline"
-          />
-          <UPageCard
-            title="Discord"
-            :description="t('home.discord', { count: app.discordUserCount ?? '…' })"
-            icon="i-simple-icons-discord"
-            to="https://discord.gg/luckperms"
-            target="_blank"
-            variant="outline"
-          />
-          <UPageCard
-            :title="t('home.partner.title')"
-            :description="t('home.partner.description')"
-            icon="i-lucide-server"
-            to="/sponsor"
-            variant="outline"
-            class="sm:col-span-2 lg:col-span-1"
-          />
-        </UPageGrid>
+      <UPageSection :title="t('home.resources.title')" :ui="sectionUi">
+        <template #body>
+          <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-4">
+            <UPageCard
+              :title="t('links.wiki')"
+              :description="t('home.wiki')"
+              icon="i-lucide-book"
+              to="/wiki"
+              variant="outline"
+              spotlight
+            />
+            <UPageCard
+              title="GitHub"
+              :description="t('home.github')"
+              icon="i-simple-icons-github"
+              to="https://github.com/LuckPerms/LuckPerms"
+              target="_blank"
+              variant="outline"
+              spotlight
+            />
+            <UPageCard
+              title="Discord"
+              :description="t('home.discord', { count: app.discordUserCount ?? '…' })"
+              icon="i-simple-icons-discord"
+              to="https://discord.gg/luckperms"
+              target="_blank"
+              variant="outline"
+              spotlight
+            />
+            <UPageCard
+              :title="t('home.partner.name')"
+              :description="t('home.partner.description')"
+              icon="i-lucide-server"
+              to="/sponsor"
+              variant="outline"
+              spotlight
+            />
+          </div>
+        </template>
       </UPageSection>
     </template>
 

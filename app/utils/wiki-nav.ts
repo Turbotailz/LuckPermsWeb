@@ -1,5 +1,10 @@
 export const wikiNavOrder = [
   '/wiki',
+  '/wiki/about/why-luckperms',
+  '/wiki/about/credits',
+  '/wiki/about/locale',
+  '/wiki/about/placeholders',
+  '/wiki/about/external-connections',
   '/wiki/install',
   '/wiki/install/network',
   '/wiki/install/hytale',
@@ -40,15 +45,17 @@ export const wikiNavOrder = [
   '/wiki/reference/upgrade-v4-v5',
   '/wiki/reference/migrating-gm-pex',
   '/wiki/reference/permission-calculation',
-  '/wiki/reference/self-hosting',
-  '/wiki/about/why-luckperms',
-  '/wiki/about/credits',
-  '/wiki/about/locale',
-  '/wiki/about/placeholders',
-  '/wiki/about/external-connections'
+  '/wiki/reference/self-hosting'
 ]
 
 export const wikiSections = [
+  { title: 'About', paths: [
+    '/wiki/about/why-luckperms',
+    '/wiki/about/credits',
+    '/wiki/about/locale',
+    '/wiki/about/placeholders',
+    '/wiki/about/external-connections'
+  ] },
   { title: 'Install', paths: ['/wiki/install', '/wiki/install/network', '/wiki/install/hytale'] },
   { title: 'Getting started', paths: ['/wiki/getting-started', '/wiki/storage', '/wiki/configuration', '/wiki/faq'] },
   { title: 'Commands', paths: [
@@ -94,12 +101,5 @@ export const wikiSections = [
     '/wiki/reference/migrating-gm-pex',
     '/wiki/reference/permission-calculation',
     '/wiki/reference/self-hosting'
-  ] },
-  { title: 'About', paths: [
-    '/wiki/about/why-luckperms',
-    '/wiki/about/credits',
-    '/wiki/about/locale',
-    '/wiki/about/placeholders',
-    '/wiki/about/external-connections'
   ] }
 ]

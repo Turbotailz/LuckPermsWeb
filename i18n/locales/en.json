@@ -12,6 +12,8 @@
   "localeUpdate": "New! Use the LuckPerms website in your preferred language. See our Discord for more info.",
   "avatar": "{name}'s avatar",
   "sponsor": "Proudly sponsored by <strong>BisectHosting</strong>.<br/>Create your own Minecraft server today!",
+  "sponsorBy": "Proudly sponsored by",
+  "sponsorCta": "Create your own Minecraft server today!",
   "links": {
     "home": "Home",
     "download": "Download",
@@ -30,6 +32,10 @@
   "home": {
     "name": "Home",
     "supported": "Supports Bukkit/Spigot/Paper, BungeeCord, Sponge, Fabric, Forge, NeoForge, Nukkit and Velocity servers",
+    "hero": {
+      "eyebrow": "Open source and free forever",
+      "description": "Control what players can do on your Minecraft server with groups, tracks, and permissions that scale from a single world to a whole network."
+    },
     "why": {
       "title": "Why LuckPerms?",
       "description": "LuckPerms is a permissions plugin for Minecraft servers. It allows server admins to control what features players can use by creating groups and assigning permissions.",
@@ -40,24 +46,46 @@
       "flexible": "<b>flexible</b> - supports a variety of data storage options, and works on lots of different server types.",
       "extensive": "<b>extensive</b> - a plethora of customization options and settings which can be changed to suit your server.",
       "free": "<b>free</b> - available for download and usage at no cost, and permissively licensed so it can remain free forever.",
+      "fastTitle": "Fast",
+      "fastDescription": "Written with performance and scalability in mind.",
+      "reliableTitle": "Reliable",
+      "reliableDescription": "Trusted by thousands of server admins, and the largest of server networks.",
+      "easyTitle": "Easy to use",
+      "easyDescription": "Set up permissions using commands, directly in config files, or using the web editor.",
+      "flexibleTitle": "Flexible",
+      "flexibleDescription": "Supports a variety of data storage options, and works on lots of different server types.",
+      "extensiveTitle": "Extensive",
+      "extensiveDescription": "A plethora of customization options and settings which can be changed to suit your server.",
+      "freeTitle": "Free",
+      "freeDescription": "Available for download and usage at no cost, and permissively licensed so it can remain free forever.",
       "more": "For more information, see the wiki article on {wiki}",
       "why": "Why LuckPerms?"
     },
     "apps": {
       "title": "Web Apps",
       "description1": "This site hosts a number of extra web applications which work with the plugin.",
-      "description2": "These applications are designed to work for all users, even those without the ability to install/host an application on their own web server."
+      "description2": "These applications are designed to work for all users, even those without the ability to install/host an application on their own web server.",
+      "editor": "Create and edit groups, users, tracks, and permission nodes in your browser — no extra web server required.",
+      "verbose": "Inspect live permission checks from a verbose recording to see why something was allowed or denied.",
+      "tree": "Visualise how permissions are inherited and resolve across groups."
+    },
+    "resources": {
+      "title": "Resources"
     },
     "wiki": "Learn how to install, setup, configure and effectively use LuckPerms",
     "github": "Browse the source code, report issues and contribute to the project",
     "discord": "Join {count} others to discuss the project and ask/answer questions",
     "partner": {
       "title": "Create your own Minecraft Server",
+      "name": "Bisect Hosting",
       "description": "Easily create your very own Minecraft Server with our hosting partner, Bisect Hosting!"
     }
   },
   "download": {
     "title": "Download LuckPerms",
+    "hero": {
+      "description": "Get the latest build for Paper, Velocity, Fabric, Forge, NeoForge, Sponge, and more."
+    },
     "build": "Latest, built {time}",
     "typeHelp": "Not sure which type?",
     "typeChoose": "Choose your server type",
@@ -360,6 +388,14 @@
     "travertine": "Your version of BungeeCord is not supported, consider switching to Travertine if you want to use LuckPerms.",
     "outdated": "Your version of {serverType} is not supported, you must upgrade if you want to use LuckPerms."
   },
+  "footer": {
+    "product": "Product",
+    "tools": "Tools",
+    "community": "Community",
+    "gettingStarted": "Getting started",
+    "credits": "Credits",
+    "copyright": "Copyright © 2017-{year} LuckPerms contributors"
+  },
   "notFound": {
     "title": "Not found!",
     "message": "The page {path} doesn't exist"
@@ -367,6 +403,7 @@
   "sponsorPage": {
     "title": "Sponsor",
     "heading": "LuckPerms has partnered with BisectHosting!",
+    "eyebrow": "Official hosting partner",
     "intro": "BisectHosting are Minecraft server hosting experts, ready to help you create and host your very own server! They also have special discounts available for LuckPerms users - read on to find out more!",
     "ctaCreate": "Create your server now!",
     "ctaSupport": "Chat to BisectHosting support",
@@ -374,11 +411,23 @@
     "why1": "BisectHosting is a <strong>trusted</strong> and well established hosting provider in the community, and have already been serving many of our users for a number of years.",
     "why2": "They provide an <strong>outstanding</strong> level of service we're happy to recommend. We've personally used their product and can vouch for how awesome it is!",
     "why3": "By using our discount code, not only do you get a better deal on your hosting plan, but it also directly <strong>supports</strong> us in return, allowing us to continue developing and providing LuckPerms for everyone to enjoy!",
+    "whyTrustedTitle": "Trusted",
+    "whyTrustedDescription": "A well established hosting provider in the community, already serving many LuckPerms users for years.",
+    "whyServiceTitle": "Outstanding service",
+    "whyServiceDescription": "A level of service we're happy to recommend. We've personally used their product and can vouch for it.",
+    "whySupportTitle": "Supports LuckPerms",
+    "whySupportDescription": "Using our discount code gets you a better deal and directly supports continued LuckPerms development.",
     "thanks": "We'd like to thank Bisect for sponsoring open source projects like ours and enabling us to continue to provide LuckPerms for free to the community, for all to enjoy. They're awesome and their support is much appreciated!",
     "offerTitle": "Special Offer for LuckPerms users (that's you!)",
     "offer1": "BisectHosting are generously giving LuckPerms users a massive <strong>25% off</strong> the first month of any of their game server hosting plans.",
     "offer2": "Already have a server hosted somewhere else? Not to worry! Bisect are offering to give <strong>two weeks of hosting for free</strong> and <strong>match the price of your existing plan</strong> if you transfer your server to them!",
     "offer3": "To get the <strong>25% off</strong> discount, all you need to do is enter the promo code \"luck\" when you checkout!",
-    "offer4": "To take advantage of their <strong>2 weeks free + price-match</strong> offer, just get in touch with their support team and let them know you've come via us!"
+    "offer4": "To take advantage of their <strong>2 weeks free + price-match</strong> offer, just get in touch with their support team and let them know you've come via us!",
+    "offerDiscountTitle": "25% off",
+    "offerDiscountDescription": "25% off the first month of any BisectHosting game server plan.",
+    "offerTransferTitle": "Two weeks free",
+    "offerTransferDescription": "Already hosted elsewhere? Get two weeks free and a price match on your existing plan if you transfer.",
+    "offerCodeTitle": "Code: luck",
+    "offerCodeDescription": "Enter the promo code luck at checkout for the 25% off discount."
   }
 }
