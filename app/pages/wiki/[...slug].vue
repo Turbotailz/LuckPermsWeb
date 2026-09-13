@@ -1,7 +1,8 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'wiki',
-  middleware: 'public-site'
+  middleware: 'public-site',
+  key: route => route.path
 })
 
 const route = useRoute()
@@ -53,6 +54,7 @@ const { data: surrounding } = await useAsyncData(
 <template>
   <WikiPage
     v-if="page"
+    :key="path"
     :title="page.title"
     :description="page.description"
     :toc="page.body?.toc?.links"

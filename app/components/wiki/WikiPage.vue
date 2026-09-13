@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import type { ContentTocLink } from '@nuxt/ui'
 
-defineProps<{
+const props = defineProps<{
   title?: string
   description?: string
   toc?: ContentTocLink[]
 }>()
 
 const route = useRoute()
-const { data: meta } = await useAsyncData(
+const nuxtApp = useNuxtApp()
+
+// Don't await — blocking here delays UContentToc until after page:loading:end,
+// so the scrollspy never observes headings and the circuit highlight sticks.
+const { data: meta } = useAsyncData(
   () => `wiki-meta:${route.path}`,
   () => $fetch('/api/wiki-meta', { query: { path: route.path } })
 )
@@ -20,9 +24,31 @@ const pageUi = {
 }
 
 const tocUi = {
+  list: 'min-w-0',
+  item: 'min-w-0',
+  itemWithChildren: 'min-w-0',
   link: 'min-w-0',
   linkText: 'truncate'
 }
+
+async function refreshTocSpy() {
+  if (!import.meta.client || !props.toc?.length) {
+    return
+  }
+  await nextTick()
+  await nuxtApp.callHook('page:transition:finish')
+}
+
+onMounted(() => {
+  refreshTocSpy()
+})
+
+watch(
+  () => [route.path, props.toc] as const,
+  () => {
+    refreshTocSpy()
+  }
+)
 </script>
 
 <template>
@@ -41,7 +67,7 @@ const tocUi = {
         :ui="tocUi"
       >
         <template #link="{ link }">
-          <span class="truncate min-w-0" :title="link.text">{{ link.text }}</span>
+          <span class="min-w-0 flex-1 truncate" :title="link.text">{{ link.text }}</span>
         </template>
         <template #bottom>
           <USeparator type="dashed" class="hidden lg:block" />
