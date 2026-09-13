@@ -1,8 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'wiki',
-  middleware: 'public-site',
-  key: route => route.path
+  middleware: 'public-site'
 })
 
 const route = useRoute()

@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import type { ContentTocLink } from '@nuxt/ui'
 
-const props = defineProps<{
+defineProps<{
   title?: string
   description?: string
   toc?: ContentTocLink[]
 }>()
 
 const route = useRoute()
-const nuxtApp = useNuxtApp()
-
-// Don't await — blocking here delays UContentToc until after page:loading:end,
-// so the scrollspy never observes headings and the circuit highlight sticks.
-const { data: meta } = useAsyncData(
+const { data: meta } = await useAsyncData(
   () => `wiki-meta:${route.path}`,
   () => $fetch('/api/wiki-meta', { query: { path: route.path } })
 )
@@ -30,25 +26,6 @@ const tocUi = {
   link: 'min-w-0',
   linkText: 'truncate'
 }
-
-async function refreshTocSpy() {
-  if (!import.meta.client || !props.toc?.length) {
-    return
-  }
-  await nextTick()
-  await nuxtApp.callHook('page:transition:finish')
-}
-
-onMounted(() => {
-  refreshTocSpy()
-})
-
-watch(
-  () => [route.path, props.toc] as const,
-  () => {
-    refreshTocSpy()
-  }
-)
 </script>
 
 <template>

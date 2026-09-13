@@ -48,11 +48,24 @@ export const wikiRedirects: Record<string, string> = {
   '/wiki/External-connections': '/wiki/about/external-connections'
 }
 
+function isCaseOnlyRedirect(from: string, to: string) {
+  return from !== to && from.toLowerCase() === to.toLowerCase()
+}
+
+/** Old GitHub wiki URLs that differ from the new path only by case. */
+export const wikiCaseOnlyRedirects = Object.fromEntries(
+  Object.entries(wikiRedirects).filter(([from, to]) => isCaseOnlyRedirect(from, to))
+) as Record<string, string>
+
 export function wikiRouteRules() {
+  // Vue Router matches routeRules case-insensitively, so `/wiki/FAQ` → `/wiki/faq`
+  // would loop forever and blank the FAQ / Configuration pages.
   return Object.fromEntries(
-    Object.entries(wikiRedirects).map(([from, to]) => [
-      from,
-      { redirect: { to, statusCode: 301 as const } }
-    ])
+    Object.entries(wikiRedirects)
+      .filter(([from, to]) => !isCaseOnlyRedirect(from, to))
+      .map(([from, to]) => [
+        from,
+        { redirect: { to, statusCode: 301 as const } }
+      ])
   )
 }

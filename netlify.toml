@@ -6,6 +6,17 @@
   NODE_VERSION = "22"
   WIKI_BRANCH = "v3-structure"
 
+# Old GitHub wiki casing. Kept out of Nuxt routeRules (Vue Router is case-insensitive).
+[[redirects]]
+  from = "/wiki/FAQ"
+  to = "/wiki/faq"
+  status = 301
+
+[[redirects]]
+  from = "/wiki/Configuration"
+  to = "/wiki/configuration"
+  status = 301
+
 # SPA fallback only for the three tool prefixes. Wiki misses stay 404.
 [[redirects]]
   from = "/editor/*"
