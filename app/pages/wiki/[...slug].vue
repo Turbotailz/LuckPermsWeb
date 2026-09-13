@@ -6,6 +6,7 @@ definePageMeta({
 
 const route = useRoute()
 const { siteUrl } = useLpConfig()
+const { t } = useI18n()
 const slug = computed(() => {
   const raw = route.params.slug
   const parts = Array.isArray(raw) ? raw : [raw]
@@ -22,28 +23,25 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Wiki page not found' })
 }
 
-useSeoMeta({
+usePageSeo({
   title: page.value.title,
-  description: page.value.description,
-  ogTitle: page.value.title,
-  ogDescription: page.value.description,
-  ogUrl: `${siteUrl}${path.value}`
-})
-
-useHead({
-  link: [{ rel: 'canonical', href: `${siteUrl}${path.value}` }],
-  script: page.value
-    ? [{
-        type: 'application/ld+json',
-        innerHTML: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'TechArticle',
-          headline: page.value.title,
-          description: page.value.description,
-          url: `${siteUrl}${path.value}`
-        })
-      }]
-    : []
+  description: page.value.description || page.value.title,
+  path: path.value,
+  eyebrow: t('wiki'),
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: page.value.title,
+    description: page.value.description,
+    url: `${siteUrl}${path.value}`,
+    inLanguage: 'en-GB',
+    dateModified: page.value.updatedAt,
+    publisher: {
+      '@type': 'Organization',
+      name: 'LuckPerms',
+      url: siteUrl
+    }
+  }
 })
 
 const { data: surrounding } = await useAsyncData(

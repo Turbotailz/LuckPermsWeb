@@ -17,9 +17,11 @@ const { t, locale } = useI18n()
 const app = useAppStore()
 const quizOpen = ref(false)
 
-useSeoMeta({
-  title: () => t('download.title'),
-  description: () => t('download.hero.description')
+usePageSeo({
+  title: t('download.title'),
+  description: t('download.hero.description'),
+  path: '/download',
+  eyebrow: t('links.download')
 })
 
 const heroUi = {

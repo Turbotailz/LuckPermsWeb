@@ -6,7 +6,11 @@ definePageMeta({
 defineI18nRoute(false)
 
 const { t } = useI18n()
-useSeoMeta({ title: () => t('tree.title') })
+useSeoMeta({
+  title: () => t('tree.title'),
+  description: () => t('tree.home.generate'),
+  robots: 'noindex, nofollow'
+})
 </script>
 
 <template>

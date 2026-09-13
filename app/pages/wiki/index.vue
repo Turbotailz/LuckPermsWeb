@@ -13,16 +13,25 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Wiki home not found' })
 }
 
-useSeoMeta({
+usePageSeo({
   title: page.value.title || 'Wiki',
-  description: page.value.description,
-  ogTitle: page.value.title,
-  ogDescription: page.value.description,
-  ogUrl: `${siteUrl}/wiki`
-})
-
-useHead({
-  link: [{ rel: 'canonical', href: `${siteUrl}/wiki` }]
+  description: page.value.description || t('wiki'),
+  path: '/wiki',
+  eyebrow: t('wiki'),
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: page.value.title,
+    description: page.value.description,
+    url: `${siteUrl}/wiki`,
+    inLanguage: 'en-GB',
+    dateModified: page.value.updatedAt,
+    publisher: {
+      '@type': 'Organization',
+      name: 'LuckPerms',
+      url: siteUrl
+    }
+  }
 })
 
 const { data: surrounding } = await useAsyncData('wiki-nav-home', () => queryCollectionItemSurroundings('wiki_en', '/wiki'))

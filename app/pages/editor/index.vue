@@ -1,13 +1,17 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'tools',
-  ssr: false
+  layout: 'tools'
 })
 
 defineI18nRoute(false)
 
 const { t } = useI18n()
-useSeoMeta({ title: () => t('editor.description') })
+usePageSeo({
+  title: t('editor.description'),
+  description: t('home.apps.editor'),
+  path: '/editor',
+  eyebrow: t('links.tools.name')
+})
 
 const editor = useEditorStore()
 onMounted(() => {

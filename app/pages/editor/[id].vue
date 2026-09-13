@@ -7,7 +7,10 @@ definePageMeta({
 defineI18nRoute(false)
 
 const { t } = useI18n()
-useSeoMeta({ title: () => t('editor.description') })
+useSeoMeta({
+  title: () => t('editor.description'),
+  robots: 'noindex, nofollow'
+})
 </script>
 
 <template>

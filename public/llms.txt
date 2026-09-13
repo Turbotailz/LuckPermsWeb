@@ -1,0 +1,13 @@
+# LuckPerms
+
+LuckPerms is a permissions plugin for Minecraft servers. It lets server admins control what players can do with groups, tracks, and permission nodes.
+
+- Site: https://luckperms.net/
+- Download: https://luckperms.net/download
+- Wiki: https://luckperms.net/wiki
+- Getting started: https://luckperms.net/wiki/getting-started
+- Web editor: https://luckperms.net/editor
+- Verbose viewer: https://luckperms.net/verbose
+- Tree viewer: https://luckperms.net/treeview
+- GitHub: https://github.com/LuckPerms/LuckPerms
+- Discord: https://discord.gg/luckperms

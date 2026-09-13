@@ -3,6 +3,10 @@ import type { NuxtError } from '#app'
 
 const props = defineProps<{ error: NuxtError }>()
 const { t } = useI18n()
+
+useSeoMeta({
+  robots: 'noindex, nofollow'
+})
 </script>
 
 <template>

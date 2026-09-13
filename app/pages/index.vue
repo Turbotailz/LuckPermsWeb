@@ -5,14 +5,47 @@ definePageMeta({
 
 const { t } = useI18n()
 const app = useAppStore()
-const { selfHosted } = useLpConfig()
+const { selfHosted, siteUrl } = useLpConfig()
 
-useSeoMeta({
+usePageSeo({
   title: 'LuckPerms',
+  description: t('home.hero.description'),
+  path: '/',
   titleTemplate: '',
-  description: () => t('description'),
-  ogTitle: 'LuckPerms',
-  ogDescription: () => t('description')
+  eyebrow: 'Permissions plugin',
+  jsonLd: [
+    {
+      '@type': 'Organization',
+      name: 'LuckPerms',
+      url: `${siteUrl}/`,
+      logo: `${siteUrl}/logo.png`,
+      sameAs: [
+        'https://github.com/LuckPerms/LuckPerms',
+        'https://discord.gg/luckperms'
+      ]
+    },
+    {
+      '@type': 'WebSite',
+      name: 'LuckPerms',
+      url: `${siteUrl}/`,
+      description: t('home.hero.description')
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: 'LuckPerms',
+      applicationCategory: 'GameApplication',
+      operatingSystem: 'Minecraft',
+      url: `${siteUrl}/`,
+      downloadUrl: `${siteUrl}/download`,
+      image: `${siteUrl}/logo.png`,
+      description: t('home.hero.description'),
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD'
+      }
+    }
+  ]
 })
 
 const platforms = ['Paper', 'Velocity', 'Fabric', 'Forge', 'NeoForge', 'Sponge']

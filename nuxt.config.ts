@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
+    'nuxt-og-image',
     '@pinia/nuxt',
     '@nuxt/eslint'
   ],
@@ -61,18 +62,19 @@ export default defineNuxtConfig({
     head: {
       title: 'LuckPerms',
       titleTemplate: '%s | LuckPerms',
-      htmlAttrs: { lang: 'en' },
+      htmlAttrs: { lang: 'en-GB' },
       link: [
         { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/logo.png' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
       ],
       meta: [
         { name: 'theme-color', content: '#94df03' },
         { name: 'description', content: 'LuckPerms is a permissions plugin for Minecraft servers. It allows server admins to control what features players can use by creating groups and assigning permissions.' },
-        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:card', content: 'summary_large_image' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:image', content: 'https://luckperms.net/logo.png' },
-        { property: 'og:site_name', content: 'LuckPerms - A permissions plugin for Minecraft servers.' }
+        { property: 'og:site_name', content: 'LuckPerms' },
+        { property: 'og:locale', content: 'en_GB' }
       ],
       script: selfHosted
         ? []
@@ -116,7 +118,7 @@ export default defineNuxtConfig({
     '/sponsor': selfHosted ? { redirect: '/' } : { prerender: true },
     '/wiki': selfHosted ? { redirect: '/' } : { prerender: true },
     '/wiki/**': selfHosted ? { redirect: '/' } : { prerender: true },
-    '/editor': { ssr: false },
+    '/editor': { prerender: true, ssr: true },
     '/editor/**': { ssr: false },
     '/verbose': { ssr: false },
     '/verbose/**': { ssr: false },
@@ -127,7 +129,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: !selfHosted,
-      routes: selfHosted ? ['/'] : ['/', '/download', '/sponsor', '/wiki']
+      routes: selfHosted ? ['/', '/editor'] : ['/', '/download', '/sponsor', '/wiki', '/editor']
     },
     publicAssets: wikiPath && existsSync(resolve(wikiPath, 'img'))
       ? [{ baseURL: '/wiki-img', dir: resolve(wikiPath, 'img'), maxAge: 60 * 60 * 24 * 7 }]
@@ -138,6 +140,15 @@ export default defineNuxtConfig({
   },
   sitemap: {
     exclude: ['/editor/**', '/verbose/**', '/treeview/**']
+  },
+  ogImage: {
+    enabled: !selfHosted,
+    zeroRuntime: true,
+    defaults: {
+      alt: 'LuckPerms',
+      width: 1200,
+      height: 630
+    }
   },
   content: {
     experimental: { nativeSqlite: true },

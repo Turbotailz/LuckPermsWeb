@@ -1,2 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /editor/
+Disallow: /verbose/
+Disallow: /treeview/
+
+Sitemap: https://luckperms.net/sitemap.xml

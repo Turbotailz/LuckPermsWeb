@@ -7,9 +7,11 @@ definePageMeta({
 
 const { t } = useI18n()
 
-useSeoMeta({
-  title: () => t('sponsorPage.title'),
-  description: () => t('sponsorPage.intro')
+usePageSeo({
+  title: t('sponsorPage.title'),
+  description: t('sponsorPage.intro'),
+  path: '/sponsor',
+  eyebrow: t('sponsorPage.eyebrow')
 })
 
 const heroUi = {
