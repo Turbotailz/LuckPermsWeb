@@ -36,7 +36,7 @@ Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_REPO` + `WI
 | `NUXT_PUBLIC_BYTESOCKS_URL` | `wss://usersockets.luckperms.net/` | Full WebSocket URL (include this when self-hosting) |
 | `NUXT_PUBLIC_API_URL` | `https://metadata.luckperms.net/` | Versions + Crowdin catalogs |
 | `NUXT_PUBLIC_SELF_HOSTED` | `false` | Hides download/sponsor/wiki |
-| `NUXT_PUBLIC_SITE_URL` | `https://luckperms.net` | Canonicals |
+| `NUXT_PUBLIC_SITE_URL` | `https://luckperms.net` | Canonicals, sitemap, and OG image URLs. Set this at **build** time for preview hosts (e.g. `https://luckperms.tailz.dev`). Also accepted as `NUXT_SITE_URL`. Cloudflare Pages falls back to `CF_PAGES_URL` when unset. |
 | `WIKI_PATH` | — | Local wiki clone for Content |
 | `WIKI_REPO` | `https://github.com/Turbotailz/wiki` | GitHub wiki repo when `WIKI_PATH` is unset |
 | `WIKI_BRANCH` | `v3-structure` | GitHub branch for remote Content |

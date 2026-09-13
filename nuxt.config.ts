@@ -15,6 +15,13 @@ function gitHash() {
 
 const wikiPath = process.env.WIKI_PATH
 const selfHosted = process.env.NUXT_PUBLIC_SELF_HOSTED === 'true'
+const siteUrl = (
+  process.env.NUXT_PUBLIC_SITE_URL
+  || process.env.NUXT_SITE_URL
+  || process.env.CF_PAGES_URL
+  || process.env.DEPLOY_PRIME_URL
+  || 'https://luckperms.net'
+).replace(/\/+$/, '')
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -52,7 +59,7 @@ export default defineNuxtConfig({
       bytesocksUrl: 'wss://usersockets.luckperms.net/',
       apiUrl: 'https://metadata.luckperms.net/',
       selfHosted,
-      siteUrl: 'https://luckperms.net',
+      siteUrl,
       gitHash: gitHash(),
       wikiRepo: wikiRepoUrl(),
       wikiBranch: wikiBranchName()
@@ -144,7 +151,7 @@ export default defineNuxtConfig({
       : []
   },
   site: {
-    url: 'https://luckperms.net',
+    url: siteUrl,
     trailingSlash: false
   },
   sitemap: {
