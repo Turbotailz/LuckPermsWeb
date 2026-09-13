@@ -16,12 +16,13 @@ const { data: meta } = await useAsyncData(
 const pageUi = {
   root: 'flex flex-col lg:grid lg:grid-cols-12! lg:gap-8',
   left: 'lg:col-span-3! min-w-0',
-  center: 'lg:col-span-7! min-w-0',
-  right: 'lg:col-span-2! min-w-0 order-first lg:order-last'
+  center: 'lg:col-span-6! min-w-0',
+  right: 'lg:col-span-3! min-w-0 order-first lg:order-last'
 }
 
 const tocUi = {
-  linkText: 'overflow-visible whitespace-normal! text-pretty'
+  link: 'min-w-0',
+  linkText: 'truncate'
 }
 </script>
 
@@ -47,6 +48,9 @@ const tocUi = {
           :links="toc"
           :ui="tocUi"
         >
+          <template #link="{ link }">
+            <span class="truncate min-w-0" :title="link.text">{{ link.text }}</span>
+          </template>
           <template #bottom>
             <USeparator type="dashed" class="hidden lg:block" />
             <WikiPageMeta :updated-at="meta?.updatedAt" :edit-url="meta?.editUrl" />
