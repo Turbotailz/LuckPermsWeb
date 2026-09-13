@@ -51,15 +51,22 @@ export function wikiRelativeFromRoute(wikiPath: string, routePath: string): stri
   return candidates[0]
 }
 
-export function wikiFileUpdatedAt(wikiPath: string, filePath?: string): string | undefined {
-  if (!wikiPath || !filePath) {
+export function wikiContentRelative(wikiPath: string, filePath?: string): string | undefined {
+  if (!filePath) {
     return
   }
-  const rel = filePath.startsWith(wikiPath)
+  const rel = wikiPath && filePath.startsWith(wikiPath)
     ? relative(wikiPath, filePath).replaceAll('\\', '/')
     : filePath.replaceAll('\\', '/').replace(/^\.\//, '')
-  const key = rel.startsWith('en/') ? rel : `en/${rel}`
-  return loadWikiGitDates(wikiPath).get(key)
+  return rel.startsWith('en/') ? rel : `en/${rel}`
+}
+
+export function wikiFileUpdatedAt(wikiPath: string, filePath?: string): string | undefined {
+  if (!wikiPath) {
+    return
+  }
+  const key = wikiContentRelative(wikiPath, filePath)
+  return key ? loadWikiGitDates(wikiPath).get(key) : undefined
 }
 
 export function wikiEditUrl(relativePath: string, branch = wikiBranchName(), repo = wikiRepoUrl()): string {

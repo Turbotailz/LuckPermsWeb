@@ -5,13 +5,9 @@ defineProps<{
   title?: string
   description?: string
   toc?: ContentTocLink[]
+  updatedAt?: string
+  editUrl?: string
 }>()
-
-const route = useRoute()
-const { data: meta } = await useAsyncData(
-  () => `wiki-meta:${route.path}`,
-  () => $fetch('/api/wiki-meta', { query: { path: route.path } })
-)
 
 const pageUi = {
   root: 'flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(13rem,18rem)]! xl:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]! 2xl:grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)]! lg:gap-8 xl:gap-10',
@@ -48,11 +44,11 @@ const tocUi = {
         </template>
         <template #bottom>
           <USeparator type="dashed" class="hidden lg:block" />
-          <WikiPageMeta :updated-at="meta?.updatedAt" :edit-url="meta?.editUrl" />
+          <WikiPageMeta :updated-at="updatedAt" :edit-url="editUrl" />
         </template>
       </UContentToc>
       <aside v-else class="hidden lg:block sticky top-(--ui-header-height) py-8">
-        <WikiPageMeta :updated-at="meta?.updatedAt" :edit-url="meta?.editUrl" />
+        <WikiPageMeta :updated-at="updatedAt" :edit-url="editUrl" />
       </aside>
     </template>
   </UPage>

@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { wikiRouteRules } from './config/wiki-redirects'
-import { wikiFileUpdatedAt } from './config/wiki-git'
+import { wikiEditUrl, wikiFileUpdatedAt, wikiContentRelative } from './config/wiki-git'
 import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
 
 function gitHash() {
@@ -112,6 +112,13 @@ export default defineNuxtConfig({
       strictMessage: false
     }
   },
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        trailingSlash: 'remove'
+      }
+    }
+  },
   routeRules: {
     '/': { prerender: true },
     '/download': selfHosted ? { redirect: '/' } : { prerender: true },
@@ -129,6 +136,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: !selfHosted,
+      autoSubfolderIndex: false,
       routes: selfHosted ? ['/', '/editor'] : ['/', '/download', '/sponsor', '/wiki', '/editor']
     },
     publicAssets: wikiPath && existsSync(resolve(wikiPath, 'img'))
@@ -136,7 +144,8 @@ export default defineNuxtConfig({
       : []
   },
   site: {
-    url: 'https://luckperms.net'
+    url: 'https://luckperms.net',
+    trailingSlash: false
   },
   sitemap: {
     exclude: ['/editor/**', '/verbose/**', '/treeview/**']
@@ -166,9 +175,13 @@ export default defineNuxtConfig({
       if (ctx.collection.name !== 'wiki_en') {
         return
       }
+      const relative = wikiContentRelative(wikiPath || '', ctx.file.path)
       const updatedAt = wikiFileUpdatedAt(wikiPath || '', ctx.file.path)
       if (updatedAt) {
         ctx.content.updatedAt = updatedAt
+      }
+      if (relative) {
+        ctx.content.editUrl = wikiEditUrl(relative)
       }
     }
   },

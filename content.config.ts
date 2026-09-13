@@ -6,7 +6,8 @@ import { wikiContentRepository } from './config/wiki-source'
 const wikiSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
-  updatedAt: z.string().optional()
+  updatedAt: z.string().optional(),
+  editUrl: z.string().optional()
 })
 
 const wikiPath = process.env.WIKI_PATH

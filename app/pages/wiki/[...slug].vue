@@ -7,12 +7,7 @@ definePageMeta({
 const route = useRoute()
 const { siteUrl } = useLpConfig()
 const { t } = useI18n()
-const slug = computed(() => {
-  const raw = route.params.slug
-  const parts = Array.isArray(raw) ? raw : [raw]
-  return parts.filter(Boolean).join('/')
-})
-const path = computed(() => `/wiki/${slug.value}`)
+const path = computed(() => wikiPagePathFromSlug(route.params.slug as string | string[] | undefined))
 
 const { data: page } = await useAsyncData(
   () => `wiki-${path.value}`,
@@ -57,6 +52,8 @@ const { data: surrounding } = await useAsyncData(
     :title="page.title"
     :description="page.description"
     :toc="page.body?.toc?.links"
+    :updated-at="page.updatedAt"
+    :edit-url="page.editUrl"
   >
     <ContentRenderer :value="page" class="max-w-none" />
     <UContentSurround v-if="surrounding" :surround="surrounding" />
