@@ -24,3 +24,4 @@ installer/logs
 *.njsproj
 *.sln
 *.sw*
+app/assets/data/editor-samples/*.json

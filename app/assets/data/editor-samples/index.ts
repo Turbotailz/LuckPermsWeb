@@ -1,10 +1,14 @@
 import type { EditorPayload } from '~/types/editor'
-import pfskEmQs1B from './pfskEmQs1B.json'
 
-/** Local editor snapshots. Key = original bytebin code. Socket metadata is stripped. */
-export const editorSamples: Record<string, EditorPayload> = {
-  pfskEmQs1B: pfskEmQs1B as EditorPayload
-}
+const modules = import.meta.glob<EditorPayload>('./*.json', { eager: true, import: 'default' })
+
+/** Local-only snapshots (gitignored JSON). Key = original bytebin code. */
+export const editorSamples: Record<string, EditorPayload> = Object.fromEntries(
+  Object.entries(modules).map(([path, payload]) => [
+    path.replace(/^\.\//, '').replace(/\.json$/, ''),
+    payload
+  ])
+)
 
 export function editorSample(id: string) {
   return editorSamples[id]

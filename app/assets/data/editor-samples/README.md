@@ -1,11 +1,9 @@
 # Editor samples
 
-Real editor payloads for layout and data-shape testing. Drop more JSON here as people send sessions; keep the original bytebin code as the filename.
+Local-only editor payloads for layout and data-shape testing. Drop JSON here named after the original bytebin code.
 
-Do **not** commit `socket` (channel id / public key). Strip it before saving.
+**Never commit these files.** They can contain player names, UUIDs, and a real server’s permission setup. `*.json` in this folder is gitignored.
 
-Open a sample at `/editor/<bytebin-code>` — the store loads the local file instead of production bytebin, and Save does not POST.
+Strip `socket` (channel id / public key) before saving so Save cannot write back to a live server.
 
-| Code | Source | Notes |
-|------|--------|-------|
-| `pfskEmQs1B` | Velocity proxy (`lpv`), plugin 5.4.134, uploaded 2026-09-15 | 22 groups, 500 users, 2 tracks. Socket stripped. |
+Open a sample at `/editor/<bytebin-code>` — the store loads the local file instead of production bytebin.
