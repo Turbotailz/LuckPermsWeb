@@ -130,16 +130,21 @@ const toolCards = computed(() => [
         :ui="sectionUi"
       >
         <template #body>
-          <UPageGrid>
-            <UPageCard
-              v-for="card in whyCards"
-              :key="card.title"
-              :icon="card.icon"
-              :title="card.title"
-              :description="card.description"
-              variant="subtle"
-            />
-          </UPageGrid>
+          <div class="overflow-hidden rounded-2xl border border-default bg-default">
+            <div class="grid grid-cols-1 gap-px sm:grid-cols-2 lg:grid-cols-3">
+              <UPageCard
+                v-for="card in whyCards"
+                :key="card.title"
+                :icon="card.icon"
+                :title="card.title"
+                :description="card.description"
+                class="rounded-none"
+                :ui="{
+                  leading: 'mb-5 flex size-9 items-center justify-center rounded-lg bg-primary/10'
+                }"
+              />
+            </div>
+          </div>
         </template>
         <template #footer>
           <i18n-t keypath="home.why.more" tag="p" class="text-center text-muted">

@@ -7,10 +7,12 @@ withDefaults(defineProps<{
   description?: string
   loading?: boolean
   error?: boolean
+  variant?: 'outline' | 'solid' | 'soft' | 'subtle' | 'naked'
   actions?: ButtonProps[]
 }>(), {
   loading: false,
   error: false,
+  variant: 'naked',
   actions: () => []
 })
 </script>
@@ -22,7 +24,7 @@ withDefaults(defineProps<{
       :title="title"
       :description="description"
       :loading="loading"
-      :variant="error ? 'subtle' : 'naked'"
+      :variant="error ? 'subtle' : variant"
       :actions="actions"
       size="xl"
     >

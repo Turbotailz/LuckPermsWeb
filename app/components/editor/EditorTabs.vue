@@ -1,53 +1,43 @@
 <script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
 import { editorSectionPath, type EditorSection } from '~/utils/editor-routes'
 
 const editor = useEditorStore()
 const { t } = useI18n()
 const { code, section } = useEditorNavigation()
 
-const items = computed(() => [
-  {
-    label: t('editor.nav.groups'),
-    value: 'groups' as EditorSection,
-    icon: 'i-lucide-users',
-    badge: editor.sessions.filter(session => session.type === 'group').length
-  },
-  {
-    label: t('editor.nav.users'),
-    value: 'users' as EditorSection,
-    icon: 'i-lucide-user',
-    badge: editor.sessions.filter(session => session.type === 'user').length
-  },
-  {
-    label: t('editor.nav.tracks'),
-    value: 'tracks' as EditorSection,
-    icon: 'i-lucide-git-branch',
-    badge: editor.tracks.length
+function item(value: EditorSection, icon: string, badge?: number): NavigationMenuItem {
+  return {
+    label: t(`editor.nav.${value}`),
+    icon,
+    to: editorSectionPath(code.value, value),
+    badge,
+    exact: value === 'home',
+    active: section.value === value
   }
+}
+
+const items = computed<NavigationMenuItem[][]>(() => [
+  [
+    item('home', 'i-lucide-layout-dashboard'),
+    item('groups', 'i-lucide-users', editor.sessions.filter(session => session.type === 'group').length),
+    item('users', 'i-lucide-user', editor.sessions.filter(session => session.type === 'user').length),
+    item('tracks', 'i-lucide-git-branch', editor.tracks.length)
+  ],
+  [
+    {
+      label: t('editor.nav.documentation'),
+      icon: 'i-lucide-book-open',
+      to: '/wiki/features/web-editor'
+    }
+  ]
 ])
 </script>
 
 <template>
-  <nav class="flex min-w-0 items-center overflow-x-auto" aria-label="Editor sections">
-    <UButton
-      v-for="item in items"
-      :key="item.value"
-      :to="editorSectionPath(code, item.value)"
-      :icon="item.icon"
-      :label="item.label"
-      color="neutral"
-      variant="link"
-      size="lg"
-      :aria-current="section === item.value ? 'page' : undefined"
-      :ui="{
-        base: section === item.value
-          ? 'rounded-none border-b-2 border-primary text-base text-highlighted'
-          : 'rounded-none border-b-2 border-transparent text-base text-muted'
-      }"
-    >
-      <template #trailing>
-        <UBadge color="neutral" variant="subtle" size="xs">{{ item.badge }}</UBadge>
-      </template>
-    </UButton>
-  </nav>
+  <UNavigationMenu
+    :items="items"
+    highlight
+    class="flex-1"
+  />
 </template>

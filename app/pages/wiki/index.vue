@@ -45,6 +45,7 @@ const { data: surrounding } = await useAsyncData('wiki-nav-home', () => queryCol
     :toc="page.body?.toc?.links"
     :updated-at="page.updatedAt"
     :edit-url="page.editUrl"
+    :contributors="page.contributors"
   >
     <ContentRenderer :value="page" class="max-w-none" />
     <UContentSurround v-if="surrounding" :surround="surrounding" />

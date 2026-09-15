@@ -75,11 +75,12 @@ function removeTrack(id: string) {
 
 <template>
   <UDashboardSidebar
+    id="holders"
     collapsible
     resizable
-    :default-size="22"
-    :min-size="16"
-    :max-size="36"
+    :default-size="14"
+    :min-size="11"
+    :max-size="22"
     :ui="{ header: 'h-auto min-w-0 flex-col items-stretch gap-2 px-2 py-2', body: 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-2' }"
   >
     <template #header="{ collapsed }">
@@ -98,6 +99,15 @@ function removeTrack(id: string) {
         :block="!collapsed"
         size="sm"
         @click="editor.setModal('createGroup', groups)"
+      />
+      <UButton
+        v-else-if="section === 'users'"
+        icon="i-lucide-plus"
+        :label="collapsed ? undefined : t('editor.users.add')"
+        :square="collapsed"
+        :block="!collapsed"
+        size="sm"
+        @click="editor.setModal('createUser')"
       />
       <UButton
         v-else-if="section === 'tracks'"
@@ -176,7 +186,7 @@ function removeTrack(id: string) {
       <p v-if="!filteredUsers.length" class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
     </nav>
 
-    <nav v-else class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+    <nav v-else-if="section === 'tracks'" class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
       <div
         v-for="track in filteredTracks"
         :key="track.id"

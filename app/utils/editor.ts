@@ -82,6 +82,26 @@ export function parseNodeType(key: string) {
   }
 }
 
+export function permissionNamespace(key: string) {
+  const trimmed = key.trim()
+  if (!trimmed) {
+    return ''
+  }
+  const dot = trimmed.indexOf('.')
+  return dot === -1 ? trimmed : trimmed.slice(0, dot)
+}
+
+/** Exact match, or a plugin.* wildcard covering a known node. Global * does not count. */
+export function permissionCovers(usedKey: string, knownKey: string) {
+  if (usedKey === knownKey) {
+    return true
+  }
+  if (usedKey === '*' || !usedKey.endsWith('.*')) {
+    return false
+  }
+  return knownKey.startsWith(usedKey.slice(0, -1))
+}
+
 export function buildNodeKey(type: string, parts: Record<string, string | undefined>) {
   switch (type) {
     case 'inheritance':
@@ -113,9 +133,41 @@ function splitByNodeSeparatorInTwo(str: string) {
   return str.split(/(?<!\\)\./, 2)
 }
 
+const UUID_COMPACT = /^[0-9a-f]{32}$/i
+
+export function normalizeUserId(input: string) {
+  const trimmed = input.trim()
+  const compact = trimmed.replace(/-/g, '')
+  if (!UUID_COMPACT.test(compact)) {
+    return trimmed
+  }
+  const lower = compact.toLowerCase()
+  return `${lower.slice(0, 8)}-${lower.slice(8, 12)}-${lower.slice(12, 16)}-${lower.slice(16, 20)}-${lower.slice(20)}`
+}
+
 export function contextSortKey(context: Record<string, string | string[]> | undefined) {
   return flattenContexts(context)
     .map(entry => `${entry.key}:${entry.value}`)
     .sort()
     .join('|')
+}
+
+export function nodeDisplayValue(key: string) {
+  const parsed = parseNodeType(key)
+  switch (parsed.type) {
+    case 'inheritance':
+      return parsed.groupName
+    case 'prefix':
+      return `${parsed.prefix} (${parsed.weight})`
+    case 'suffix':
+      return `${parsed.suffix} (${parsed.weight})`
+    case 'meta':
+      return `${parsed.key} = ${parsed.value}`
+    case 'weight':
+      return String(parsed.weight)
+    case 'displayname':
+      return parsed.displayName
+    default:
+      return key
+  }
 }

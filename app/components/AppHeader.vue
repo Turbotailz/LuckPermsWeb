@@ -56,10 +56,15 @@ const languageItems = computed<DropdownMenuItem[][]>(() => [
 ])
 
 const isWiki = computed(() => route.path === '/wiki' || route.path.startsWith('/wiki/'))
+const isEditor = computed(() => route.path === '/editor' || route.path.startsWith('/editor/'))
 </script>
 
 <template>
-  <UHeader :title="t('links.home')" to="/">
+  <UHeader
+    :title="t('links.home')"
+    to="/"
+    :ui="isEditor ? { container: 'max-w-none lg:px-6' } : undefined"
+  >
     <template #left>
       <ULink
         to="/"

@@ -80,12 +80,15 @@ export interface ContextEntry {
 
 export type EditorModalType =
   | 'createGroup'
+  | 'createUser'
   | 'createTrack'
   | 'deleteGroup'
   | 'deleteUser'
   | 'deleteNodes'
   | 'copyNodes'
   | 'moveNodes'
+  | 'bulkExpiry'
+  | 'bulkContexts'
   | 'savedChanges'
   | 'trustPrompt'
   | 'reusedSessionWarning'

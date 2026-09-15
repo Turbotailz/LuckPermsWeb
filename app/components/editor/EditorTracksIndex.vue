@@ -1,43 +1,35 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
-import type { TableRow } from '@tanstack/vue-table'
-import { editorTrackPath } from '~/utils/editor-routes'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import { editorGroupPath, editorTrackPath } from '~/utils/editor-routes'
 
 interface TrackRow {
   id: string
-  members: string
-  count: number
+  groups: string[]
   isNew?: boolean
 }
 
 const editor = useEditorStore()
 const { t } = useI18n()
-const { code, toTrack, toSection } = useEditorNavigation()
+const { code, toSection } = useEditorNavigation()
 const route = useRoute()
-const filter = useEditorSectionFilter()
+const search = ref('')
 
-const data = computed<TrackRow[]>(() =>
-  [...editor.tracks].sort((a, b) => a.id.localeCompare(b.id)).map(track => ({
-    id: track.id,
-    members: track.groups.join(', '),
-    count: track.groups.length,
-    isNew: track.new
-  }))
-)
-
-const columns: TableColumn<TrackRow>[] = [
-  { accessorKey: 'id', header: t('editor.nav.tracks') },
-  { accessorKey: 'members', header: t('editor.index.members') },
-  { accessorKey: 'count', header: t('editor.index.count') },
-  { id: 'actions', header: '' }
-]
-
-function onSelect(event: Event, row: TableRow<TrackRow>) {
-  if ((event.target as HTMLElement | null)?.closest('[data-editor-row-action]')) {
-    return
-  }
-  toTrack(row.original.id)
-}
+const rows = computed<TrackRow[]>(() => {
+  const query = search.value.trim().toLowerCase()
+  return [...editor.tracks]
+    .map(track => ({
+      id: track.id,
+      groups: track.groups,
+      isNew: track.new
+    }))
+    .filter((row) => {
+      if (!query) {
+        return true
+      }
+      return [row.id, ...row.groups].some(value => value.toLowerCase().includes(query))
+    })
+    .sort((a, b) => a.id.localeCompare(b.id))
+})
 
 function trackById(id: string) {
   return editor.tracks.find(track => track.id === id)
@@ -49,54 +41,101 @@ function removeTrack(id: string) {
     toSection('tracks')
   }
 }
+
+function actionsFor(row: TrackRow): DropdownMenuItem[] {
+  return [
+    {
+      label: t('editor.tracks.edit'),
+      icon: 'i-lucide-pencil',
+      onSelect() {
+        const track = trackById(row.id)
+        if (track) {
+          editor.setModal('createTrack', { track })
+        }
+      }
+    },
+    {
+      label: t('editor.tracks.delete'),
+      icon: 'i-lucide-trash-2',
+      color: 'error',
+      onSelect() {
+        removeTrack(row.id)
+      }
+    }
+  ]
+}
 </script>
 
 <template>
-  <div class="flex min-h-0 flex-1 flex-col">
-    <UTable
-      :data="data"
-      :columns="columns"
-      :global-filter="filter"
-      sticky
-      class="flex-1"
-      :ui="{ tr: 'cursor-pointer' }"
-      :empty="t('editor.noResults')"
-      @select="onSelect"
-    >
-      <template #id-cell="{ row }">
-        <UButton
-          :to="editorTrackPath(code, row.original.id)"
-          color="neutral"
-          variant="link"
-          class="p-0 font-normal"
-          :class="{ 'text-primary': row.original.isNew }"
+  <EditorIndexPage
+    :title="t('editor.nav.tracks')"
+    :description="t('editor.index.descriptionTracks')"
+    :add-label="t('editor.tracks.add')"
+    :search-placeholder="t('editor.index.searchTracks')"
+    v-model:search="search"
+    @add="editor.setModal('createTrack')"
+  >
+    <ul v-if="rows.length" role="list" class="divide-y divide-default">
+      <li
+        v-for="row in rows"
+        :key="row.id"
+        class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-elevated/50 sm:px-6"
+      >
+        <NuxtLink
+          :to="editorTrackPath(code, row.id)"
+          class="flex min-w-0 flex-1 items-center gap-3"
         >
-          {{ row.original.id }}
-        </UButton>
-      </template>
-      <template #members-cell="{ row }">
-        <span class="text-muted">{{ row.original.members }}</span>
-      </template>
-      <template #actions-cell="{ row }">
-        <div class="flex justify-end gap-1">
+          <UAvatar icon="i-lucide-git-branch" size="md" />
+          <div class="min-w-0 text-sm">
+            <p
+              class="truncate font-medium text-highlighted"
+              :class="{ 'text-primary': row.isNew }"
+            >
+              {{ row.id }}
+            </p>
+          </div>
+        </NuxtLink>
+
+        <div class="flex min-w-0 flex-wrap items-center justify-end gap-1">
           <UButton
-            icon="i-lucide-pencil"
+            v-for="groupId in row.groups"
+            :key="groupId"
+            :to="editorGroupPath(code, groupId)"
             size="xs"
-            variant="ghost"
-            data-editor-row-action
-            :aria-label="t('editor.tracks.edit')"
-            @click.stop="trackById(row.original.id) && editor.setModal('createTrack', { track: trackById(row.original.id) })"
-          />
-          <UButton
-            icon="i-lucide-x"
-            size="xs"
-            variant="ghost"
-            data-editor-row-action
-            :aria-label="t('editor.tracks.delete')"
-            @click.stop="removeTrack(row.original.id)"
-          />
+            color="neutral"
+            variant="subtle"
+            icon="i-lucide-users"
+          >
+            {{ groupId }}
+          </UButton>
         </div>
-      </template>
-    </UTable>
-  </div>
+
+        <div class="flex shrink-0 items-center gap-3">
+          <UTooltip :text="t('editor.index.groupsCount', row.groups.length)">
+            <span class="inline-flex items-center gap-1.5 text-sm tabular-nums text-muted">
+              <UIcon name="i-lucide-users" class="size-4" />
+              {{ row.groups.length }}
+            </span>
+          </UTooltip>
+          <UDropdownMenu :items="actionsFor(row)">
+            <UButton
+              icon="i-lucide-ellipsis-vertical"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              :aria-label="t('editor.index.actions')"
+            />
+          </UDropdownMenu>
+        </div>
+      </li>
+    </ul>
+    <UEmpty
+      v-else
+      icon="i-lucide-search"
+      variant="naked"
+      :title="t('editor.noResults')"
+      class="py-12"
+    />
+  </EditorIndexPage>
 </template>

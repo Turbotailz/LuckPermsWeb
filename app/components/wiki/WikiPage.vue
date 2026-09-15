@@ -7,6 +7,11 @@ defineProps<{
   toc?: ContentTocLink[]
   updatedAt?: string
   editUrl?: string
+  contributors?: {
+    name: string
+    username?: string
+    avatar?: string
+  }[]
 }>()
 
 const pageUi = {
@@ -43,12 +48,19 @@ const tocUi = {
           <span class="min-w-0 flex-1 truncate" :title="link.text">{{ link.text }}</span>
         </template>
         <template #bottom>
-          <USeparator type="dashed" class="hidden lg:block" />
-          <WikiPageMeta :updated-at="updatedAt" :edit-url="editUrl" />
+          <WikiContributors
+            :contributors="contributors"
+            :updated-at="updatedAt"
+            :edit-url="editUrl"
+          />
         </template>
       </UContentToc>
-      <aside v-else class="hidden lg:block sticky top-(--ui-header-height) py-8">
-        <WikiPageMeta :updated-at="updatedAt" :edit-url="editUrl" />
+      <aside v-else class="flex flex-col gap-6 lg:sticky lg:top-(--ui-header-height) py-8">
+        <WikiContributors
+          :contributors="contributors"
+          :updated-at="updatedAt"
+          :edit-url="editUrl"
+        />
       </aside>
     </template>
   </UPage>

@@ -1,3 +1,22 @@
+import { CalendarDateTime, fromDate, getLocalTimeZone, toCalendarDateTime } from '@internationalized/date'
+import type { DateValue } from '@internationalized/date'
+
+export function timestampToCalendarDateTime(ms: number) {
+  return toCalendarDateTime(fromDate(new Date(ms), getLocalTimeZone()))
+}
+
+export function nowCalendarDateTime() {
+  return toCalendarDateTime(fromDate(new Date(), getLocalTimeZone()))
+}
+
+export function dateValueToTimestamp(value: DateValue) {
+  return value.toDate(getLocalTimeZone()).getTime()
+}
+
+export function calendarDateTimeFromParts(value: DateValue, hours = 0, minutes = 0) {
+  return new CalendarDateTime(value.year, value.month, value.day, hours, minutes)
+}
+
 export function relativeDate(date: number, language: string, baseDate?: number, includeTime?: boolean) {
   const rtf = new Intl.RelativeTimeFormat(language, { numeric: 'auto' })
   const now = baseDate || Date.now()

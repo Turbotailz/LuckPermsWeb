@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useLocalStorage } from '@vueuse/core'
 import { editorSectionPath } from '~/utils/editor-routes'
+import { isPermissionNode } from '~/utils/holder-meta'
 
 const route = useRoute()
 const editor = useEditorStore()
 const { t } = useI18n()
 const { code, section } = useEditorNavigation()
+const advanced = useLocalStorage('lp-editor-holder-advanced', false)
 
 const holderId = computed(() => {
   const groupId = route.params.groupId
@@ -20,27 +23,70 @@ const holderId = computed(() => {
 
 const session = computed(() => editor.sessions.find(item => item.id === holderId.value) ?? null)
 const nodes = computed(() => editor.allNodes.filter(node => node.sessionId === holderId.value))
+const tableNodes = computed(() =>
+  advanced.value ? nodes.value : nodes.value.filter(isPermissionNode)
+)
 const indexPath = computed(() => editorSectionPath(code.value, section.value))
-const sessionData = computed(() => {
-  if (!session.value) {
-    return null
-  }
-  return {
-    type: session.value.type,
-    parents: nodes.value.filter(node => node.key.startsWith('group.')),
-    displayname: nodes.value.filter(node => node.key.startsWith('displayname.')),
-    weight: nodes.value.filter(node => node.key.startsWith('weight.')),
-    prefixes: nodes.value.filter(node => node.key.startsWith('prefix.')),
-    suffixes: nodes.value.filter(node => node.key.startsWith('suffix.')),
-    meta: nodes.value.filter(node => node.key.startsWith('meta.'))
+
+watch(advanced, (enabled) => {
+  if (!enabled) {
+    editor.deselectAllSessionNodes(nodes.value.filter(node => !isPermissionNode(node)))
   }
 })
 </script>
 
 <template>
-  <div v-if="session && sessionData" class="flex min-h-0 flex-1 flex-col">
-    <EditorMetaBar :session="session" :session-data="sessionData" />
-    <EditorNodeList :nodes="nodes" />
+  <div v-if="session" class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4">
+    <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden lg:flex-row">
+      <div class="max-h-80 shrink-0 overflow-y-auto lg:max-h-none lg:w-1/4 lg:min-w-64">
+        <EditorHolderInfo
+          v-model:advanced="advanced"
+          :session="session"
+          :nodes="nodes"
+        />
+      </div>
+      <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+        <UCard
+          variant="subtle"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden"
+          :ui="{
+            root: 'flex min-h-0 flex-1 flex-col overflow-hidden',
+            header: 'px-4 py-3 sm:px-4',
+            body: 'flex min-h-0 flex-1 flex-col overflow-hidden p-0 sm:p-0'
+          }"
+        >
+          <template #header>
+            <div class="flex min-w-0 items-center justify-between gap-3">
+              <div class="flex min-w-0 items-center gap-2.5">
+                <EditorCardIcon name="i-lucide-key-round" />
+                <p class="truncate text-sm font-medium text-highlighted">
+                  {{ t('editor.permissions') }}
+                </p>
+                <UBadge color="neutral" variant="subtle" size="xs">
+                  {{ tableNodes.length }}
+                </UBadge>
+              </div>
+              <EditorNodeBulkBar v-if="editor.selectedNodes.length" class="shrink-0" />
+            </div>
+          </template>
+          <EditorNodeList :nodes="tableNodes" :advanced="advanced" class="min-h-0 flex-1" />
+        </UCard>
+        <UCard
+          variant="subtle"
+          :ui="{ header: 'px-4 py-3 sm:px-4', body: 'p-4 sm:p-4' }"
+        >
+          <template #header>
+            <div class="flex items-center gap-2.5">
+              <EditorCardIcon name="i-lucide-plus" />
+              <p class="text-sm font-medium text-highlighted">
+                {{ advanced ? t('editor.nodes.add') : t('editor.holder.addPermission') }}
+              </p>
+            </div>
+          </template>
+          <EditorAddNode :simple="!advanced" />
+        </UCard>
+      </div>
+    </div>
   </div>
   <UEmpty
     v-else

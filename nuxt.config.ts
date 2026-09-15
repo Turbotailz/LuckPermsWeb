@@ -1,8 +1,9 @@
 import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { wikiRouteRules } from './config/wiki-redirects'
-import { wikiEditUrl, wikiFileUpdatedAt, wikiContentRelative } from './config/wiki-git'
+import { wikiEditUrl, wikiFileUpdatedAt, wikiFileContributors, wikiContentRelative } from './config/wiki-git'
 import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
 
 function gitHash() {
@@ -189,12 +190,24 @@ export default defineNuxtConfig({
       }
       if (relative) {
         ctx.content.editUrl = wikiEditUrl(relative)
+        const pageContributors = wikiFileContributors(wikiPath || '', ctx.file.path)
+        if (pageContributors.length) {
+          ctx.content.contributors = pageContributors
+        }
       }
     }
   },
   eslint: {
     config: {
       stylistic: true
+    }
+  },
+  vite: {
+    resolve: {
+      alias: {
+        // Package "main" is CJS named .cjs.js under "type": "module".
+        'minimessage-js': resolve(fileURLToPath(new URL('.', import.meta.url)), 'node_modules/minimessage-js/dist/minimessage.esm.js')
+      }
     }
   }
 })

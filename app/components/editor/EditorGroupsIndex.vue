@@ -1,92 +1,149 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
-import type { TableRow } from '@tanstack/vue-table'
-import { editorGroupPath } from '~/utils/editor-routes'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import { parseNodeType } from '~/utils/editor'
+import { editorGroupPath, editorTrackPath } from '~/utils/editor-routes'
 
 interface GroupRow {
   id: string
   name: string
   weight: string
-  nodes: number
+  permissions: number
+  tracks: string[]
   isNew?: boolean
   modified?: boolean
 }
 
 const editor = useEditorStore()
 const { t } = useI18n()
-const { code, toGroup } = useEditorNavigation()
-const filter = useEditorSectionFilter()
+const { code } = useEditorNavigation()
+const search = ref('')
 
 const groups = computed(() => editor.sessions.filter(session => session.type === 'group'))
 
-const data = computed<GroupRow[]>(() => groups.value.map(group => ({
-  id: group.id,
-  name: group.displayName,
-  weight: weightFor(group.id),
-  nodes: editor.document.nodes.filter(node => node.sessionId === group.id).length,
-  isNew: group.new,
-  modified: group.modified
-})))
+const rows = computed<GroupRow[]>(() => {
+  const query = search.value.trim().toLowerCase()
+  return groups.value
+    .map((group) => {
+      const nodes = editor.document.nodes.filter(node => node.sessionId === group.id)
+      const weightNode = nodes.find(node => parseNodeType(node.key).type === 'weight')
+      return {
+        id: group.id,
+        name: group.displayName,
+        weight: weightNode ? weightNode.key.slice('weight.'.length) : '',
+        permissions: nodes.length,
+        tracks: editor.tracks.filter(track => track.groups.includes(group.id)).map(track => track.id),
+        isNew: group.new,
+        modified: group.modified
+      }
+    })
+    .filter((row) => {
+      if (!query) {
+        return true
+      }
+      return [row.name, row.id, ...row.tracks].some(value => value.toLowerCase().includes(query))
+    })
+    .sort((a, b) => Number(b.weight || 0) - Number(a.weight || 0) || a.name.localeCompare(b.name))
+})
 
-const columns: TableColumn<GroupRow>[] = [
-  { accessorKey: 'name', header: t('editor.nav.groups') },
-  { accessorKey: 'id', header: t('editor.groups.name') },
-  { accessorKey: 'weight', header: t('editor.index.weight') },
-  { accessorKey: 'nodes', header: t('editor.index.nodes') },
-  { id: 'actions', header: '' }
-]
-
-function weightFor(groupId: string) {
-  const node = editor.weightNodes.find(item => item.sessionId === groupId)
-  return node ? node.key.split('weight.')[1] || '' : ''
-}
-
-function onSelect(event: Event, row: TableRow<GroupRow>) {
-  if ((event.target as HTMLElement | null)?.closest('[data-editor-row-action]')) {
-    return
+function actionsFor(row: GroupRow): DropdownMenuItem[] {
+  const items: DropdownMenuItem[] = [
+    {
+      label: t('editor.groups.edit'),
+      icon: 'i-lucide-pencil',
+      to: editorGroupPath(code.value, row.id)
+    }
+  ]
+  if (row.id !== 'default') {
+    items.push({
+      label: t('editor.delete'),
+      icon: 'i-lucide-trash-2',
+      color: 'error',
+      onSelect() {
+        editor.setModal('deleteGroup', { groupId: row.id })
+      }
+    })
   }
-  toGroup(row.original.id)
+  return items
 }
 </script>
 
 <template>
-  <div class="flex min-h-0 flex-1 flex-col">
-    <UTable
-      :data="data"
-      :columns="columns"
-      :global-filter="filter"
-      sticky
-      class="flex-1"
-      :ui="{ tr: 'cursor-pointer' }"
-      :empty="t('editor.noResults')"
-      @select="onSelect"
-    >
-      <template #name-cell="{ row }">
-        <UButton
-          :to="editorGroupPath(code, row.original.id)"
-          color="neutral"
-          variant="link"
-          class="p-0 font-normal"
-          :class="{ 'text-primary': row.original.isNew, italic: row.original.modified }"
+  <EditorIndexPage
+    :title="t('editor.nav.groups')"
+    :description="t('editor.index.descriptionGroups')"
+    :add-label="t('editor.groups.add')"
+    :search-placeholder="t('editor.index.searchGroups')"
+    v-model:search="search"
+    @add="editor.setModal('createGroup', groups)"
+  >
+    <ul v-if="rows.length" role="list" class="divide-y divide-default">
+      <li
+        v-for="row in rows"
+        :key="row.id"
+        class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-elevated/50 sm:px-6"
+      >
+        <NuxtLink
+          :to="editorGroupPath(code, row.id)"
+          class="flex min-w-0 flex-1 items-center gap-3"
         >
-          {{ row.original.name }}
-        </UButton>
-      </template>
-      <template #id-cell="{ row }">
-        <span class="font-mono text-sm text-muted">{{ row.original.id }}</span>
-      </template>
-      <template #actions-cell="{ row }">
-        <UButton
-          v-if="row.original.id !== 'default'"
-          icon="i-lucide-x"
-          size="xs"
-          color="neutral"
-          variant="ghost"
-          data-editor-row-action
-          :aria-label="t('editor.delete')"
-          @click.stop="editor.setModal('deleteGroup', { groupId: row.original.id })"
-        />
-      </template>
-    </UTable>
-  </div>
+          <UAvatar icon="i-lucide-users" size="md" />
+          <div class="min-w-0 text-sm">
+            <p
+              class="truncate font-medium text-highlighted"
+              :class="{ 'text-primary': row.isNew, italic: row.modified }"
+            >
+              {{ row.name }}
+            </p>
+            <p class="truncate font-mono text-muted">{{ row.id }}</p>
+          </div>
+        </NuxtLink>
+
+        <div class="flex min-w-0 flex-wrap items-center justify-end gap-1">
+          <UButton
+            v-for="trackId in row.tracks"
+            :key="trackId"
+            :to="editorTrackPath(code, trackId)"
+            size="xs"
+            color="neutral"
+            variant="subtle"
+            icon="i-lucide-git-branch"
+          >
+            {{ trackId }}
+          </UButton>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-3">
+          <UTooltip v-if="row.weight" :text="t('editor.index.weight')">
+            <span class="inline-flex items-center gap-1.5 text-sm tabular-nums text-muted">
+              <UIcon name="i-lucide-scale" class="size-4" />
+              {{ row.weight }}
+            </span>
+          </UTooltip>
+          <UTooltip :text="t('editor.index.permissions', row.permissions)">
+            <span class="inline-flex items-center gap-1.5 text-sm tabular-nums text-muted">
+              <UIcon name="i-lucide-key-round" class="size-4" />
+              {{ row.permissions }}
+            </span>
+          </UTooltip>
+          <UDropdownMenu :items="actionsFor(row)">
+            <UButton
+              icon="i-lucide-ellipsis-vertical"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              :aria-label="t('editor.index.actions')"
+            />
+          </UDropdownMenu>
+        </div>
+      </li>
+    </ul>
+    <UEmpty
+      v-else
+      icon="i-lucide-search"
+      variant="naked"
+      :title="t('editor.noResults')"
+      class="py-12"
+    />
+  </EditorIndexPage>
 </template>

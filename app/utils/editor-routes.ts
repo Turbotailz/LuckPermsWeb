@@ -1,6 +1,13 @@
-export type EditorSection = 'groups' | 'users' | 'tracks'
+export type EditorSection = 'home' | 'groups' | 'users' | 'tracks'
+
+export function editorHomePath(code: string) {
+  return `/editor/${code}`
+}
 
 export function editorSectionPath(code: string, section: EditorSection) {
+  if (section === 'home') {
+    return editorHomePath(code)
+  }
   return `/editor/${code}/${section}`
 }
 
@@ -22,10 +29,10 @@ export function editorHolderPath(code: string, type: 'group' | 'user', id: strin
 
 export function editorSectionFromPath(path: string): EditorSection {
   const match = path.match(/^\/editor\/[^/]+\/(groups|users|tracks)(?:\/|$)/)
-  return (match?.[1] as EditorSection) || 'groups'
+  return (match?.[1] as EditorSection) || 'home'
 }
 
 export function editorPathSuffix(path: string) {
   const suffix = path.replace(/^\/editor\/[^/]+/, '')
-  return suffix && suffix !== '/' ? suffix : '/groups'
+  return suffix && suffix !== '/' ? suffix : ''
 }

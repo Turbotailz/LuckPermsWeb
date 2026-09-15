@@ -53,7 +53,7 @@ const grouped = computed(() => {
             {{ group.session!.displayName }}
           </UButton>
         </h2>
-        <EditorNodeRow v-for="node in group.nodes" :key="node.id" :node="node" />
+        <EditorNodeRow v-for="node in group.nodes" :key="node.id" :node="node" show-type />
       </section>
     </div>
   </div>

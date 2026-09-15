@@ -18,6 +18,7 @@ import { editorPathSuffix } from '~/utils/editor-routes'
 import { fetchBytebinJson, postBytebinGzip } from '~/composables/useLpConfig'
 import { socketConnect, type SocketApi } from '~/socket/ws'
 import editorDemo from '~/assets/data/editor-demo.json'
+import { editorSample, isLocalEditorSession } from '~/assets/data/editor-samples'
 
 function emptyDocument(): EditorDocument {
   return {
@@ -213,6 +214,47 @@ export const useEditorStore = defineStore('editor', () => {
     })
   }
 
+  function replaceNodeKey(
+    sessionId: string,
+    nodeId: string | undefined,
+    nextKey: string | null,
+    options?: { sessionDisplayName?: string }
+  ) {
+    history.commit('Update node', (draft) => {
+      const session = draft.sessions[sessionId]
+      if (options?.sessionDisplayName !== undefined && session) {
+        session.displayName = options.sessionDisplayName || session.id
+        session.modified = true
+      }
+      if (!nextKey) {
+        if (nodeId) {
+          draft.nodes = draft.nodes.filter(node => node.id !== nodeId)
+          if (session) {
+            session.modified = true
+          }
+        }
+        return
+      }
+      if (nodeId) {
+        const node = draft.nodes.find(item => item.id === nodeId)
+        if (node && node.key !== nextKey) {
+          node.key = nextKey
+          node.modified = true
+          if (session) {
+            session.modified = true
+          }
+        }
+        return
+      }
+      addNodesInternal(draft, [{
+        sessionId,
+        key: nextKey,
+        value: true,
+        isNew: true
+      }])
+    })
+  }
+
   function updateNodeContext(nodeId: string, context: Record<string, string | string[]>) {
     history.commit('Update contexts', (draft) => {
       const node = draft.nodes.find(item => item.id === nodeId)
@@ -227,31 +269,38 @@ export const useEditorStore = defineStore('editor', () => {
     })
   }
 
-  function bulkUpdateNode(payload: { value: boolean | null, expiry: number | null, replace: boolean, contexts: Record<string, string | string[]> }) {
+  function bulkUpdateNode(payload: {
+    value?: boolean | null
+    expiry?: number | null
+    replace?: boolean
+    contexts?: Record<string, string | string[]>
+  }) {
     history.commit('Bulk update', (draft) => {
       selectedNodeIds.value.forEach((id) => {
         const node = draft.nodes.find(item => item.id === id)
         if (!node) {
           return
         }
-        if (payload.value !== null) {
+        if (payload.value === true || payload.value === false) {
           node.value = payload.value
         }
-        if (payload.expiry) {
-          node.expiry = payload.expiry
+        if ('expiry' in payload) {
+          node.expiry = payload.expiry ?? null
         }
-        if (payload.replace) {
-          node.context = payload.contexts
-        } else {
-          const contextList: Record<string, string[]> = {}
-          const keys = new Set([...Object.keys(node.context || {}), ...Object.keys(payload.contexts || {})])
-          keys.forEach((key) => {
-            contextList[key] = [...new Set([
-              ...contextsToArray(node.context?.[key]),
-              ...contextsToArray(payload.contexts?.[key])
-            ])]
-          })
-          node.context = contextList
+        if (payload.contexts) {
+          if (payload.replace) {
+            node.context = payload.contexts
+          } else {
+            const contextList: Record<string, string[]> = {}
+            const keys = new Set([...Object.keys(node.context || {}), ...Object.keys(payload.contexts || {})])
+            keys.forEach((key) => {
+              contextList[key] = [...new Set([
+                ...contextsToArray(node.context?.[key]),
+                ...contextsToArray(payload.contexts?.[key])
+              ])]
+            })
+            node.context = contextList
+          }
         }
         node.modified = true
         if (draft.sessions[node.sessionId]) {
@@ -259,6 +308,7 @@ export const useEditorStore = defineStore('editor', () => {
         }
       })
     })
+    closeModal()
   }
 
   function copyNodes(sessionIds: string[]) {
@@ -387,6 +437,35 @@ export const useEditorStore = defineStore('editor', () => {
     closeModal()
   }
 
+  function addUser(user: { id: string, displayName: string }) {
+    const id = user.id.trim()
+    if (!id) {
+      return
+    }
+    if (document.value.sessions[id]) {
+      currentSessionId.value = id
+      closeModal()
+      return
+    }
+    history.commit('Create user', (draft) => {
+      const session: EditorSession = {
+        id,
+        displayName: user.displayName.trim() || id,
+        type: 'user',
+        new: true,
+        modified: true
+      }
+      draft.sessions[session.id] = session
+      draft.sessionList.push(session.id)
+      const deleted = draft.deletedUsers.indexOf(session.id)
+      if (deleted >= 0) {
+        draft.deletedUsers.splice(deleted, 1)
+      }
+    })
+    currentSessionId.value = id
+    closeModal()
+  }
+
   function deleteSession(id: string) {
     history.commit('Delete holder', (draft) => {
       const session = draft.sessions[id]
@@ -506,6 +585,14 @@ export const useEditorStore = defineStore('editor', () => {
         return
       }
 
+      const sample = editorSample(id)
+      if (sample) {
+        sessionId.value = id
+        applyPayload(sample)
+        loaded.value = true
+        return
+      }
+
       const data = await fetchBytebinJson<EditorPayload>(id)
 
       if (data.socket?.channelId) {
@@ -552,8 +639,8 @@ export const useEditorStore = defineStore('editor', () => {
   }
 
   async function saveData() {
-    if (sessionId.value === 'demo') {
-      setModal('savedChanges', { saveKey: 'demo', demo: true })
+    if (isLocalEditorSession(sessionId.value)) {
+      setModal('savedChanges', { saveKey: sessionId.value || 'demo', demo: true })
       return
     }
 
@@ -658,6 +745,7 @@ export const useEditorStore = defineStore('editor', () => {
     deselectAllSessionNodes,
     deselectAllSelectedNodes,
     addNodes,
+    replaceNodeKey,
     deleteNode,
     toggleNodeValue,
     updateNode,
@@ -667,6 +755,7 @@ export const useEditorStore = defineStore('editor', () => {
     moveNodes,
     deleteSelectedNodes,
     addGroup,
+    addUser,
     deleteSession,
     addTrack,
     updateTrack,

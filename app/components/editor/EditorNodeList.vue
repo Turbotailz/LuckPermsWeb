@@ -1,87 +1,142 @@
 <script setup lang="ts">
-import { useVirtualizer } from '@tanstack/vue-virtual'
+import type { TableColumn } from '@nuxt/ui'
 import type { EditorNode } from '~/types/editor'
-import { contextSortKey } from '~/utils/editor'
+import { contextSortKey, parseNodeType } from '~/utils/editor'
 
-const props = defineProps<{ nodes: EditorNode[] }>()
+const props = defineProps<{
+  nodes: EditorNode[]
+  advanced?: boolean
+}>()
+
 const editor = useEditorStore()
 const { t } = useI18n()
-
-const sort = reactive({ method: 'key' as string, desc: true })
-const parentRef = ref<HTMLElement | null>(null)
-
-const sortedNodes = computed(() => {
-  const copy = [...props.nodes]
-  copy.sort((a, b) => {
-    let cmp = 0
-    if (sort.method === 'key') {
-      cmp = a.key.localeCompare(b.key)
-    } else if (sort.method === 'value') {
-      cmp = Number(a.value) - Number(b.value)
-    } else if (sort.method === 'expiry') {
-      cmp = (a.expiry || 0) - (b.expiry || 0)
-    } else {
-      cmp = contextSortKey(a.context).localeCompare(contextSortKey(b.context))
-    }
-    return sort.desc ? cmp : -cmp
-  })
-  return copy
-})
-
-const virtualizer = useVirtualizer(computed(() => ({
-  count: sortedNodes.value.length,
-  getScrollElement: () => parentRef.value,
-  estimateSize: () => 44,
-  overscan: 12
-})))
 
 const selectedInView = computed(() => {
   const ids = new Set(props.nodes.map(node => node.id))
   return editor.selectedNodeIds.filter(id => ids.has(id))
 })
 const allSelected = computed(() => props.nodes.length > 0 && selectedInView.value.length === props.nodes.length)
+const someSelected = computed(() => selectedInView.value.length > 0 && !allSelected.value)
 
-function changeSort(method: string) {
-  if (sort.method === method) {
-    sort.desc = !sort.desc
-  } else {
-    sort.desc = true
-    sort.method = method
-  }
-}
-
-function selectAll() {
-  if (allSelected.value) {
-    editor.deselectAllSessionNodes(props.nodes)
-  } else {
+function selectAll(value: boolean | 'indeterminate') {
+  if (value) {
     editor.selectAllSessionNodes(props.nodes)
+  } else {
+    editor.deselectAllSessionNodes(props.nodes)
   }
 }
+
+const columns = computed(() => {
+  const cols: TableColumn<EditorNode>[] = [
+    {
+      id: 'select',
+      enableSorting: false,
+      meta: { class: { th: 'w-10', td: 'w-10' } }
+    }
+  ]
+
+  if (props.advanced) {
+    cols.push({
+      id: 'type',
+      accessorFn: row => parseNodeType(row.key).type,
+      header: t('editor.nodes.type'),
+      meta: { class: { th: 'w-28', td: 'w-28' } }
+    })
+  }
+
+  cols.push(
+    {
+      accessorKey: 'key',
+      header: t('editor.permissions')
+    },
+    {
+      accessorKey: 'value',
+      header: t('editor.enabled'),
+      meta: { class: { th: 'w-24', td: 'w-24' } }
+    },
+    {
+      accessorKey: 'expiry',
+      header: t('editor.expiry'),
+      sortingFn: (a, b) => (a.original.expiry || Number.MAX_SAFE_INTEGER) - (b.original.expiry || Number.MAX_SAFE_INTEGER),
+      meta: { class: { th: 'w-28', td: 'w-28' } }
+    },
+    {
+      id: 'contexts',
+      accessorFn: row => contextSortKey(row.context),
+      header: t('editor.contexts')
+    },
+    {
+      id: 'actions',
+      enableSorting: false,
+      meta: { class: { th: 'w-10', td: 'w-10' } }
+    }
+  )
+
+  return cols
+})
 </script>
 
 <template>
-  <div class="flex min-h-0 flex-1 flex-col">
-    <div class="grid grid-cols-[2rem_minmax(0,2fr)_6rem_8rem_minmax(0,1.5fr)_2rem] items-center gap-2 border-b border-default bg-muted px-3 py-2 text-sm font-semibold text-highlighted">
-      <UCheckbox :model-value="allSelected" :aria-label="t('editor.nodes.selectAll')" @update:model-value="selectAll" />
-      <UButton color="neutral" variant="link" class="justify-start gap-1.5 px-0" @click="changeSort('key')">
-        {{ t('editor.permissions') }}
-        <UBadge color="neutral" variant="subtle" size="xs">{{ nodes.length }}</UBadge>
-      </UButton>
-      <UButton color="neutral" variant="link" class="justify-start px-0" @click="changeSort('value')">{{ t('editor.value') }}</UButton>
-      <UButton color="neutral" variant="link" class="justify-start px-0" @click="changeSort('expiry')">{{ t('editor.expiry') }}</UButton>
-      <UButton color="neutral" variant="link" class="justify-start px-0" @click="changeSort('contexts')">{{ t('editor.contexts') }}</UButton>
-      <span />
-    </div>
-    <div ref="parentRef" class="min-h-0 flex-1 overflow-auto">
-      <div :style="{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }">
-        <EditorNodeRow
-          v-for="virtualRow in virtualizer.getVirtualItems()"
-          :key="sortedNodes[virtualRow.index]!.id"
-          :node="sortedNodes[virtualRow.index]!"
-          class="absolute left-0 w-full"
-          :style="{ height: `${virtualRow.size}px`, transform: `translateY(${virtualRow.start}px)` }"
-        />
-      </div>
-    </div>
-  </div>
+  <UTable
+    :data="nodes"
+    :columns="columns"
+    :get-row-id="(row: EditorNode) => row.id"
+    sticky
+    :virtualize="{ estimateSize: 36, overscan: 12 }"
+    :empty="t('editor.nodes.empty')"
+    class="h-full min-h-0"
+    :ui="{
+      th: 'bg-muted/50 px-3 py-2',
+      td: 'px-3 py-1.5 text-sm'
+    }"
+  >
+    <template #select-header>
+      <UCheckbox
+        size="sm"
+        :model-value="someSelected ? 'indeterminate' : allSelected"
+        :aria-label="t('editor.nodes.selectAll')"
+        @update:model-value="selectAll"
+      />
+    </template>
+    <template #select-cell="{ row }">
+      <UCheckbox
+        size="sm"
+        :model-value="editor.selectedNodeIds.includes(row.original.id)"
+        :aria-label="t('editor.nodes.select')"
+        @update:model-value="editor.toggleNodeSelect(row.original.id)"
+      />
+    </template>
+    <template #type-cell="{ row }">
+      <UBadge size="xs" variant="subtle">
+        {{ t(`editor.nodes.types.${parseNodeType(row.original.key).type}`) }}
+      </UBadge>
+    </template>
+    <template #key-cell="{ row }">
+      <EditorNodeKey :node="row.original" />
+    </template>
+    <template #value-cell="{ row }">
+      <USwitch
+        size="xs"
+        :model-value="row.original.value"
+        :aria-label="t('editor.enabled')"
+        @update:model-value="editor.updateNode(row.original.id, 'value', $event)"
+      />
+    </template>
+    <template #expiry-cell="{ row }">
+      <EditorNodeExpiry :node="row.original" />
+    </template>
+    <template #contexts-cell="{ row }">
+      <EditorNodeContexts :node="row.original" />
+    </template>
+    <template #actions-cell="{ row }">
+      <UButton
+        icon="i-lucide-x"
+        size="xs"
+        variant="ghost"
+        color="error"
+        :aria-label="t('editor.delete')"
+        @click="editor.deleteNode(row.original.id)"
+      />
+    </template>
+  </UTable>
 </template>

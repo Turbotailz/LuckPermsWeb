@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
+import { editorHomePath } from '~/utils/editor-routes'
 
 const route = useRoute()
 const editor = useEditorStore()
 const { t } = useI18n()
 const { announce } = useAnnounce()
-const { section } = useEditorNavigation()
+const { code, section } = useEditorNavigation()
+const homePath = computed(() => editorHomePath(code.value))
 const sectionFilter = ref('')
 provide(editorSectionFilterKey, sectionFilter)
 
@@ -37,7 +39,9 @@ const holderId = computed(() => {
   }
   return null
 })
-const showAddNode = computed(() => Boolean(holderId.value && editor.currentSession))
+watch(holderId, () => {
+  editor.deselectAllSelectedNodes()
+})
 
 async function loadFromRoute() {
   const id = sessionIdFromRoute(route)
@@ -57,17 +61,6 @@ async function loadFromRoute() {
 
 watch(() => sessionIdFromRoute(route), loadFromRoute)
 onMounted(loadFromRoute)
-
-watch(
-  () => route.path,
-  (path) => {
-    const id = String(route.params.id || '')
-    if (id && /^\/editor\/[^/]+\/?$/.test(path)) {
-      navigateTo(`/editor/${id}/groups`, { replace: true })
-    }
-  },
-  { immediate: true }
-)
 
 watch(
   [() => editor.loaded, holderId],
@@ -129,13 +122,15 @@ defineShortcuts({
 </script>
 
 <template>
+  <EditorLandingEmpty v-if="!editor.loaded && !sessionId" />
+
   <ToolEmpty
-    v-if="!editor.loaded"
+    v-else-if="!editor.loaded"
+    variant="subtle"
     :title="t('editor.description')"
-    :description="t('editor.start')"
-    :loading="!editor.errors.load && !editor.errors.unsupported && Boolean(sessionId)"
+    :description="t('editor.intro')"
+    :loading="!editor.errors.load && !editor.errors.unsupported"
     :error="editor.errors.load || editor.errors.unsupported"
-    :actions="sessionId ? [] : [{ label: t('tools.demo'), to: '/editor/demo/groups', icon: 'i-lucide-play' }]"
   >
     <UAlert
       v-if="editor.errors.load"
@@ -158,88 +153,87 @@ defineShortcuts({
         </i18n-t>
       </template>
     </UAlert>
-    <template v-else-if="!sessionId">
-      <div class="flex flex-col items-center gap-2">
-        <CommandCode value="/lp editor" />
-        <CommandCode value="/lp user <user> editor" />
-        <CommandCode value="/lp group <group> editor" />
-      </div>
-    </template>
   </ToolEmpty>
 
-  <UDashboardGroup v-else storage-key="lp-editor">
-    <EditorSidebar v-model:filter="sectionFilter" />
-    <UDashboardPanel :ui="{ body: 'flex min-h-0 flex-col gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' }">
-      <template #header>
-        <UDashboardNavbar :title="t('links.tools.editor')">
-          <template #leading>
-            <UDashboardSidebarCollapse />
-          </template>
-          <template #trailing>
-            <EditorTabs />
-          </template>
-          <template #right>
-            <UTooltip v-if="editor.socketStatus" :text="t('editor.socketConnected')">
-              <UIcon name="i-lucide-network" class="text-primary" />
-            </UTooltip>
-            <UButton
-              icon="i-lucide-undo-2"
-              color="neutral"
-              variant="ghost"
-              :disabled="!editor.canUndo"
-              :aria-label="t('editor.undo')"
-              @click="editor.undo()"
-            />
-            <UButton
-              icon="i-lucide-redo-2"
-              color="neutral"
-              variant="ghost"
-              :disabled="!editor.canRedo"
-              :aria-label="t('editor.redo')"
-              @click="editor.redo()"
-            />
-            <UInput
-              v-if="searchOpen"
-              v-model="searchQuery"
-              :placeholder="t('editor.search')"
-              autofocus
-              class="w-48"
-            />
-            <UButton
-              :icon="searchQuery ? 'i-lucide-x' : 'i-lucide-search'"
-              color="neutral"
-              variant="ghost"
-              :aria-label="t('editor.search')"
-              @click="searchOpen = !searchOpen; if (!searchOpen) { searchQuery = ''; debouncedQuery = '' }"
-            />
-            <UButton
-              :loading="editor.saveStatus === 'saving'"
-              icon="i-lucide-save"
-              @click="editor.saveData()"
-            >
-              {{ editor.socketStatus ? t('editor.apply') : t('editor.save') }}
-            </UButton>
-          </template>
-        </UDashboardNavbar>
+  <UDashboardGroup v-else class="flex-col" storage-key="lp-editor-rem" unit="rem">
+    <UDashboardNavbar :toggle="section !== 'home'">
+      <template #leading>
+        <UDashboardSidebarCollapse v-if="section !== 'home'" />
       </template>
+      <template #title>
+        <NuxtLink :to="homePath" class="truncate">
+          {{ t('links.tools.editor') }}
+        </NuxtLink>
+      </template>
+      <template #right>
+        <UTooltip v-if="editor.socketStatus" :text="t('editor.socketConnected')">
+          <UIcon name="i-lucide-network" class="text-primary" />
+        </UTooltip>
+        <UButton
+          icon="i-lucide-undo-2"
+          color="neutral"
+          variant="ghost"
+          :disabled="!editor.canUndo"
+          :aria-label="t('editor.undo')"
+          @click="editor.undo()"
+        />
+        <UButton
+          icon="i-lucide-redo-2"
+          color="neutral"
+          variant="ghost"
+          :disabled="!editor.canRedo"
+          :aria-label="t('editor.redo')"
+          @click="editor.redo()"
+        />
+        <UInput
+          v-if="searchOpen"
+          v-model="searchQuery"
+          :placeholder="t('editor.search')"
+          autofocus
+          class="w-48"
+        />
+        <UButton
+          :icon="searchQuery ? 'i-lucide-x' : 'i-lucide-search'"
+          color="neutral"
+          variant="ghost"
+          :aria-label="t('editor.search')"
+          @click="searchOpen = !searchOpen; if (!searchOpen) { searchQuery = ''; debouncedQuery = '' }"
+        />
+        <UButton
+          :loading="editor.saveStatus === 'saving'"
+          icon="i-lucide-save"
+          @click="editor.saveData()"
+        >
+          {{ editor.socketStatus ? t('editor.apply') : t('editor.save') }}
+        </UButton>
+      </template>
+    </UDashboardNavbar>
 
-      <template #body>
-        <div class="flex min-h-0 flex-1 flex-col">
-          <EditorSearchResults
-            v-if="debouncedQuery"
-            :query="debouncedQuery"
-            @clear="searchQuery = ''; debouncedQuery = ''; searchOpen = false"
-          />
-          <div v-show="!debouncedQuery" class="flex min-h-0 flex-1 flex-col">
-            <slot />
+    <UDashboardToolbar>
+      <EditorTabs />
+    </UDashboardToolbar>
+
+    <div class="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+      <EditorSidebar v-if="section !== 'home'" v-model:filter="sectionFilter" />
+      <UDashboardPanel :ui="{ body: 'flex min-h-0 flex-col gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' }">
+        <template #body>
+          <div class="flex min-h-0 flex-1 flex-col">
+            <EditorSearchResults
+              v-if="debouncedQuery"
+              :query="debouncedQuery"
+              @clear="searchQuery = ''; debouncedQuery = ''; searchOpen = false"
+            />
+            <div v-show="!debouncedQuery" class="flex min-h-0 flex-1 flex-col">
+              <slot />
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <template #footer>
-        <EditorAddNode v-if="showAddNode || editor.selectedNodes.length" />
-      </template>
-    </UDashboardPanel>
+        <template #footer>
+          <EditorNodeBulkBar v-if="!holderId && editor.selectedNodes.length" class="p-3" />
+        </template>
+      </UDashboardPanel>
+    </div>
   </UDashboardGroup>
 
   <EditorModals />
