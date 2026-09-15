@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { wikiRouteRules } from './config/wiki-redirects'
 import { wikiEditUrl, wikiFileUpdatedAt, wikiFileContributors, wikiContentRelative } from './config/wiki-git'
+import { resolveWikiGitDir } from './config/wiki-clone'
 import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
 
 function gitHash() {
@@ -15,6 +16,7 @@ function gitHash() {
 }
 
 const wikiPath = process.env.WIKI_PATH
+const wikiGitDir = resolveWikiGitDir()
 const selfHosted = process.env.NUXT_PUBLIC_SELF_HOSTED === 'true'
 const siteUrl = (
   process.env.NUXT_PUBLIC_SITE_URL
@@ -183,14 +185,14 @@ export default defineNuxtConfig({
       if (ctx.collection.name !== 'wiki_en') {
         return
       }
-      const relative = wikiContentRelative(wikiPath || '', ctx.file.path)
-      const updatedAt = wikiFileUpdatedAt(wikiPath || '', ctx.file.path)
+      const relative = wikiContentRelative(wikiGitDir || wikiPath || '', ctx.file.path)
+      const updatedAt = wikiFileUpdatedAt(wikiGitDir, ctx.file.path)
       if (updatedAt) {
         ctx.content.updatedAt = updatedAt
       }
       if (relative) {
         ctx.content.editUrl = wikiEditUrl(relative)
-        const pageContributors = wikiFileContributors(wikiPath || '', ctx.file.path)
+        const pageContributors = wikiFileContributors(wikiGitDir, ctx.file.path)
         if (pageContributors.length) {
           ctx.content.contributors = pageContributors
         }

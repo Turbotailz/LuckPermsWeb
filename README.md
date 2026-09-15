@@ -18,7 +18,7 @@ pnpm install
 pnpm dev
 ```
 
-Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_REPO` + `WIKI_BRANCH`, default `Turbotailz/wiki` @ `v3-structure`).
+Without `WIKI_PATH`, the build clones `WIKI_REPO` @ `WIKI_BRANCH` (default `Turbotailz/wiki` / `v3-structure`) into `.data/wiki` so page contributors and last-updated can be read from git history. Nuxt Content’s GitHub source is a shallow clone (`depth: 1`), which is not enough for that metadata.
 
 ## Scripts
 
@@ -37,7 +37,7 @@ Without `WIKI_PATH`, Nuxt Content fetches `en/**` from GitHub (`WIKI_REPO` + `WI
 | `NUXT_PUBLIC_API_URL` | `https://metadata.luckperms.net/` | Versions + Crowdin catalogs |
 | `NUXT_PUBLIC_SELF_HOSTED` | `false` | Hides download/sponsor/wiki |
 | `NUXT_PUBLIC_SITE_URL` | `https://luckperms.net` | Canonicals, sitemap, and OG image URLs. Set this at **build** time for preview hosts (e.g. `https://luckperms.tailz.dev`). Also accepted as `NUXT_SITE_URL`. Cloudflare Pages falls back to `CF_PAGES_URL` when unset. |
-| `WIKI_PATH` | — | Local wiki clone for Content |
+| `WIKI_PATH` | — | Local wiki clone with git history (dev). If unset, the build clones `WIKI_REPO` |
 | `WIKI_REPO` | `https://github.com/Turbotailz/wiki` | GitHub wiki repo when `WIKI_PATH` is unset |
 | `WIKI_BRANCH` | `v3-structure` | GitHub branch for remote Content |
 

@@ -35,9 +35,10 @@ function loadWikiGitDates(wikiPath: string): Map<string, string> {
   if (dates) {
     return dates
   }
-  dates = new Map()
+  const next = new Map<string, string>()
   if (!wikiPath || !existsSync(resolve(wikiPath, '.git'))) {
-    return dates
+    dates = next
+    return next
   }
   try {
     const output = execSync('git log --pretty=format:COMMIT:%cI --name-only -- en', {
@@ -52,15 +53,17 @@ function loadWikiGitDates(wikiPath: string): Map<string, string> {
         continue
       }
       const file = line.trim()
-      if (!file || !current || dates.has(file)) {
+      if (!file || !current || next.has(file)) {
         continue
       }
-      dates.set(file, current)
+      next.set(file, current)
     }
   } catch {
     dates = new Map()
+    return dates
   }
-  return dates
+  dates = next
+  return next
 }
 
 export function wikiRelativeFromRoute(wikiPath: string, routePath: string): string {
@@ -81,10 +84,19 @@ export function wikiContentRelative(wikiPath: string, filePath?: string): string
   if (!filePath) {
     return
   }
-  const rel = wikiPath && filePath.startsWith(wikiPath)
-    ? relative(wikiPath, filePath).replaceAll('\\', '/')
-    : filePath.replaceAll('\\', '/').replace(/^\.\//, '')
-  return rel.startsWith('en/') ? rel : `en/${rel}`
+  const normalized = filePath.replaceAll('\\', '/')
+  const lastEn = normalized.lastIndexOf('/en/')
+  if (lastEn !== -1) {
+    return normalized.slice(lastEn + 1)
+  }
+  if (normalized.startsWith('en/')) {
+    return normalized
+  }
+  if (wikiPath && filePath.startsWith(wikiPath)) {
+    const rel = relative(wikiPath, filePath).replaceAll('\\', '/')
+    return rel.startsWith('en/') ? rel : `en/${rel}`
+  }
+  return `en/${normalized.replace(/^\.\//, '')}`
 }
 
 export function wikiFileUpdatedAt(wikiPath: string, filePath?: string): string | undefined {
@@ -216,14 +228,16 @@ function loadWikiContributors(wikiPath: string): Map<string, WikiContributor[]> 
   if (contributors) {
     return contributors
   }
-  contributors = new Map()
+  const next = new Map<string, WikiContributor[]>()
   if (!wikiPath || !existsSync(resolve(wikiPath, '.git'))) {
-    return contributors
+    contributors = next
+    return next
   }
   for (const rel of markdownFilesUnderEn(wikiPath)) {
-    contributors.set(rel, contributorsForFile(wikiPath, rel))
+    next.set(rel, contributorsForFile(wikiPath, rel))
   }
-  return contributors
+  contributors = next
+  return next
 }
 
 export function wikiFileContributors(wikiPath: string, filePath?: string): WikiContributor[] {

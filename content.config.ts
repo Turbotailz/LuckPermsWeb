@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineCollection, defineContentConfig } from '@nuxt/content'
 import { z } from 'zod'
+import { resolveWikiGitDir } from './config/wiki-clone'
 import { wikiContentRepository } from './config/wiki-source'
 
 const wikiSchema = z.object({
@@ -15,11 +17,12 @@ const wikiSchema = z.object({
   })).optional()
 })
 
-const wikiPath = process.env.WIKI_PATH
+const wikiGitDir = resolveWikiGitDir()
+const wikiEn = wikiGitDir ? join(wikiGitDir, 'en') : ''
 
-const wikiSource = wikiPath
+const wikiSource = wikiEn && existsSync(wikiEn)
   ? {
-      cwd: join(wikiPath, 'en'),
+      cwd: wikiEn,
       include: '**' as const,
       prefix: '/wiki'
     }
