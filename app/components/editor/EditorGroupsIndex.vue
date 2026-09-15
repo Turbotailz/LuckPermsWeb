@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
+import type { EditorNode } from '~/types/editor'
 import { parseNodeType } from '~/utils/editor'
 import { editorGroupPath, editorTrackPath } from '~/utils/editor-routes'
 
@@ -19,12 +20,14 @@ const { code } = useEditorNavigation()
 const search = ref('')
 
 const groups = computed(() => editor.sessions.filter(session => session.type === 'group'))
+const none: EditorNode[] = []
 
 const rows = computed<GroupRow[]>(() => {
   const query = search.value.trim().toLowerCase()
+  const nodesBySession = editor.nodesBySessionId
   return groups.value
     .map((group) => {
-      const nodes = editor.document.nodes.filter(node => node.sessionId === group.id)
+      const nodes = nodesBySession.get(group.id) ?? none
       const weightNode = nodes.find(node => parseNodeType(node.key).type === 'weight')
       return {
         id: group.id,
@@ -76,15 +79,14 @@ function actionsFor(row: GroupRow): DropdownMenuItem[] {
     v-model:search="search"
     @add="editor.setModal('createGroup', groups)"
   >
-    <ul v-if="rows.length" role="list" class="divide-y divide-default">
-      <li
-        v-for="row in rows"
-        :key="row.id"
-        class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-elevated/50 sm:px-6"
+    <EditorVirtualList v-slot="{ item: row }" :items="rows">
+      <div
+        role="listitem"
+        class="flex h-16 items-center justify-between gap-3 border-b border-default px-4 hover:bg-elevated/50 sm:px-6"
       >
         <NuxtLink
           :to="editorGroupPath(code, row.id)"
-          class="flex min-w-0 flex-1 items-center gap-3"
+          class="flex min-w-32 flex-1 items-center gap-3"
         >
           <UAvatar icon="i-lucide-users" size="md" />
           <div class="min-w-0 text-sm">
@@ -98,7 +100,7 @@ function actionsFor(row: GroupRow): DropdownMenuItem[] {
           </div>
         </NuxtLink>
 
-        <div class="flex min-w-0 flex-wrap items-center justify-end gap-1">
+        <div class="hidden max-w-[40%] min-w-0 shrink items-center justify-end gap-1 overflow-hidden sm:flex">
           <UButton
             v-for="trackId in row.tracks"
             :key="trackId"
@@ -107,6 +109,7 @@ function actionsFor(row: GroupRow): DropdownMenuItem[] {
             color="neutral"
             variant="subtle"
             icon="i-lucide-git-branch"
+            class="max-w-28 shrink-0 truncate"
           >
             {{ trackId }}
           </UButton>
@@ -136,14 +139,7 @@ function actionsFor(row: GroupRow): DropdownMenuItem[] {
             />
           </UDropdownMenu>
         </div>
-      </li>
-    </ul>
-    <UEmpty
-      v-else
-      icon="i-lucide-search"
-      variant="naked"
-      :title="t('editor.noResults')"
-      class="py-12"
-    />
+      </div>
+    </EditorVirtualList>
   </EditorIndexPage>
 </template>

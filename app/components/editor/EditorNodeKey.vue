@@ -43,13 +43,17 @@ function commit() {
 </script>
 
 <template>
-  <div>
-    <div v-if="!editing" class="flex cursor-pointer items-center gap-2 truncate" @click="editing = true">
-      <UBadge v-if="showType" size="xs" variant="subtle">
+  <div class="min-w-0 w-full">
+    <div
+      v-if="!editing"
+      class="flex min-w-0 cursor-pointer items-center gap-2 truncate"
+      @click="editing = true"
+    >
+      <UBadge v-if="showType" size="xs" variant="subtle" class="shrink-0">
         {{ t(`editor.nodes.types.${parsed.type}`) }}
       </UBadge>
       <template v-if="isChatMeta">
-        <EditorChatText :value="chatValue" class="min-w-0 text-sm leading-5" />
+        <EditorChatText :value="chatValue" class="min-w-0 truncate text-sm leading-5" />
         <span class="shrink-0 font-mono text-xs text-muted">({{ chatWeight }})</span>
       </template>
       <span v-else class="truncate font-mono text-sm leading-5">{{ display }}</span>
@@ -59,6 +63,8 @@ function commit() {
       v-model="keyValue"
       autofocus
       size="xs"
+      class="w-full"
+      :ui="{ base: 'w-full font-mono' }"
       @keydown.enter="commit"
       @keydown.tab="commit"
       @blur="commit"

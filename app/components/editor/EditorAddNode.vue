@@ -126,12 +126,13 @@ function add() {
           :items="editor.knownPermissions"
           multiple
           create-item
+          virtualize
           :placeholder="t('editor.nodes.permissionPlaceholder')"
           @create="onPermissionTag"
         />
       </UFormField>
       <UFormField v-else-if="nodeType === 'inheritance'" :label="t('editor.nodes.labels.groupName')">
-        <UInputMenu v-model="nodeParts.groupName" :items="knownGroups" :placeholder="t('editor.nodes.groupNamePlaceholder')" class="w-48" />
+        <UInputMenu v-model="nodeParts.groupName" :items="knownGroups" virtualize :placeholder="t('editor.nodes.groupNamePlaceholder')" class="w-48" />
       </UFormField>
       <template v-else-if="nodeType === 'prefix' || nodeType === 'suffix'">
         <UFormField :label="t('editor.nodes.labels.weight')">

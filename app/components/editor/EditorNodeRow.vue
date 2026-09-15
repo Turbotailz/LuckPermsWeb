@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const editor = useEditorStore()
 const { t } = useI18n()
-const selected = computed(() => editor.selectedNodeIds.includes(props.node.id))
+const selected = computed(() => !!editor.selectedNodeMap[props.node.id])
 </script>
 
 <template>

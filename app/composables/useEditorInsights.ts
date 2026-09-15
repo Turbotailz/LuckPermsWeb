@@ -56,8 +56,8 @@ export function useEditorInsights() {
 
   const nodesBySession = computed(() => {
     const map = new Map<string, number>()
-    for (const node of editor.document.nodes) {
-      map.set(node.sessionId, (map.get(node.sessionId) || 0) + 1)
+    for (const [sessionId, nodes] of editor.nodesBySessionId) {
+      map.set(sessionId, nodes.length)
     }
     return map
   })

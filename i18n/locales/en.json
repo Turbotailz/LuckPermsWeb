@@ -146,6 +146,7 @@
   },
   "editor": {
     "description": "Web Permissions Editor",
+    "title": "Permissions Editor",
     "intro": "Edit groups, users, and permissions in your browser — then apply the changes with a command.",
     "learnMore": "Learn more",
     "start": "To start a new editor session, use one of the following commands:",
@@ -157,6 +158,7 @@
     "expiry": "Expiry",
     "contexts": "Contexts",
     "search": "Search",
+    "searchPlaceholder": "Search permissions…",
     "filter": "Filter",
     "add": "Add",
     "copy": "Copy",
@@ -270,6 +272,7 @@
       "searchTracks": "Search tracks",
       "permissions": "{n} permission | {n} permissions",
       "groupsCount": "{n} group | {n} groups",
+      "moreGroups": "+{n}",
       "actions": "Actions"
     },
     "reusedsession": {

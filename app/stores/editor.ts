@@ -20,6 +20,8 @@ import { socketConnect, type SocketApi } from '~/socket/ws'
 import editorDemo from '~/assets/data/editor-demo.json'
 import { editorSample, isLocalEditorSession } from '~/assets/data/editor-samples'
 
+const EMPTY_NODES: EditorNode[] = []
+
 function emptyDocument(): EditorDocument {
   return {
     sessions: {},
@@ -39,7 +41,7 @@ export const useEditorStore = defineStore('editor', () => {
   const document = ref<EditorDocument>(emptyDocument())
   const history = useHistoryStack(document)
   const currentSessionId = ref<string | null>(null)
-  const selectedNodeIds = ref<string[]>([])
+  const selectedNodeMap = reactive<Record<string, true>>({})
   const modal = ref<EditorModal>({ type: null })
   const errors = reactive({ load: false, unsupported: false })
   const saveStatus = ref<string | null>(null)
@@ -52,11 +54,45 @@ export const useEditorStore = defineStore('editor', () => {
   const sessions = computed(() => document.value.sessionList.map(id => document.value.sessions[id]).filter(Boolean))
   const currentSession = computed(() => currentSessionId.value ? document.value.sessions[currentSessionId.value] : null)
   const allNodes = computed(() => document.value.nodes)
-  const currentNodes = computed(() => document.value.nodes.filter(node => node.sessionId === currentSessionId.value))
+  const nodesBySessionId = computed(() => {
+    const map = new Map<string, EditorNode[]>()
+    for (const node of document.value.nodes) {
+      const list = map.get(node.sessionId)
+      if (list) {
+        list.push(node)
+      } else {
+        map.set(node.sessionId, [node])
+      }
+    }
+    return map
+  })
+  const nodesById = computed(() => {
+    const map = new Map<string, EditorNode>()
+    for (const node of document.value.nodes) {
+      map.set(node.id, node)
+    }
+    return map
+  })
+  const currentNodes = computed(() => {
+    if (!currentSessionId.value) {
+      return EMPTY_NODES
+    }
+    return nodesBySessionId.value.get(currentSessionId.value) ?? EMPTY_NODES
+  })
   const tracks = computed(() => document.value.tracks)
-  const selectedNodes = computed(() => selectedNodeIds.value
-    .map(id => document.value.nodes.find(node => node.id === id))
-    .filter((node): node is EditorNode => Boolean(node)))
+  const selectedNodeIds = computed(() => Object.keys(selectedNodeMap))
+  const selectedCount = computed(() => selectedNodeIds.value.length)
+  const selectedNodes = computed(() => {
+    const byId = nodesById.value
+    const nodes: EditorNode[] = []
+    for (const id of selectedNodeIds.value) {
+      const node = byId.get(id)
+      if (node) {
+        nodes.push(node)
+      }
+    }
+    return nodes
+  })
   const potentialContexts = computed(() => document.value.potentialContexts)
   const knownPermissions = computed(() => document.value.knownPermissions)
   const modifiedSessions = computed(() => sessions.value.filter(session => session.new || session.modified).map(session => session.id))
@@ -80,11 +116,17 @@ export const useEditorStore = defineStore('editor', () => {
     }
   })
 
+  function clearSelectedNodes() {
+    for (const id of Object.keys(selectedNodeMap)) {
+      delete selectedNodeMap[id]
+    }
+  }
+
   function reset() {
     sessionId.value = null
     history.replace(emptyDocument())
     currentSessionId.value = null
-    selectedNodeIds.value = []
+    clearSelectedNodes()
     modal.value = { type: null }
     errors.load = false
     errors.unsupported = false
@@ -108,28 +150,32 @@ export const useEditorStore = defineStore('editor', () => {
     currentSessionId.value = id
   }
 
+  function isNodeSelected(nodeId: string) {
+    return selectedNodeMap[nodeId] === true
+  }
+
   function toggleNodeSelect(nodeId: string) {
-    const index = selectedNodeIds.value.indexOf(nodeId)
-    if (index >= 0) {
-      selectedNodeIds.value = selectedNodeIds.value.filter(id => id !== nodeId)
+    if (selectedNodeMap[nodeId]) {
+      delete selectedNodeMap[nodeId]
     } else {
-      selectedNodeIds.value = [...selectedNodeIds.value, nodeId]
+      selectedNodeMap[nodeId] = true
     }
   }
 
   function selectAllSessionNodes(nodes: EditorNode[]) {
-    const ids = new Set(selectedNodeIds.value)
-    nodes.forEach(node => ids.add(node.id))
-    selectedNodeIds.value = [...ids]
+    for (const node of nodes) {
+      selectedNodeMap[node.id] = true
+    }
   }
 
   function deselectAllSessionNodes(nodes: EditorNode[]) {
-    const remove = new Set(nodes.map(node => node.id))
-    selectedNodeIds.value = selectedNodeIds.value.filter(id => !remove.has(id))
+    for (const node of nodes) {
+      delete selectedNodeMap[node.id]
+    }
   }
 
   function deselectAllSelectedNodes() {
-    selectedNodeIds.value = []
+    clearSelectedNodes()
   }
 
   function addNodesInternal(draft: EditorDocument, nodes: Array<Partial<EditorNode> & { sessionId: string, key: string, value: boolean }>, recordNew = true) {
@@ -172,7 +218,7 @@ export const useEditorStore = defineStore('editor', () => {
         draft.sessions[deleting.sessionId].modified = true
       }
     })
-    selectedNodeIds.value = selectedNodeIds.value.filter(id => id !== nodeId)
+    delete selectedNodeMap[nodeId]
   }
 
   function toggleNodeValue(nodeId: string) {
@@ -373,7 +419,7 @@ export const useEditorStore = defineStore('editor', () => {
         }
       })
     })
-    selectedNodeIds.value = []
+    clearSelectedNodes()
     closeModal()
   }
 
@@ -715,6 +761,8 @@ export const useEditorStore = defineStore('editor', () => {
     document,
     currentSessionId,
     selectedNodeIds,
+    selectedNodeMap,
+    selectedCount,
     modal,
     errors,
     saveStatus,
@@ -725,6 +773,8 @@ export const useEditorStore = defineStore('editor', () => {
     sessions,
     currentSession,
     allNodes,
+    nodesBySessionId,
+    nodesById,
     currentNodes,
     tracks,
     selectedNodes,
@@ -740,6 +790,7 @@ export const useEditorStore = defineStore('editor', () => {
     setModal,
     closeModal,
     setCurrentSession,
+    isNodeSelected,
     toggleNodeSelect,
     selectAllSessionNodes,
     deselectAllSessionNodes,

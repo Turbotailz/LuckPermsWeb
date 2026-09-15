@@ -22,7 +22,7 @@ const holderId = computed(() => {
 })
 
 const session = computed(() => editor.sessions.find(item => item.id === holderId.value) ?? null)
-const nodes = computed(() => editor.allNodes.filter(node => node.sessionId === holderId.value))
+const nodes = computed(() => editor.nodesBySessionId.get(holderId.value) ?? [])
 const tableNodes = computed(() =>
   advanced.value ? nodes.value : nodes.value.filter(isPermissionNode)
 )
@@ -66,7 +66,7 @@ watch(advanced, (enabled) => {
                   {{ tableNodes.length }}
                 </UBadge>
               </div>
-              <EditorNodeBulkBar v-if="editor.selectedNodes.length" class="shrink-0" />
+              <EditorNodeBulkBar class="shrink-0" />
             </div>
           </template>
           <EditorNodeList :nodes="tableNodes" :advanced="advanced" class="min-h-0 flex-1" />

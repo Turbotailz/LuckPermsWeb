@@ -13,6 +13,11 @@ const contextKey = ref('')
 const contextValue = ref('')
 
 const contexts = computed(() => flattenContexts(props.node.context))
+const primaryContext = computed(() => contexts.value[0] ?? null)
+const hiddenContextCount = computed(() => Math.max(0, contexts.value.length - 1))
+const hiddenContextLabel = computed(() =>
+  contexts.value.slice(1).map(entry => `${entry.key}:${entry.value}`).join(', ')
+)
 const potentialValues = computed(() =>
   editor.potentialContexts.find(item => item.key === contextKey.value)?.values || []
 )
@@ -44,19 +49,22 @@ function removeContext(key: string, value: string) {
 
 <template>
   <UPopover v-model:open="open">
-    <UButton color="neutral" variant="ghost" size="xs" class="max-w-full truncate" :aria-label="t('editor.contexts')">
-      <template v-if="contexts.length">
+    <UButton color="neutral" variant="ghost" size="xs" class="max-w-full" :aria-label="t('editor.contexts')">
+      <span v-if="contexts.length" class="flex min-w-0 items-center gap-1">
         <UBadge
-          v-for="entry in contexts"
-          :key="`${entry.key}:${entry.value}`"
           color="neutral"
           variant="subtle"
           size="xs"
-          class="me-1 font-mono"
+          class="min-w-0 max-w-36 truncate font-mono"
         >
-          {{ entry.key }}:{{ entry.value }}
+          {{ primaryContext!.key }}:{{ primaryContext!.value }}
         </UBadge>
-      </template>
+        <UTooltip v-if="hiddenContextCount" :text="hiddenContextLabel">
+          <UBadge color="neutral" variant="subtle" size="xs" class="shrink-0 tabular-nums">
+            {{ t('editor.index.moreGroups', { n: hiddenContextCount }) }}
+          </UBadge>
+        </UTooltip>
+      </span>
       <UIcon v-else name="i-lucide-minus" class="size-4 text-muted" />
     </UButton>
     <template #content>

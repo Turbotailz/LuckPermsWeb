@@ -43,16 +43,19 @@ function remove() {
         <UButton icon="i-lucide-x" size="xs" variant="ghost" :aria-label="t('editor.tracks.delete')" @click="remove" />
       </div>
     </div>
-    <div class="min-h-0 flex-1 overflow-auto p-4">
-      <h2 class="mb-3 text-sm font-semibold text-highlighted">{{ t('editor.tracks.groups') }}</h2>
-      <ul class="space-y-1">
-        <li v-for="(group, index) in track.groups" :key="group">
-          <UButton color="neutral" variant="ghost" block class="justify-start" :to="editorGroupPath(code, group)">
-            <span class="me-2 text-muted">{{ index + 1 }}.</span>
-            {{ group }}
-          </UButton>
-        </li>
-      </ul>
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
+      <h2 class="mb-3 shrink-0 text-sm font-semibold text-highlighted">{{ t('editor.tracks.groups') }}</h2>
+      <UScrollArea
+        v-slot="{ item: group, index }"
+        :items="track.groups"
+        :virtualize="{ estimateSize: 36, overscan: 8, skipMeasurement: true }"
+        class="min-h-0 flex-1"
+      >
+        <UButton color="neutral" variant="ghost" block class="h-8 justify-start" :to="editorGroupPath(code, group)">
+          <span class="me-2 text-muted">{{ index + 1 }}.</span>
+          {{ group }}
+        </UButton>
+      </UScrollArea>
     </div>
   </div>
   <UEmpty

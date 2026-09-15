@@ -248,8 +248,12 @@ function confirmDeleteUser() {
           <UInput v-model="groupForm.displayName" />
         </UFormField>
         <UFormField :label="t('editor.groups.parent')">
-          <USelect
+          <USelectMenu
             v-model="groupForm.parent"
+            virtualize
+            value-key="value"
+            label-key="label"
+            class="w-full"
             :items="[{ label: t('editor.groups.none'), value: 0 }, ...modalGroups.map(group => ({ label: group.displayName, value: group.id }))]"
           />
         </UFormField>
@@ -294,11 +298,16 @@ function confirmDeleteUser() {
         </div>
         <div>
           <h3 class="font-semibold">{{ t('editor.tracks.addGroups') }}</h3>
-          <ul class="mt-2 space-y-1">
-            <li v-for="group in availableTrackGroups" :key="group.id">
-              <UButton color="neutral" variant="subtle" block @click="trackForm.groups.push(group.id)">{{ group.id }}</UButton>
-            </li>
-          </ul>
+          <UScrollArea
+            v-if="availableTrackGroups.length"
+            v-slot="{ item: group }"
+            :items="availableTrackGroups"
+            :virtualize="{ estimateSize: 36, overscan: 8, skipMeasurement: true }"
+            class="mt-2 h-64"
+          >
+            <UButton color="neutral" variant="subtle" block class="h-8" @click="trackForm.groups.push(group.id)">{{ group.id }}</UButton>
+          </UScrollArea>
+          <p v-else class="mt-2 text-sm text-muted">{{ t('editor.noResults') }}</p>
         </div>
         <UButton class="sm:col-span-2" :disabled="!trackForm.id || !trackForm.groups.length" @click="submitTrack">
           {{ t(isAddingTrack ? 'editor.tracks.add' : 'editor.tracks.save') }}
@@ -307,7 +316,7 @@ function confirmDeleteUser() {
 
       <div v-else-if="editor.modal.type === 'deleteGroup'" class="space-y-4">
         <p><TrustedHtml :html="t('editor.groups.delete', { group: deleteGroupId })" /></p>
-        <p>{{ t('editor.groups.deleteConfirm', { count: editor.allNodes.filter(node => node.sessionId === deleteGroupId).length }) }}</p>
+        <p>{{ t('editor.groups.deleteConfirm', { count: editor.nodesBySessionId.get(deleteGroupId || '')?.length || 0 }) }}</p>
         <div class="flex gap-2">
           <UButton color="error" @click="confirmDeleteGroup">{{ t('editor.delete') }}</UButton>
           <UButton color="neutral" variant="ghost" @click="editor.closeModal()">{{ t('editor.cancel') }}</UButton>
@@ -338,6 +347,7 @@ function confirmDeleteUser() {
             value-key="value"
             label-key="label"
             multiple
+            virtualize
             :placeholder="t('editor.nodes.targetPlaceholder')"
           />
         </UFormField>
@@ -354,6 +364,7 @@ function confirmDeleteUser() {
             :items="holderItems"
             value-key="value"
             label-key="label"
+            virtualize
             :placeholder="t('editor.nodes.targetPlaceholder')"
           />
         </UFormField>

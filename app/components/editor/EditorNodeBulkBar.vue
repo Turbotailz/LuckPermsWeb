@@ -33,9 +33,12 @@ const moreItems = computed<DropdownMenuItem[][]>(() => [
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center justify-end gap-1.5">
+  <div
+    v-if="editor.selectedCount"
+    class="flex flex-wrap items-center justify-end gap-1.5"
+  >
     <p class="me-1 text-sm text-muted tabular-nums">
-      {{ t('editor.nodes.selectedCount', editor.selectedNodes.length) }}
+      {{ t('editor.nodes.selectedCount', editor.selectedCount) }}
     </p>
     <UButton
       size="xs"

@@ -15,7 +15,6 @@ watch(section, () => {
   sectionFilter.value = ''
 })
 
-const searchOpen = ref(false)
 const searchQuery = ref('')
 const debouncedQuery = ref('')
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -26,6 +25,11 @@ watch(searchQuery, (value) => {
     debouncedQuery.value = String(value).toLowerCase()
   }, 200)
 })
+
+function clearSearch() {
+  searchQuery.value = ''
+  debouncedQuery.value = ''
+}
 
 const sessionId = computed(() => String(route.params.id || ''))
 const holderId = computed(() => {
@@ -156,15 +160,42 @@ defineShortcuts({
   </ToolEmpty>
 
   <UDashboardGroup v-else class="flex-col" storage-key="lp-editor-rem" unit="rem">
-    <UDashboardNavbar :toggle="section !== 'home'">
+    <UDashboardNavbar
+      :toggle="section !== 'home'"
+      :ui="{
+        center: 'flex flex-1 min-w-0 justify-center px-2 sm:px-4',
+        right: 'flex items-center shrink-0 gap-1 sm:gap-1.5'
+      }"
+    >
       <template #leading>
         <UDashboardSidebarCollapse v-if="section !== 'home'" />
       </template>
       <template #title>
         <NuxtLink :to="homePath" class="truncate">
-          {{ t('links.tools.editor') }}
+          <span class="sm:hidden">{{ t('links.tools.editor') }}</span>
+          <span class="hidden sm:inline">{{ t('editor.title') }}</span>
         </NuxtLink>
       </template>
+
+      <UInput
+        v-model="searchQuery"
+        icon="i-lucide-search"
+        :placeholder="t('editor.searchPlaceholder')"
+        class="w-full max-w-md"
+        :ui="{ base: 'pe-1' }"
+      >
+        <template v-if="searchQuery" #trailing>
+          <UButton
+            icon="i-lucide-x"
+            color="neutral"
+            variant="link"
+            size="sm"
+            :aria-label="t('editor.clearFilters')"
+            @click="clearSearch"
+          />
+        </template>
+      </UInput>
+
       <template #right>
         <UTooltip v-if="editor.socketStatus" :text="t('editor.socketConnected')">
           <UIcon name="i-lucide-network" class="text-primary" />
@@ -173,31 +204,21 @@ defineShortcuts({
           icon="i-lucide-undo-2"
           color="neutral"
           variant="ghost"
-          :disabled="!editor.canUndo"
+          :label="t('editor.undo')"
           :aria-label="t('editor.undo')"
+          :disabled="!editor.canUndo"
+          :ui="{ label: 'hidden sm:inline' }"
           @click="editor.undo()"
         />
         <UButton
           icon="i-lucide-redo-2"
           color="neutral"
           variant="ghost"
-          :disabled="!editor.canRedo"
+          :label="t('editor.redo')"
           :aria-label="t('editor.redo')"
+          :disabled="!editor.canRedo"
+          :ui="{ label: 'hidden sm:inline' }"
           @click="editor.redo()"
-        />
-        <UInput
-          v-if="searchOpen"
-          v-model="searchQuery"
-          :placeholder="t('editor.search')"
-          autofocus
-          class="w-48"
-        />
-        <UButton
-          :icon="searchQuery ? 'i-lucide-x' : 'i-lucide-search'"
-          color="neutral"
-          variant="ghost"
-          :aria-label="t('editor.search')"
-          @click="searchOpen = !searchOpen; if (!searchOpen) { searchQuery = ''; debouncedQuery = '' }"
         />
         <UButton
           :loading="editor.saveStatus === 'saving'"
@@ -215,13 +236,13 @@ defineShortcuts({
 
     <div class="flex min-h-0 min-w-0 flex-1 overflow-hidden">
       <EditorSidebar v-if="section !== 'home'" v-model:filter="sectionFilter" />
-      <UDashboardPanel :ui="{ body: 'flex min-h-0 flex-col gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' }">
+      <UDashboardPanel :ui="{ body: 'flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' }">
         <template #body>
           <div class="flex min-h-0 flex-1 flex-col">
             <EditorSearchResults
               v-if="debouncedQuery"
               :query="debouncedQuery"
-              @clear="searchQuery = ''; debouncedQuery = ''; searchOpen = false"
+              @clear="clearSearch"
             />
             <div v-show="!debouncedQuery" class="flex min-h-0 flex-1 flex-col">
               <slot />
@@ -230,7 +251,7 @@ defineShortcuts({
         </template>
 
         <template #footer>
-          <EditorNodeBulkBar v-if="!holderId && editor.selectedNodes.length" class="p-3" />
+          <EditorNodeBulkBar v-if="!holderId" class="p-3" />
         </template>
       </UDashboardPanel>
     </div>

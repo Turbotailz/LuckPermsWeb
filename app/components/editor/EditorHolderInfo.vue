@@ -440,11 +440,11 @@ function deleteEditingMeta() {
               value-key="id"
               multiple
               size="sm"
-              class="w-72"
+              virtualize
+              class="h-52 w-72"
               :placeholder="t('editor.meta.filterParents')"
               :groups="parentGroups"
               :fuse="{ resultLimit: 10000, fuseOptions: { keys: ['label', 'suffix', 'id'] } }"
-              :ui="{ viewport: 'max-h-52' }"
               @update:model-value="onParentSelect"
             >
               <template #empty>

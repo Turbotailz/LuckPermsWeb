@@ -10,7 +10,7 @@ const filter = defineModel<string>('filter', { default: '' })
 const editor = useEditorStore()
 const route = useRoute()
 const { t } = useI18n()
-const { code, section, toSection } = useEditorNavigation()
+const { code, section } = useEditorNavigation()
 
 const groups = computed(() => editor.sessions.filter(session => session.type === 'group'))
 const users = computed(() => editor.sessions.filter(session => session.type === 'user'))
@@ -64,13 +64,6 @@ function editTrack(id: string) {
     editor.setModal('createTrack', { track })
   }
 }
-
-function removeTrack(id: string) {
-  editor.deleteTrack(id)
-  if (activeTrackId.value === id) {
-    toSection('tracks')
-  }
-}
 </script>
 
 <template>
@@ -121,106 +114,82 @@ function removeTrack(id: string) {
     </template>
 
     <template #default="{ collapsed }">
-    <nav v-if="section === 'groups'" class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
-      <div
-        v-for="group in filteredGroups"
-        :key="group.id"
-        class="flex min-w-0 items-center gap-0.5"
-      >
-        <UButton
-          :to="editorGroupPath(code, group.id)"
-          color="neutral"
-          :variant="activeGroupId === group.id ? 'subtle' : 'ghost'"
-          size="sm"
-          block
-          class="min-w-0 justify-start"
-        >
-          <span
-            class="min-w-0 truncate"
-            :class="{ 'text-primary': group.new, italic: group.modified }"
+    <nav v-if="section === 'groups'" class="flex min-h-0 flex-1 flex-col">
+      <EditorVirtualList :items="filteredGroups" :estimate-size="32" :overscan="12" :gap="2">
+        <template #default="{ item: group }">
+          <UButton
+            :to="editorGroupPath(code, group.id)"
+            color="neutral"
+            :variant="activeGroupId === group.id ? 'subtle' : 'ghost'"
+            size="sm"
+            block
+            class="h-8 min-w-0 justify-start"
           >
-            {{ group.displayName }}
-          </span>
-          <span v-if="!collapsed && weightFor(group.id)" class="ms-auto shrink-0 text-xs text-muted">{{ weightFor(group.id) }}</span>
-        </UButton>
-        <UButton
-          v-if="!collapsed && group.id !== 'default'"
-          icon="i-lucide-x"
-          size="xs"
-          color="neutral"
-          variant="ghost"
-          :aria-label="t('editor.delete')"
-          @click="editor.setModal('deleteGroup', { groupId: group.id })"
-        />
-      </div>
-      <p v-if="!filteredGroups.length" class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
+            <span
+              class="min-w-0 truncate"
+              :class="{ 'text-primary': group.new, italic: group.modified }"
+            >
+              {{ group.displayName }}
+            </span>
+            <span v-if="!collapsed && weightFor(group.id)" class="ms-auto shrink-0 text-xs text-muted">{{ weightFor(group.id) }}</span>
+          </UButton>
+        </template>
+        <template #empty>
+          <p class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
+        </template>
+      </EditorVirtualList>
     </nav>
 
-    <nav v-else-if="section === 'users'" class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
-      <div
-        v-for="user in filteredUsers"
-        :key="user.id"
-        class="flex min-w-0 items-center gap-0.5"
-      >
-        <UButton
-          :to="editorUserPath(code, user.id)"
-          color="neutral"
-          :variant="activeUserId === user.id ? 'subtle' : 'ghost'"
-          size="sm"
-          block
-          class="min-w-0 justify-start"
-        >
-          <PlayerAvatar :id="user.id" :name="user.displayName" :title="false" />
-          <span v-if="!collapsed" class="min-w-0 truncate" :class="{ italic: user.modified }">{{ user.displayName }}</span>
-        </UButton>
-        <UButton
-          v-if="!collapsed && editor.canDeleteUsers"
-          icon="i-lucide-x"
-          size="xs"
-          color="neutral"
-          variant="ghost"
-          :aria-label="t('editor.delete')"
-          @click="editor.setModal('deleteUser', { userId: user.id, name: user.displayName })"
-        />
-      </div>
-      <p v-if="!filteredUsers.length" class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
+    <nav v-else-if="section === 'users'" class="flex min-h-0 flex-1 flex-col">
+      <EditorVirtualList :items="filteredUsers" :estimate-size="32" :overscan="12" :gap="2">
+        <template #default="{ item: user }">
+          <UButton
+            :to="editorUserPath(code, user.id)"
+            color="neutral"
+            :variant="activeUserId === user.id ? 'subtle' : 'ghost'"
+            size="sm"
+            block
+            class="h-8 min-w-0 justify-start"
+          >
+            <PlayerAvatar :id="user.id" :name="user.displayName" :title="false" />
+            <span v-if="!collapsed" class="min-w-0 truncate" :class="{ italic: user.modified }">{{ user.displayName }}</span>
+          </UButton>
+        </template>
+        <template #empty>
+          <p class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
+        </template>
+      </EditorVirtualList>
     </nav>
 
-    <nav v-else-if="section === 'tracks'" class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
-      <div
-        v-for="track in filteredTracks"
-        :key="track.id"
-        class="flex min-w-0 items-center gap-0.5"
-      >
-        <UButton
-          :to="editorTrackPath(code, track.id)"
-          color="neutral"
-          :variant="activeTrackId === track.id ? 'subtle' : 'ghost'"
-          size="sm"
-          block
-          class="min-w-0 justify-start"
-        >
-          <span class="min-w-0 truncate" :class="{ 'text-primary': track.new }">{{ track.id }}</span>
-          <span v-if="!collapsed" class="ms-auto shrink-0 text-xs text-muted">{{ track.groups.length }}</span>
-        </UButton>
-        <UButton
-          v-if="!collapsed"
-          icon="i-lucide-pencil"
-          size="xs"
-          variant="ghost"
-          :aria-label="t('editor.tracks.edit')"
-          @click="editTrack(track.id)"
-        />
-        <UButton
-          v-if="!collapsed"
-          icon="i-lucide-x"
-          size="xs"
-          variant="ghost"
-          :aria-label="t('editor.tracks.delete')"
-          @click="removeTrack(track.id)"
-        />
-      </div>
-      <p v-if="!filteredTracks.length" class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
+    <nav v-else-if="section === 'tracks'" class="flex min-h-0 flex-1 flex-col">
+      <EditorVirtualList :items="filteredTracks" :estimate-size="32" :overscan="12" :gap="2">
+        <template #default="{ item: track }">
+          <div class="flex h-8 min-w-0 items-center gap-0.5">
+            <UButton
+              :to="editorTrackPath(code, track.id)"
+              color="neutral"
+              :variant="activeTrackId === track.id ? 'subtle' : 'ghost'"
+              size="sm"
+              block
+              class="min-w-0 justify-start"
+            >
+              <span class="min-w-0 truncate" :class="{ 'text-primary': track.new }">{{ track.id }}</span>
+              <span v-if="!collapsed" class="ms-auto shrink-0 text-xs text-muted">{{ track.groups.length }}</span>
+            </UButton>
+            <UButton
+              v-if="!collapsed"
+              icon="i-lucide-pencil"
+              size="xs"
+              variant="ghost"
+              :aria-label="t('editor.tracks.edit')"
+              @click="editTrack(track.id)"
+            />
+          </div>
+        </template>
+        <template #empty>
+          <p class="px-2 py-3 text-sm text-muted">{{ t('editor.noResults') }}</p>
+        </template>
+      </EditorVirtualList>
     </nav>
     </template>
   </UDashboardSidebar>

@@ -64,6 +64,16 @@ function actionsFor(row: TrackRow): DropdownMenuItem[] {
     }
   ]
 }
+
+const GROUP_PREVIEW = 3
+
+function visibleGroups(groups: string[]) {
+  return groups.slice(0, GROUP_PREVIEW)
+}
+
+function hiddenGroupCount(groups: string[]) {
+  return Math.max(0, groups.length - GROUP_PREVIEW)
+}
 </script>
 
 <template>
@@ -75,39 +85,45 @@ function actionsFor(row: TrackRow): DropdownMenuItem[] {
     v-model:search="search"
     @add="editor.setModal('createTrack')"
   >
-    <ul v-if="rows.length" role="list" class="divide-y divide-default">
-      <li
-        v-for="row in rows"
-        :key="row.id"
-        class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-elevated/50 sm:px-6"
+    <EditorVirtualList v-slot="{ item: row }" :items="rows" :estimate-size="48">
+      <div
+        role="listitem"
+        class="flex h-12 items-center justify-between gap-3 border-b border-default px-4 hover:bg-elevated/50 sm:px-6"
       >
         <NuxtLink
           :to="editorTrackPath(code, row.id)"
-          class="flex min-w-0 flex-1 items-center gap-3"
+          class="flex min-w-32 flex-1 items-center gap-3"
         >
-          <UAvatar icon="i-lucide-git-branch" size="md" />
-          <div class="min-w-0 text-sm">
-            <p
-              class="truncate font-medium text-highlighted"
-              :class="{ 'text-primary': row.isNew }"
-            >
-              {{ row.id }}
-            </p>
-          </div>
+          <UAvatar icon="i-lucide-git-branch" size="sm" />
+          <p
+            class="truncate text-sm font-medium text-highlighted"
+            :class="{ 'text-primary': row.isNew }"
+          >
+            {{ row.id }}
+          </p>
         </NuxtLink>
 
-        <div class="flex min-w-0 flex-wrap items-center justify-end gap-1">
+        <div class="hidden min-w-0 shrink items-center justify-end gap-1 sm:flex">
           <UButton
-            v-for="groupId in row.groups"
+            v-for="groupId in visibleGroups(row.groups)"
             :key="groupId"
             :to="editorGroupPath(code, groupId)"
             size="xs"
             color="neutral"
             variant="subtle"
             icon="i-lucide-users"
+            class="max-w-28 shrink-0 truncate"
           >
             {{ groupId }}
           </UButton>
+          <UTooltip
+            v-if="hiddenGroupCount(row.groups)"
+            :text="row.groups.slice(GROUP_PREVIEW).join(', ')"
+          >
+            <UBadge color="neutral" variant="subtle" size="sm" class="shrink-0 tabular-nums">
+              {{ t('editor.index.moreGroups', { n: hiddenGroupCount(row.groups) }) }}
+            </UBadge>
+          </UTooltip>
         </div>
 
         <div class="flex shrink-0 items-center gap-3">
@@ -128,14 +144,7 @@ function actionsFor(row: TrackRow): DropdownMenuItem[] {
             />
           </UDropdownMenu>
         </div>
-      </li>
-    </ul>
-    <UEmpty
-      v-else
-      icon="i-lucide-search"
-      variant="naked"
-      :title="t('editor.noResults')"
-      class="py-12"
-    />
+      </div>
+    </EditorVirtualList>
   </EditorIndexPage>
 </template>

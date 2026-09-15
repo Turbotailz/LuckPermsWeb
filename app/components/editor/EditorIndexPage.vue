@@ -14,13 +14,14 @@ const search = defineModel<string>('search', { default: '' })
 </script>
 
 <template>
-  <div class="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:py-12">
-    <div class="mx-auto flex w-full flex-col gap-4 sm:gap-6 lg:max-w-2xl lg:gap-12">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden p-4 sm:p-6">
+    <div class="mx-auto flex min-h-0 w-full flex-1 flex-col gap-4 lg:max-w-2xl">
       <UPageCard
         :title="title"
         :description="description"
         variant="naked"
         orientation="horizontal"
+        class="shrink-0"
       >
         <UButton
           :label="addLabel"
@@ -33,13 +34,15 @@ const search = defineModel<string>('search', { default: '' })
 
       <UPageCard
         variant="subtle"
+        class="min-h-0 flex-1 overflow-hidden"
         :ui="{
-          container: 'gap-y-0 p-0 sm:p-0',
+          root: 'flex min-h-0 flex-1 flex-col overflow-hidden',
+          container: 'flex min-h-0 flex-1 flex-col gap-y-0 p-0 sm:p-0 lg:flex lg:grid-cols-none',
           wrapper: 'hidden'
         }"
       >
-        <div>
-          <div class="border-b border-default p-4">
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div class="shrink-0 border-b border-default p-4">
             <UInput
               v-model="search"
               icon="i-lucide-search"
@@ -47,7 +50,9 @@ const search = defineModel<string>('search', { default: '' })
               class="w-full"
             />
           </div>
-          <slot />
+          <div class="min-h-0 flex-1">
+            <slot />
+          </div>
         </div>
       </UPageCard>
     </div>

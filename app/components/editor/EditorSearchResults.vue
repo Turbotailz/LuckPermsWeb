@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { EditorNode, EditorSession } from '~/types/editor'
+
 const props = defineProps<{ query: string }>()
 const emit = defineEmits<{ clear: [] }>()
 const editor = useEditorStore()
@@ -10,7 +12,11 @@ function openSession(type: 'group' | 'user', id: string) {
   emit('clear')
 }
 
-const grouped = computed(() => {
+type SearchRow
+  = { kind: 'header', id: string, session: EditorSession, nodes: EditorNode[] }
+    | { kind: 'node', id: string, node: EditorNode }
+
+const rows = computed<SearchRow[]>(() => {
   const q = props.query.toLowerCase()
   const matches = editor.allNodes.filter((node) => {
     if (String(node.key).toLowerCase().includes(q)) {
@@ -25,36 +31,56 @@ const grouped = computed(() => {
     list.push(node)
     bySession.set(node.sessionId, list)
   })
-  return [...bySession.entries()].map(([id, nodes]) => ({
-    session: editor.document.sessions[id],
-    nodes
-  })).filter(group => group.session)
+  const list: SearchRow[] = []
+  for (const [id, nodes] of bySession) {
+    const session = editor.document.sessions[id]
+    if (!session) {
+      continue
+    }
+    list.push({ kind: 'header', id: `header:${id}`, session, nodes })
+    for (const node of nodes) {
+      list.push({ kind: 'node', id: node.id, node })
+    }
+  }
+  return list
 })
+
+const virtualize = computed(() => ({
+  estimateSize: (index: number) => rows.value[index]?.kind === 'header' ? 40 : 48,
+  overscan: 10
+}))
 </script>
 
 <template>
-  <div class="min-h-0 flex-1 overflow-auto p-4">
-    <UEmpty v-if="!grouped.length" icon="i-lucide-search" variant="naked" :title="t('editor.noResults')" />
-    <div v-else class="space-y-6">
-      <section v-for="group in grouped" :key="group.session!.id">
-        <h2 class="mb-2 flex items-center gap-2 font-semibold">
-          <UCheckbox
-            :model-value="group.nodes.every(node => editor.selectedNodeIds.includes(node.id))"
-            @update:model-value="(checked) => checked ? editor.selectAllSessionNodes(group.nodes) : editor.deselectAllSessionNodes(group.nodes)"
-          />
-          <small class="text-muted capitalize">{{ group.session!.type }}</small>
-          <PlayerAvatar v-if="group.session!.type === 'user'" :id="group.session!.id" :name="group.session!.displayName" :title="false" />
-          <UButton
-            color="neutral"
-            variant="link"
-            class="p-0"
-            @click="openSession(group.session!.type, group.session!.id)"
-          >
-            {{ group.session!.displayName }}
-          </UButton>
-        </h2>
-        <EditorNodeRow v-for="node in group.nodes" :key="node.id" :node="node" show-type />
+  <div class="min-h-0 flex-1 overflow-hidden p-4">
+    <UEmpty v-if="!rows.length" icon="i-lucide-search" variant="naked" :title="t('editor.noResults')" />
+    <UScrollArea
+      v-else
+      v-slot="{ item }"
+      :items="rows"
+      :virtualize="virtualize"
+      class="h-full min-h-0"
+    >
+      <section
+        v-if="item.kind === 'header'"
+        class="flex h-10 items-center gap-2 font-semibold"
+      >
+        <UCheckbox
+          :model-value="item.nodes.every(node => editor.selectedNodeMap[node.id])"
+          @update:model-value="(checked) => checked ? editor.selectAllSessionNodes(item.nodes) : editor.deselectAllSessionNodes(item.nodes)"
+        />
+        <small class="text-muted capitalize">{{ item.session.type }}</small>
+        <PlayerAvatar v-if="item.session.type === 'user'" :id="item.session.id" :name="item.session.displayName" :title="false" />
+        <UButton
+          color="neutral"
+          variant="link"
+          class="p-0"
+          @click="openSession(item.session.type, item.session.id)"
+        >
+          {{ item.session.displayName }}
+        </UButton>
       </section>
-    </div>
+      <EditorNodeRow v-else :node="item.node" show-type />
+    </UScrollArea>
   </div>
 </template>
