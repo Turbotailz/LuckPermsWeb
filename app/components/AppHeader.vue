@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NavigationMenuItem, DropdownMenuItem } from '@nuxt/ui'
+import type { NavigationMenuItem } from '@nuxt/ui'
 import bisect from '~/assets/images/bisect.svg'
 
 const { t } = useI18n()
@@ -47,14 +47,6 @@ const mobileItems = computed<NavigationMenuItem[]>(() => {
   ]
 })
 
-const languageItems = computed<DropdownMenuItem[][]>(() => [
-  language.supportedLanguages.map(item => ({
-    label: item.name,
-    icon: language.userLocale === item.code ? 'i-lucide-check' : 'i-lucide-languages',
-    onSelect: () => language.setUserLocale(item.code)
-  }))
-])
-
 const isWiki = computed(() => route.path === '/wiki' || route.path.startsWith('/wiki/'))
 const isEditor = computed(() => route.path === '/editor' || route.path.startsWith('/editor/'))
 </script>
@@ -97,14 +89,13 @@ const isEditor = computed(() => route.path === '/editor' || route.path.startsWit
     <template #right>
       <UContentSearchButton v-if="!selfHosted && !route.path.startsWith('/editor')" />
       <UColorModeButton />
-      <UDropdownMenu :items="languageItems">
-        <UButton
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-languages"
-          :aria-label="t('links.language')"
-        />
-      </UDropdownMenu>
+      <AppLocaleSelect
+        :model-value="language.userLocale"
+        :locales="language.supportedLanguages"
+        class="hidden w-44 sm:flex"
+        :aria-label="t('links.language')"
+        @update:model-value="language.setUserLocale"
+      />
       <UButton
         v-if="!selfHosted"
         color="neutral"
@@ -128,6 +119,17 @@ const isEditor = computed(() => route.path === '/editor' || route.path.startsWit
     </template>
 
     <template #body>
+      <div class="mb-4 sm:hidden">
+        <p class="mb-2 text-sm font-semibold text-highlighted">
+          {{ t('links.language') }}
+        </p>
+        <AppLocaleSelect
+          :model-value="language.userLocale"
+          :locales="language.supportedLanguages"
+          class="w-full"
+          @update:model-value="language.setUserLocale"
+        />
+      </div>
       <UNavigationMenu :items="mobileItems" orientation="vertical" class="-mx-2.5" />
       <div v-if="isWiki && !selfHosted" class="mt-6 border-t border-default pt-4">
         <p class="mb-3 text-sm font-semibold text-highlighted">

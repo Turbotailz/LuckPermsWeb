@@ -1,0 +1,285 @@
+{
+  "generatedAt": "2026-09-19T07:18:25.258Z",
+  "locales": [
+    {
+      "code": "en",
+      "language": "en-GB",
+      "name": "English",
+      "file": "en.json",
+      "dir": "ltr",
+      "flag": "gb"
+    },
+    {
+      "code": "ar",
+      "language": "ar-SA",
+      "name": "Arabic",
+      "file": "ar.json",
+      "dir": "rtl",
+      "flag": "sa"
+    },
+    {
+      "code": "bg",
+      "language": "bg-BG",
+      "name": "Bulgarian",
+      "file": "bg.json",
+      "dir": "ltr",
+      "flag": "bg"
+    },
+    {
+      "code": "zh-CN",
+      "language": "zh-CN",
+      "name": "Chinese Simplified",
+      "file": "zh-CN.json",
+      "dir": "ltr",
+      "flag": "cn"
+    },
+    {
+      "code": "zh-TW",
+      "language": "zh-TW",
+      "name": "Chinese Traditional",
+      "file": "zh-TW.json",
+      "dir": "ltr",
+      "flag": "tw"
+    },
+    {
+      "code": "cs",
+      "language": "cs-CZ",
+      "name": "Czech",
+      "file": "cs.json",
+      "dir": "ltr",
+      "flag": "cz"
+    },
+    {
+      "code": "da",
+      "language": "da-DK",
+      "name": "Danish",
+      "file": "da.json",
+      "dir": "ltr",
+      "flag": "dk"
+    },
+    {
+      "code": "nl",
+      "language": "nl-NL",
+      "name": "Dutch",
+      "file": "nl.json",
+      "dir": "ltr",
+      "flag": "nl"
+    },
+    {
+      "code": "fil",
+      "language": "fil-PH",
+      "name": "Filipino",
+      "file": "fil.json",
+      "dir": "ltr",
+      "flag": "ph"
+    },
+    {
+      "code": "fi",
+      "language": "fi-FI",
+      "name": "Finnish",
+      "file": "fi.json",
+      "dir": "ltr",
+      "flag": "fi"
+    },
+    {
+      "code": "fr",
+      "language": "fr-FR",
+      "name": "French",
+      "file": "fr.json",
+      "dir": "ltr",
+      "flag": "fr"
+    },
+    {
+      "code": "ka",
+      "language": "ka-GE",
+      "name": "Georgian",
+      "file": "ka.json",
+      "dir": "ltr",
+      "flag": "ge"
+    },
+    {
+      "code": "de",
+      "language": "de-DE",
+      "name": "German",
+      "file": "de.json",
+      "dir": "ltr",
+      "flag": "de"
+    },
+    {
+      "code": "el",
+      "language": "el-GR",
+      "name": "Greek",
+      "file": "el.json",
+      "dir": "ltr",
+      "flag": "gr"
+    },
+    {
+      "code": "he",
+      "language": "he-IL",
+      "name": "Hebrew",
+      "file": "he.json",
+      "dir": "rtl",
+      "flag": "il"
+    },
+    {
+      "code": "hi",
+      "language": "hi-IN",
+      "name": "Hindi",
+      "file": "hi.json",
+      "dir": "ltr",
+      "flag": "in"
+    },
+    {
+      "code": "hu",
+      "language": "hu-HU",
+      "name": "Hungarian",
+      "file": "hu.json",
+      "dir": "ltr",
+      "flag": "hu"
+    },
+    {
+      "code": "id",
+      "language": "id-ID",
+      "name": "Indonesian",
+      "file": "id.json",
+      "dir": "ltr",
+      "flag": "id"
+    },
+    {
+      "code": "it",
+      "language": "it-IT",
+      "name": "Italian",
+      "file": "it.json",
+      "dir": "ltr",
+      "flag": "it"
+    },
+    {
+      "code": "ja",
+      "language": "ja-JP",
+      "name": "Japanese",
+      "file": "ja.json",
+      "dir": "ltr",
+      "flag": "jp"
+    },
+    {
+      "code": "ko",
+      "language": "ko-KR",
+      "name": "Korean",
+      "file": "ko.json",
+      "dir": "ltr",
+      "flag": "kr"
+    },
+    {
+      "code": "no",
+      "language": "no-NO",
+      "name": "Norwegian",
+      "file": "no.json",
+      "dir": "ltr",
+      "flag": "no"
+    },
+    {
+      "code": "fa",
+      "language": "fa-IR",
+      "name": "Persian",
+      "file": "fa.json",
+      "dir": "rtl",
+      "flag": "ir"
+    },
+    {
+      "code": "en-PT",
+      "language": "en-PT",
+      "name": "Pirate English",
+      "file": "en-PT.json",
+      "dir": "ltr",
+      "flag": "pirate"
+    },
+    {
+      "code": "pl",
+      "language": "pl-PL",
+      "name": "Polish",
+      "file": "pl.json",
+      "dir": "ltr",
+      "flag": "pl"
+    },
+    {
+      "code": "pt-BR",
+      "language": "pt-BR",
+      "name": "Portuguese, Brazilian",
+      "file": "pt-BR.json",
+      "dir": "ltr",
+      "flag": "br"
+    },
+    {
+      "code": "ro",
+      "language": "ro-RO",
+      "name": "Romanian",
+      "file": "ro.json",
+      "dir": "ltr",
+      "flag": "ro"
+    },
+    {
+      "code": "ru",
+      "language": "ru-RU",
+      "name": "Russian",
+      "file": "ru.json",
+      "dir": "ltr",
+      "flag": "ru"
+    },
+    {
+      "code": "sr-CS",
+      "language": "sr-CS",
+      "name": "Serbian (Latin)",
+      "file": "sr-CS.json",
+      "dir": "ltr",
+      "flag": "rs"
+    },
+    {
+      "code": "sk",
+      "language": "sk-SK",
+      "name": "Slovak",
+      "file": "sk.json",
+      "dir": "ltr",
+      "flag": "sk"
+    },
+    {
+      "code": "es-ES",
+      "language": "es-ES",
+      "name": "Spanish",
+      "file": "es-ES.json",
+      "dir": "ltr",
+      "flag": "es"
+    },
+    {
+      "code": "sv-SE",
+      "language": "sv-SE",
+      "name": "Swedish",
+      "file": "sv-SE.json",
+      "dir": "ltr",
+      "flag": "se"
+    },
+    {
+      "code": "tr",
+      "language": "tr-TR",
+      "name": "Turkish",
+      "file": "tr.json",
+      "dir": "ltr",
+      "flag": "tr"
+    },
+    {
+      "code": "uk",
+      "language": "uk-UA",
+      "name": "Ukrainian",
+      "file": "uk.json",
+      "dir": "ltr",
+      "flag": "ua"
+    },
+    {
+      "code": "vi",
+      "language": "vi-VN",
+      "name": "Vietnamese",
+      "file": "vi.json",
+      "dir": "ltr",
+      "flag": "vn"
+    }
+  ]
+}

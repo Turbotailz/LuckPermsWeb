@@ -1,11 +1,23 @@
 <script setup lang="ts">
+import { resolveUiLocale } from '~/utils/locale'
+
 const language = useLanguageStore()
+const { locale } = useI18n()
 const { selfHosted } = useLpConfig()
 const route = useRoute()
 const showSearch = computed(() => !selfHosted && !route.path.startsWith('/editor'))
 const isTools = computed(() =>
   ['/editor', '/verbose', '/treeview'].some(prefix => route.path === prefix || route.path.startsWith(`${prefix}/`))
 )
+
+const uiLocale = computed(() => resolveUiLocale(String(locale.value)))
+
+useHead({
+  htmlAttrs: {
+    lang: () => String(locale.value),
+    dir: () => language.htmlDir
+  }
+})
 
 const { data: navigation } = await useAsyncData('wiki-nav', async () => {
   if (selfHosted) {
@@ -31,12 +43,12 @@ const { data: files } = useLazyAsyncData('wiki-search', async () => {
 
 onMounted(() => {
   useAppStore().fetchAppData()
-  language.fetchLanguages()
+  language.hydrateFromStorage()
 })
 </script>
 
 <template>
-  <UApp>
+  <UApp :locale="uiLocale">
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-100 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:font-bold focus:text-inverted"

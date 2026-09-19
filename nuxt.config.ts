@@ -6,6 +6,7 @@ import { wikiRouteRules } from './config/wiki-redirects'
 import { wikiEditUrl, wikiFileUpdatedAt, wikiFileContributors, wikiContentRelative } from './config/wiki-git'
 import { resolveWikiGitDir } from './config/wiki-clone'
 import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
+import { loadLocalesMeta, localizedPrerenderRoutes } from './config/i18n-locales'
 
 function gitHash() {
   try {
@@ -25,6 +26,12 @@ const siteUrl = (
   || process.env.DEPLOY_PRIME_URL
   || 'https://luckperms.net'
 ).replace(/\/+$/, '')
+
+const i18nLocales = loadLocalesMeta()
+const publicPaths = selfHosted
+  ? ['/', '/editor']
+  : ['/', '/download', '/sponsor', '/wiki', '/editor']
+const prerenderRoutes = localizedPrerenderRoutes(i18nLocales, publicPaths)
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -95,13 +102,26 @@ export default defineNuxtConfig({
     }
   },
   i18n: {
-    locales: [
-      { code: 'en', language: 'en-GB', name: 'English', file: 'en.json', dir: 'ltr' }
-    ],
+    // Locales are generated at build time from metadata.luckperms.net
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    locales: i18nLocales.map(locale => ({
+      code: locale.code,
+      language: locale.language,
+      name: locale.name,
+      file: locale.file,
+      dir: locale.dir,
+      flag: locale.flag
+    })) as any,
     defaultLocale: 'en',
     langDir: 'locales',
     strategy: 'prefix_except_default',
-    detectBrowserLanguage: false,
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'lp-lang',
+      redirectOn: 'root',
+      alwaysRedirect: false,
+      fallbackLocale: 'en'
+    },
     customRoutes: 'config',
     pages: {
       editor: false,
@@ -147,7 +167,7 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: !selfHosted,
       autoSubfolderIndex: false,
-      routes: selfHosted ? ['/', '/editor'] : ['/', '/download', '/sponsor', '/wiki', '/editor']
+      routes: prerenderRoutes
     },
     publicAssets: wikiPath && existsSync(resolve(wikiPath, 'img'))
       ? [{ baseURL: '/wiki-img', dir: resolve(wikiPath, 'img'), maxAge: 60 * 60 * 24 * 7 }]

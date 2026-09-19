@@ -5,6 +5,10 @@
   "type": "module",
   "packageManager": "pnpm@10.12.1",
   "scripts": {
+    "translations:fetch": "node scripts/fetch-translations.mjs",
+    "predev": "pnpm translations:fetch",
+    "prebuild": "pnpm translations:fetch",
+    "pregenerate": "pnpm translations:fetch",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",

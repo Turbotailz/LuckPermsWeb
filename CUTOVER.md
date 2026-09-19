@@ -24,7 +24,8 @@ Vue 2 on `production` stays live until this checklist is green. Preview on **htt
 ## Search and i18n
 
 - Algolia DocSearch (`ZXKCPO8F1T`) is removed; wiki search is Nuxt Content + `UContentSearch` (Cmd/Ctrl+K)
-- UI chrome: Crowdin via `metadata.luckperms.net` (`progressWeb`, `/translation/web/{locale}`)
+- UI chrome: Crowdin via `metadata.luckperms.net` (`progressWeb`, `/translation/web/{locale}`), fetched at **build time** (`pnpm translations:fetch` / predev / prebuild) into `i18n/locales/` and registered with `@nuxtjs/i18n` for SSR per locale
+- Locale switcher: Nuxt UI select (pirate English uses `/twemoji-pirate-flag.png`)
 - Wiki articles are git folders (`en/` now; later `es/` etc.), not Crowdin
 
 ## Self-host
