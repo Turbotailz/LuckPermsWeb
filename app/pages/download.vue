@@ -65,10 +65,10 @@ const platformImages: Record<string, string> = {
 const mosaic = ['bukkit', 'velocity', 'fabric', 'forge', 'neoforge', 'sponge'] as const
 
 const platforms = computed(() => [
-  { key: 'bukkit', name: 'Bukkit', img: 'bukkit', href: app.downloads.bukkit, small: t('download.bukkit', { version: '1.8.8 - 1.21.x' }) },
-  { key: 'fabric', name: 'Fabric', img: 'fabric', href: app.downloads.fabric, small: t('download.fabric', { version: '26.2' }) },
-  { key: 'neoforge', name: 'NeoForge', img: 'neoforge', href: app.downloads.neoforge, small: t('download.neoforge', { version: '26.2' }) },
-  { key: 'forge', name: 'Forge', img: 'forge', href: app.downloads.forge, small: t('download.forge', { version: '26.2' }) },
+  { key: 'bukkit', name: 'Bukkit', img: 'bukkit', href: app.downloads.bukkit, small: t('download.bukkit', { version: '1.8.8 or newer' }) },
+  { key: 'fabric', name: 'Fabric', img: 'fabric', href: app.downloads.fabric, small: t('download.fabric', { version: '26.3' }) },
+  { key: 'neoforge', name: 'NeoForge', img: 'neoforge', href: app.downloads.neoforge, small: t('download.neoforge', { version: '26.3' }) },
+  { key: 'forge', name: 'Forge', img: 'forge', href: app.downloads.forge, small: t('download.forge', { version: '26.3' }) },
   { key: 'hytale', name: 'Hytale', img: 'hytale', href: app.downloads.hytale, small: t('download.hytale', { version: 'beta' }) },
   { key: 'velocity', name: 'Velocity', img: 'velocity', href: app.downloads.velocity, small: t('download.velocity', { version: '3.x' }) },
   { key: 'sponge', name: 'Sponge', img: 'sponge', href: app.downloads.sponge, small: t('download.sponge', { version: 'API 12' }) },
