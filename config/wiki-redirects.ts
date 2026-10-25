@@ -57,6 +57,27 @@ export const wikiCaseOnlyRedirects = Object.fromEntries(
   Object.entries(wikiRedirects).filter(([from, to]) => isCaseOnlyRedirect(from, to))
 ) as Record<string, string>
 
+const DEFAULT_LOCALE = 'en'
+
+/** Old wiki URL, including a non-default locale prefix, mapped to the new path. */
+export function redirectForWikiPath(pathname: string, localeCodes: Iterable<string> = []) {
+  const codes = new Set(localeCodes)
+  codes.delete(DEFAULT_LOCALE)
+  const path = pathname.replace(/\/+$/, '') || '/'
+  const parts = path.split('/')
+  let prefix = ''
+  let wikiPath = path
+  if (parts.length > 2 && parts[1] && codes.has(parts[1]) && parts[2] === 'wiki') {
+    prefix = `/${parts[1]}`
+    wikiPath = `/${parts.slice(2).join('/')}`
+  }
+  const to = wikiRedirects[wikiPath]
+  if (!to || to === wikiPath) {
+    return null
+  }
+  return `${prefix}${to}`
+}
+
 export function wikiRouteRules() {
   // Vue Router matches routeRules case-insensitively, so `/wiki/FAQ` → `/wiki/faq`
   // would loop forever and blank the FAQ / Configuration pages.

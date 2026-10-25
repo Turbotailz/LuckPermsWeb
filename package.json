@@ -6,9 +6,9 @@
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "translations:fetch": "node scripts/fetch-translations.mjs",
-    "predev": "pnpm translations:fetch",
-    "prebuild": "pnpm translations:fetch",
-    "pregenerate": "pnpm translations:fetch",
+    "predev": "node scripts/fetch-translations.mjs",
+    "prebuild": "node scripts/fetch-translations.mjs",
+    "pregenerate": "node scripts/fetch-translations.mjs",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
@@ -48,6 +48,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.130",
     "@iconify-json/simple-icons": "^1.2.95",
+    "@intlify/message-compiler": "11.4.10",
     "@nuxt/eslint": "^1.9.0",
     "@types/pako": "^2.0.3",
     "@types/semver": "^7.7.1",

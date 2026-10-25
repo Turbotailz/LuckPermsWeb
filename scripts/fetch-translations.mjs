@@ -7,6 +7,7 @@ import { mkdir, writeFile, readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { repairCatalog } from './i18n-messages.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
@@ -60,8 +61,28 @@ async function fetchJson(url) {
   return response.json()
 }
 
+async function readEnglish() {
+  const path = join(localesDir, 'en.json')
+  if (!existsSync(path)) {
+    return {}
+  }
+  return JSON.parse(await readFile(path, 'utf8'))
+}
+
+async function writeCatalog(code, file, messages, english) {
+  const { messages: repaired, replaced } = repairCatalog(messages, english)
+  if (replaced.length && code !== 'en') {
+    const preview = replaced.slice(0, 12).join(', ')
+    const more = replaced.length > 12 ? ` (+${replaced.length - 12} more)` : ''
+    console.warn(`[translations] ${code}: ${replaced.length} invalid vue-i18n message(s) replaced so they compile: ${preview}${more}`)
+  }
+  await writeFile(join(localesDir, file), `${JSON.stringify(repaired, null, 2)}\n`, 'utf8')
+  return replaced.length
+}
+
 async function main() {
   await mkdir(localesDir, { recursive: true })
+  const english = await readEnglish()
 
   console.log(`[translations] Fetching language list from ${API_URL}data/translations`)
   const data = await fetchJson(`${API_URL}data/translations`)
@@ -90,8 +111,7 @@ async function main() {
   const results = await Promise.allSettled(
     remote.map(async (locale) => {
       const messages = await fetchJson(`${API_URL}translation/web/${locale.code}`)
-      const path = join(localesDir, locale.file)
-      await writeFile(path, `${JSON.stringify(messages, null, 2)}\n`, 'utf8')
+      await writeCatalog(locale.code, locale.file, messages, english)
       return locale.code
     })
   )
@@ -114,13 +134,22 @@ async function main() {
     }
   }
 
-  // Keep previously downloaded files for failed locales if present
-  const available = locales.filter((locale) => {
+  // Keep previously downloaded files for failed locales if present, and
+  // repair them too so an old catalog cannot fail prerender.
+  const available = []
+  for (const locale of locales) {
+    const filePath = join(localesDir, locale.file)
     if (ok.has(locale.code)) {
-      return true
+      available.push(locale)
+      continue
     }
-    return existsSync(join(localesDir, locale.file))
-  })
+    if (!existsSync(filePath) || locale.code === 'en') {
+      continue
+    }
+    const cached = JSON.parse(await readFile(filePath, 'utf8'))
+    await writeCatalog(locale.code, locale.file, cached, english)
+    available.push(locale)
+  }
 
   if (!available.some(locale => locale.code === 'en')) {
     available.unshift(ENGLISH)

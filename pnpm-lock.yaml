@@ -96,6 +96,9 @@ importers:
       '@iconify-json/simple-icons':
         specifier: ^1.2.95
         version: 1.2.95
+      '@intlify/message-compiler':
+        specifier: 11.4.10
+        version: 11.4.10
       '@nuxt/eslint':
         specifier: ^1.9.0
         version: 1.17.0(@typescript-eslint/utils@8.70.0(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3))(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(eslint@10.10.0(jiti@2.7.0))(magic-string@1.2.3)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.8)(rollup@4.63.1)(srvx@1.0.4)(typescript@5.9.3)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)))(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
