@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { v4 as uuid } from 'uuid'
-import { gte } from 'semver'
 import type { Remote } from 'comlink'
 import type {
   EditorDocument,
@@ -9,10 +8,11 @@ import type {
   EditorNode,
   EditorPayload,
   EditorSession,
-  EditorTrack,
-  SavePayload
+  EditorTrack
 } from '~/types/editor'
 import { contextsToArray } from '~/utils/editor'
+import { canDeletePluginUsers } from '~/utils/plugin-version'
+import { buildSavePayload, expiryFromWire, isProtectedGroup } from '~/utils/save-payload'
 import { isLegacySessionId } from '~/utils/session'
 import { editorPathSuffix } from '~/utils/editor-routes'
 import { fetchBytebinJson, postBytebinGzip } from '~/composables/useLpConfig'
@@ -104,17 +104,7 @@ export const useEditorStore = defineStore('editor', () => {
     || document.value.deletedTracks.length > 0
     || document.value.deletedUsers.length > 0
   )
-  const canDeleteUsers = computed(() => {
-    const version = metaData.value.pluginVersion
-    if (!version) {
-      return false
-    }
-    try {
-      return gte(version, '5.1.105')
-    } catch {
-      return false
-    }
-  })
+  const canDeleteUsers = computed(() => canDeletePluginUsers(metaData.value.pluginVersion))
 
   function clearSelectedNodes() {
     for (const id of Object.keys(selectedNodeMap)) {
@@ -513,6 +503,11 @@ export const useEditorStore = defineStore('editor', () => {
   }
 
   function deleteSession(id: string) {
+    const existing = document.value.sessions[id]
+    if (existing?.type === 'group' && isProtectedGroup(id)) {
+      closeModal()
+      return
+    }
     history.commit('Delete holder', (draft) => {
       const session = draft.sessions[id]
       if (!session) {
@@ -589,7 +584,7 @@ export const useEditorStore = defineStore('editor', () => {
           sessionId: session.id,
           key: node.key,
           value: node.value,
-          expiry: node.expiry ? node.expiry * 1000 : null,
+          expiry: expiryFromWire(node.expiry),
           context: node.context || {}
         })
       })
@@ -691,35 +686,20 @@ export const useEditorStore = defineStore('editor', () => {
     }
 
     saveStatus.value = 'saving'
-    const payload: SavePayload = {
+    const payload = buildSavePayload({
       sessionId: sessionId.value || '',
-      changes: [],
+      modifiedHolders: modifiedSessions.value.map((modifiedSession) => {
+        const session = document.value.sessions[modifiedSession]
+        return {
+          type: session.type,
+          id: session.id,
+          nodes: document.value.nodes.filter(node => node.sessionId === session.id)
+        }
+      }),
+      tracks: document.value.tracks.map(track => ({ id: track.id, groups: track.groups })),
       groupDeletions: document.value.deletedGroups,
       trackDeletions: document.value.deletedTracks,
       userDeletions: document.value.deletedUsers
-    }
-
-    modifiedSessions.value.forEach((modifiedSession) => {
-      const session = document.value.sessions[modifiedSession]
-      const sessionNodes = document.value.nodes.filter(node => node.sessionId === session.id)
-      payload.changes.push({
-        type: session.type,
-        id: session.id,
-        nodes: sessionNodes.map(node => ({
-          key: node.key,
-          value: node.value,
-          ...(node.expiry ? { expiry: Math.floor(node.expiry / 1000) } : {}),
-          ...(Object.entries(node.context || {}).length ? { context: node.context } : {})
-        }))
-      })
-    })
-
-    document.value.tracks.forEach((track) => {
-      payload.changes.push({
-        type: 'track',
-        id: track.id,
-        groups: track.groups
-      })
     })
 
     try {
