@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { resolveUiLocale } from '~/utils/locale'
+import type { Locale, Messages } from '@nuxt/ui'
+import { loadUiLocale } from '~/utils/locale'
 import { isEditorPath, isToolRoute } from '~/utils/tool-routes'
 
 const language = useLanguageStore()
@@ -9,7 +10,15 @@ const route = useRoute()
 const showSearch = computed(() => !selfHosted && !isEditorPath(route.path))
 const isTools = computed(() => isToolRoute(route.path))
 
-const uiLocale = computed(() => resolveUiLocale(String(locale.value)))
+if (isTools.value) {
+  await language.applyStoredLocale()
+}
+
+const uiLocale = shallowRef<Locale<Messages>>(await loadUiLocale(String(locale.value)))
+
+watch(() => locale.value, async (code) => {
+  uiLocale.value = await loadUiLocale(String(code))
+})
 
 useHead({
   htmlAttrs: {
@@ -17,32 +26,6 @@ useHead({
     dir: () => language.htmlDir
   }
 })
-
-const { data: navigation } = await useAsyncData('wiki-nav', async () => {
-  if (selfHosted) {
-    return []
-  }
-  try {
-    return await queryCollectionNavigation('wiki_en')
-  } catch {
-    return []
-  }
-}, { default: () => [] })
-
-const { data: files } = useLazyAsyncData('wiki-search', async () => {
-  if (selfHosted) {
-    return []
-  }
-  try {
-    return await queryCollectionSearchSections('wiki_en', { ignoredTags: ['style'] })
-  } catch {
-    return []
-  }
-}, { server: false, default: () => [] })
-
-if (isTools.value) {
-  await language.applyStoredLocale()
-}
 
 onMounted(() => {
   useAppStore().fetchAppData()
@@ -69,13 +52,7 @@ onMounted(() => {
     </UMain>
     <AppFooter v-if="!isTools" />
     <ClientOnly>
-      <LazyUContentSearch
-        v-if="showSearch"
-        :files="files || []"
-        :navigation="navigation || []"
-        shortcut="meta_k"
-        :fuse="{ resultLimit: 20 }"
-      />
+      <SiteSearch v-if="showSearch" />
     </ClientOnly>
   </UApp>
 </template>

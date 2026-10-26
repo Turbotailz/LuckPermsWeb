@@ -11,9 +11,9 @@ usePageSeo({
   eyebrow: t('links.tools.name')
 })
 
-const editor = useEditorStore()
 onMounted(() => {
-  editor.reset()
+  // The landing page does not render a session. Load the store only to clear one.
+  void import('~/stores/editor').then(mod => mod.useEditorStore().reset())
 })
 </script>
 
