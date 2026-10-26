@@ -7,7 +7,7 @@ import { mkdir, writeFile, readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { repairCatalog } from './i18n-messages.mjs'
+import { applyOverlay, fillLegacyMessages, repairCatalog } from './i18n-messages.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
@@ -69,14 +69,28 @@ async function readEnglish() {
   return JSON.parse(await readFile(path, 'utf8'))
 }
 
+async function readOverlay(code) {
+  const path = join(root, 'i18n', 'overlays', `${code}.json`)
+  if (!existsSync(path)) {
+    return null
+  }
+  return JSON.parse(await readFile(path, 'utf8'))
+}
+
 async function writeCatalog(code, file, messages, english) {
   const { messages: repaired, replaced } = repairCatalog(messages, english)
+  const { messages: filled, filled: filledKeys } = fillLegacyMessages(repaired)
+  const overlay = await readOverlay(code)
+  const merged = overlay ? applyOverlay(filled, overlay) : filled
+  if (filledKeys.length && code !== 'en') {
+    console.warn(`[translations] ${code}: filled ${filledKeys.length} v3 key(s) from older catalog strings`)
+  }
   if (replaced.length && code !== 'en') {
     const preview = replaced.slice(0, 12).join(', ')
     const more = replaced.length > 12 ? ` (+${replaced.length - 12} more)` : ''
     console.warn(`[translations] ${code}: ${replaced.length} invalid vue-i18n message(s) replaced so they compile: ${preview}${more}`)
   }
-  await writeFile(join(localesDir, file), `${JSON.stringify(repaired, null, 2)}\n`, 'utf8')
+  await writeFile(join(localesDir, file), `${JSON.stringify(merged, null, 2)}\n`, 'utf8')
   return replaced.length
 }
 

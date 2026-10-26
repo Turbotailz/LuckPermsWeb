@@ -462,7 +462,7 @@ function deleteEditingMeta() {
           variant="subtle"
           class="pe-0.5"
         >
-          <NuxtLink :to="editorGroupPath(code, parent)" class="hover:underline">{{ parent }}</NuxtLink>
+          <NuxtLink :to="editorGroupPath(code, parent)" class="inline-flex min-h-6 items-center hover:underline">{{ parent }}</NuxtLink>
           <UButton
             icon="i-lucide-x"
             size="xs"
@@ -758,6 +758,7 @@ function deleteEditingMeta() {
     <EditorHolderCard :title="t('editor.holder.advanced')" icon="i-lucide-settings-2">
       <USwitch
         v-model="advanced"
+        :aria-label="t('editor.holder.advanced')"
         :description="t('editor.holder.advancedHint')"
       />
     </EditorHolderCard>

@@ -47,6 +47,7 @@ const search = defineModel<string>('search', { default: '' })
               v-model="search"
               icon="i-lucide-search"
               :placeholder="searchPlaceholder"
+              :aria-label="searchPlaceholder"
               class="w-full"
             />
           </div>

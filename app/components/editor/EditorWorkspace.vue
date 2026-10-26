@@ -181,6 +181,7 @@ defineShortcuts({
         v-model="searchQuery"
         icon="i-lucide-search"
         :placeholder="t('editor.searchPlaceholder')"
+        :aria-label="t('editor.searchPlaceholder')"
         class="w-full max-w-md"
         :ui="{ base: 'pe-1' }"
       >

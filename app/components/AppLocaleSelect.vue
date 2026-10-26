@@ -25,7 +25,12 @@ function resolveFlag(item: LocaleSelectItem | undefined) {
     : { kind: 'empty' as const }
 }
 
-const selectedFlag = computed(() => resolveFlag(props.locales.find(item => item.code === model.value)))
+const { t } = useI18n()
+const selected = computed(() => props.locales.find(item => item.code === model.value))
+const selectedFlag = computed(() => resolveFlag(selected.value))
+const accessibleName = computed(() =>
+  selected.value?.name ? `${t('links.language')}, ${selected.value.name}` : t('links.language')
+)
 </script>
 
 <template>
@@ -37,6 +42,7 @@ const selectedFlag = computed(() => resolveFlag(props.locales.find(item => item.
     :search-input="locales.length > 8"
     :size="size"
     :class="props.class"
+    :aria-label="accessibleName"
     :ui="{ content: 'min-w-48' }"
   >
     <template #leading>

@@ -83,6 +83,7 @@ function editTrack(id: string) {
         icon="i-lucide-list-filter"
         class="w-full min-w-0"
         :placeholder="t('editor.filter')"
+        :aria-label="t('editor.filter')"
       />
       <UButton
         v-if="section === 'groups'"

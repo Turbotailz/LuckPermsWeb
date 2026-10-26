@@ -175,8 +175,8 @@ function add() {
       <UBadge v-for="entry in flatContexts" :key="`${entry.key}:${entry.value}`" color="neutral" variant="subtle" class="font-mono">
         {{ entry.key }}:{{ entry.value }}
       </UBadge>
-      <UInput v-model="contextKey" size="xs" :placeholder="t('editor.key')" class="w-28" />
-      <UInput v-model="contextValue" size="xs" :placeholder="t('editor.value')" class="w-28" @keydown.enter="addContext" />
+      <UInput v-model="contextKey" size="xs" :placeholder="t('editor.key')" :aria-label="t('editor.key')" class="w-28" />
+      <UInput v-model="contextValue" size="xs" :placeholder="t('editor.value')" :aria-label="t('editor.value')" class="w-28" @keydown.enter="addContext" />
       <UButton size="xs" icon="i-lucide-plus" @click="addContext">
         {{ t('editor.nodes.addContext') }}
       </UButton>

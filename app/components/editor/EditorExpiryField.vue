@@ -74,7 +74,7 @@ const placeholder = nowCalendarDateTime()
               size="sm"
               icon="i-lucide-calendar-days"
               :aria-label="t('editor.nodes.expiry')"
-              class="px-0"
+              class="min-h-6 min-w-6"
             />
             <template #content>
               <UCalendar v-model="calendarDate" class="p-2" />

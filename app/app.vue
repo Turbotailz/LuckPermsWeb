@@ -41,6 +41,10 @@ const { data: files } = useLazyAsyncData('wiki-search', async () => {
   }
 }, { server: false, default: () => [] })
 
+if (isTools.value) {
+  await language.applyStoredLocale()
+}
+
 onMounted(() => {
   useAppStore().fetchAppData()
   language.hydrateFromStorage()

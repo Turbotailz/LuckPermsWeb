@@ -11,6 +11,7 @@ const editor = useEditorStore()
 const { t } = useI18n()
 const editing = ref(false)
 const keyValue = ref(props.node.key)
+const keyButton = ref<HTMLButtonElement | null>(null)
 
 watch(() => props.node.key, (value) => {
   keyValue.value = value
@@ -34,19 +35,27 @@ const chatWeight = computed(() => {
 })
 const isChatMeta = computed(() => parsed.value.type === 'prefix' || parsed.value.type === 'suffix')
 
-function commit() {
+function commit(restoreFocus = false) {
+  if (!editing.value) {
+    return
+  }
   editing.value = false
   if (keyValue.value !== props.node.key) {
     editor.updateNode(props.node.id, 'key', keyValue.value)
+  }
+  if (restoreFocus) {
+    nextTick(() => keyButton.value?.focus())
   }
 }
 </script>
 
 <template>
   <div class="min-w-0 w-full">
-    <div
+    <button
       v-if="!editing"
-      class="flex min-w-0 cursor-pointer items-center gap-2 truncate"
+      ref="keyButton"
+      type="button"
+      class="flex min-h-6 w-full min-w-0 cursor-pointer items-center gap-2 truncate rounded-sm text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       @click="editing = true"
     >
       <UBadge v-if="showType" size="xs" variant="subtle" class="shrink-0">
@@ -57,17 +66,18 @@ function commit() {
         <span class="shrink-0 font-mono text-xs text-muted">({{ chatWeight }})</span>
       </template>
       <span v-else class="truncate font-mono text-sm leading-5">{{ display }}</span>
-    </div>
+    </button>
     <UInput
       v-else
       v-model="keyValue"
       autofocus
       size="xs"
       class="w-full"
+      :aria-label="t('editor.permissions')"
       :ui="{ base: 'w-full font-mono' }"
-      @keydown.enter="commit"
-      @keydown.tab="commit"
-      @blur="commit"
+      @keydown.enter.prevent="commit(true)"
+      @keydown.tab="commit(true)"
+      @blur="commit(false)"
     />
   </div>
 </template>
