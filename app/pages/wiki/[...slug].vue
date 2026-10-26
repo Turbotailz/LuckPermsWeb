@@ -6,12 +6,12 @@ definePageMeta({
 
 const route = useRoute()
 const { siteUrl } = useLpConfig()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const path = computed(() => wikiPagePathFromSlug(route.params.slug as string | string[] | undefined))
 
 const { data: page } = await useAsyncData(
-  () => `wiki-${path.value}`,
-  () => queryCollection('wiki_en').path(path.value).first()
+  () => `wiki-${locale.value}-${path.value}`,
+  async () => (await queryWikiPage(path.value, String(locale.value))).page
 )
 
 if (!page.value) {
@@ -40,7 +40,7 @@ usePageSeo({
 })
 
 const { data: surrounding } = await useAsyncData(
-  () => `wiki-surround-${path.value}`,
+  () => `wiki-surround-${locale.value}-${path.value}`,
   () => queryCollectionItemSurroundings('wiki_en', path.value)
 )
 </script>

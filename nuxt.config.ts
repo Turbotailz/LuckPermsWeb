@@ -1,13 +1,14 @@
 import { execSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { wikiRouteRules } from './config/wiki-redirects'
+import { cloudflareRedirectLines, mergeRedirectFile, wikiRouteRules } from './config/wiki-redirects'
 import { wikiEditUrl, wikiFileUpdatedAt, wikiFileContributors, wikiContentRelative } from './config/wiki-git'
 import { resolveWikiGitDir } from './config/wiki-clone'
 import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
 import { rewriteWikiImageMarkdown } from './config/wiki-markdown'
-import { loadLocalesMeta, localizedPrerenderRoutes } from './config/i18n-locales'
+import { loadLocalesMeta, localizedRouteRules, sitePrerenderRoutes } from './config/i18n-locales'
+import { cloudflarePagesRoutes } from './config/cloudflare-pages'
 
 function gitHash() {
   try {
@@ -30,15 +31,9 @@ const siteUrl = (
 ).replace(/\/+$/, '')
 
 const i18nLocales = loadLocalesMeta()
-const publicPaths = selfHosted
-  ? ['/', '/editor']
-  : ['/', '/download', '/sponsor', '/wiki', '/editor']
-// /editor is not a localized route (i18n pages.editor = false). Prerendering
-// /de/editor etc. 404s and fails the Pages build.
-const prerenderRoutes = [
-  ...localizedPrerenderRoutes(i18nLocales, publicPaths.filter(path => path !== '/editor')),
-  ...(publicPaths.includes('/editor') ? ['/editor'] : [])
-]
+const localeCodes = i18nLocales.map(locale => locale.code)
+const prerenderRoutes = sitePrerenderRoutes(i18nLocales, selfHosted)
+const pagesRoutes = cloudflarePagesRoutes(localeCodes)
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -129,22 +124,6 @@ export default defineNuxtConfig({
       alwaysRedirect: false,
       fallbackLocale: 'en'
     },
-    customRoutes: 'config',
-    pages: {
-      editor: false,
-      'editor/[id]': false,
-      'editor/[id]/index': false,
-      'editor/[id]/groups/index': false,
-      'editor/[id]/groups/[groupId]': false,
-      'editor/[id]/users/index': false,
-      'editor/[id]/users/[userId]': false,
-      'editor/[id]/tracks/index': false,
-      'editor/[id]/tracks/[trackId]': false,
-      verbose: false,
-      'verbose/[id]': false,
-      treeview: false,
-      'treeview/[id]': false
-    },
     compilation: {
       strictMessage: false
     }
@@ -168,11 +147,20 @@ export default defineNuxtConfig({
     '/verbose/**': { ssr: false },
     '/treeview': { ssr: false },
     '/treeview/**': { ssr: false },
+    ...localizedRouteRules(i18nLocales, selfHosted),
     ...(selfHosted ? {} : wikiRouteRules())
   },
   nitro: {
     // Pages sets CF_PAGES=1. Pin the preset so `npm run build` keeps writing `dist`.
     ...(process.env.CF_PAGES ? { preset: 'cloudflare-pages' as const } : {}),
+    cloudflare: {
+      pages: {
+        // Nitro's generated excludes are truncated at 100 rules, which drops
+        // localized HTML and makes the worker 404 those URLs.
+        defaultRoutes: false,
+        routes: pagesRoutes
+      }
+    },
     prerender: {
       crawlLinks: !selfHosted,
       autoSubfolderIndex: false,
@@ -180,14 +168,33 @@ export default defineNuxtConfig({
     },
     publicAssets: existsSync(wikiImgDir)
       ? [{ baseURL: '/wiki-img', dir: wikiImgDir, maxAge: 60 * 60 * 24 * 7 }]
-      : []
+      : [],
+    hooks: {
+      close() {
+        if (process.env.CF_PAGES !== '1') {
+          return
+        }
+        const file = resolve(process.cwd(), 'dist/_redirects')
+        if (!existsSync(file)) {
+          return
+        }
+        writeFileSync(file, mergeRedirectFile(readFileSync(file, 'utf8'), cloudflareRedirectLines(localeCodes)))
+      }
+    }
   },
   site: {
     url: siteUrl,
     trailingSlash: false
   },
   sitemap: {
-    exclude: ['/editor/**', '/verbose/**', '/treeview/**']
+    exclude: [
+      '/editor/**',
+      '/verbose/**',
+      '/treeview/**',
+      '/**/editor/**',
+      '/**/verbose/**',
+      '/**/treeview/**'
+    ]
   },
   ogImage: {
     enabled: !selfHosted,

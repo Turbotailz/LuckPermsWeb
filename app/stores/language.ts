@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { localeDir } from '~/utils/rtl'
 import { toLocaleSelectItem, type LocaleSelectItem } from '~/utils/locale'
-import { isToolRoute } from '~/utils/tool-routes'
+import { isToolRoute, splitLocalePrefix, toolHasSession } from '~/utils/tool-routes'
 
 const STORAGE_KEY = 'lp-lang'
 
@@ -63,8 +63,9 @@ export const useLanguageStore = defineStore('language', () => {
   }
 
   /**
-   * Editor, verbose, and tree routes are unprefixed. Applying the locale with
-   * setLocale() would try to navigate to /de/editor, which is not a route.
+   * An open editor session stays on its current URL. setLocale() would remount
+   * the page and drop unsaved edits. Locale-prefixed URLs are real routes, so
+   * the switcher can navigate when there is no session yet.
    */
   async function applyLocaleInPlace(code: string) {
     await loadLocaleMessages(code)
@@ -77,7 +78,7 @@ export const useLanguageStore = defineStore('language', () => {
     if (!isSupported(code)) {
       return
     }
-    if (isToolRoute(route.path)) {
+    if (isToolRoute(route.path) && toolHasSession(route.path)) {
       await applyLocaleInPlace(code)
     } else {
       await setLocale(code)
@@ -90,6 +91,10 @@ export const useLanguageStore = defineStore('language', () => {
 
   async function applyStoredLocale() {
     if (!isToolRoute(route.path)) {
+      return
+    }
+    if (splitLocalePrefix(route.path).locale) {
+      syncDocument()
       return
     }
     const stored = readStoredLocale()

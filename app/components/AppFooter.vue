@@ -2,17 +2,17 @@
 import type { FooterColumn } from '@nuxt/ui'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const { gitHash, selfHosted, siteUrl } = useLpConfig()
 const year = new Date().getFullYear()
-const creditsTo = selfHosted ? `${siteUrl}/wiki/about/credits` : '/wiki/about/credits'
 
 const columns = computed<FooterColumn[]>(() => {
   const tools: FooterColumn = {
     label: t('footer.tools'),
     children: [
-      { label: t('links.editor'), to: '/editor' },
-      { label: t('links.verbose'), to: '/verbose' },
-      { label: t('links.tree'), to: '/treeview' }
+      { label: t('links.editor'), to: localePath('/editor') },
+      { label: t('links.verbose'), to: localePath('/verbose') },
+      { label: t('links.tree'), to: localePath('/treeview') }
     ]
   }
 
@@ -24,11 +24,11 @@ const columns = computed<FooterColumn[]>(() => {
     {
       label: t('footer.product'),
       children: [
-        { label: t('links.home'), to: '/' },
-        { label: t('links.download'), to: '/download' },
-        { label: t('links.wiki'), to: '/wiki' },
-        { label: t('footer.gettingStarted'), to: '/wiki/getting-started' },
-        { label: t('sponsorPage.title'), to: '/sponsor' }
+        { label: t('links.home'), to: localePath('/') },
+        { label: t('links.download'), to: localePath('/download') },
+        { label: t('links.wiki'), to: localePath('/wiki') },
+        { label: t('footer.gettingStarted'), to: localePath('/wiki/getting-started') },
+        { label: t('sponsorPage.title'), to: localePath('/sponsor') }
       ]
     },
     tools,
@@ -37,8 +37,8 @@ const columns = computed<FooterColumn[]>(() => {
       children: [
         { label: 'GitHub', to: 'https://github.com/LuckPerms/LuckPerms', target: '_blank' },
         { label: 'Discord', to: 'https://discord.gg/luckperms', target: '_blank' },
-        { label: t('footer.credits'), to: creditsTo },
-        { label: t('home.why.why'), to: '/wiki/about/why-luckperms' }
+        { label: t('footer.credits'), to: selfHosted ? `${siteUrl}/wiki/about/credits` : localePath('/wiki/about/credits') },
+        { label: t('home.why.why'), to: localePath('/wiki/about/why-luckperms') }
       ]
     }
   ]
@@ -52,7 +52,7 @@ const columns = computed<FooterColumn[]>(() => {
         <UFooterColumns :columns="columns" :ui="{ linkLabelExternalIcon: 'hidden' }">
           <template #left>
             <div class="flex flex-col items-center gap-3 sm:items-start">
-              <ULink to="/" class="flex items-center gap-2 text-lg font-bold text-highlighted">
+              <ULink :to="localePath('/')" class="flex items-center gap-2 text-lg font-bold text-highlighted">
                 <BrandLogo size="size-8" />
                 LuckPerms
               </ULink>

@@ -4,10 +4,13 @@ definePageMeta({
   middleware: 'public-site'
 })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { siteUrl } = useLpConfig()
 
-const { data: page } = await useAsyncData('wiki-home', () => queryCollection('wiki_en').path('/wiki').first())
+const { data: page } = await useAsyncData(
+  () => `wiki-home-${locale.value}`,
+  async () => (await queryWikiPage('/wiki', String(locale.value))).page
+)
 
 if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Wiki home not found' })
@@ -34,7 +37,10 @@ usePageSeo({
   }
 })
 
-const { data: surrounding } = await useAsyncData('wiki-nav-home', () => queryCollectionItemSurroundings('wiki_en', '/wiki'))
+const { data: surrounding } = await useAsyncData(
+  () => `wiki-nav-home-${locale.value}`,
+  () => queryCollectionItemSurroundings('wiki_en', '/wiki')
+)
 </script>
 
 <template>

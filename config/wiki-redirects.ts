@@ -78,6 +78,50 @@ export function redirectForWikiPath(pathname: string, localeCodes: Iterable<stri
   return `${prefix}${to}`
 }
 
+/** Case-sensitive `_redirects` lines. Route rules cannot express the case-only pairs. */
+export function cloudflareRedirectLines(localeCodes: Iterable<string>) {
+  const codes = [...new Set(localeCodes)].filter(code => code && code !== 'en')
+  const lines: string[] = []
+  for (const [from, to] of Object.entries(wikiRedirects)) {
+    if (isCaseOnlyRedirect(from, to)) {
+      lines.push(`${from}  ${to}  301`)
+    }
+    for (const code of codes) {
+      lines.push(`/${code}${from}  /${code}${to}  301`)
+    }
+  }
+  return lines
+}
+
+export const CLOUDFLARE_REDIRECT_LIMIT = 2000
+
+export function mergeRedirectFile(existing: string, extra: string[]) {
+  const seen = new Set<string>()
+  const lines: string[] = []
+  for (const raw of `${existing}\n${extra.join('\n')}`.split('\n')) {
+    const line = raw.trim()
+    if (!line || seen.has(line)) {
+      continue
+    }
+    // Nitro adds `/* /404.html 404` when that file exists. Pages only accepts
+    // 200 and 3xx in `_redirects`; a root `404.html` is what actually 404s
+    // missing static files (without it, Pages serves index.html with 200).
+    const status = line.split(/\s+/).at(-1)
+    if (status === '404') {
+      continue
+    }
+    seen.add(line)
+    lines.push(line)
+  }
+  const redirects = lines.filter(line => !line.startsWith('#'))
+  if (redirects.length > CLOUDFLARE_REDIRECT_LIMIT) {
+    throw new Error(
+      `Cloudflare Pages _redirects would have ${redirects.length} rules (limit ${CLOUDFLARE_REDIRECT_LIMIT}).`
+    )
+  }
+  return `${lines.join('\n')}\n`
+}
+
 export function wikiRouteRules() {
   // Vue Router matches routeRules case-insensitively, so `/wiki/FAQ` → `/wiki/faq`
   // would loop forever and blank the FAQ / Configuration pages.

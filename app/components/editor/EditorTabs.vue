@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
-import { editorSectionPath, type EditorSection } from '~/utils/editor-routes'
+import { editorSectionPath, localizeToolPath, type EditorSection } from '~/utils/editor-routes'
 
 const editor = useEditorStore()
 const { t } = useI18n()
@@ -28,7 +28,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('editor.nav.documentation'),
       icon: 'i-lucide-book-open',
-      to: '/wiki/features/web-editor'
+      to: localizeToolPath('/wiki/features/web-editor')
     }
   ]
 ])

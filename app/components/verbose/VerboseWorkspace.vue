@@ -2,6 +2,7 @@
 import { useVirtualizer } from '@tanstack/vue-virtual'
 
 const route = useRoute()
+const { toolPath } = useToolPath()
 const verbose = useVerboseStore()
 const { t } = useI18n()
 const filter = ref('')
@@ -24,7 +25,7 @@ async function load() {
 onMounted(load)
 watch(() => route.fullPath, load)
 onBeforeUnmount(() => {
-  if (!route.path.startsWith('/verbose/')) {
+  if (!stripLocalePrefix(route.path).startsWith('/verbose/')) {
     verbose.reset()
   }
 })
@@ -79,7 +80,7 @@ const metaItems = computed(() => {
     :description="t('verbose.home.generate')"
     :loading="verbose.status === 1"
     :error="verbose.status === 3"
-    :actions="sessionId ? [] : [{ label: t('tools.demo'), to: '/verbose/demo', icon: 'i-lucide-play' }]"
+    :actions="sessionId ? [] : [{ label: t('tools.demo'), to: toolPath('/verbose/demo'), icon: 'i-lucide-play' }]"
   >
     <UAlert
       v-if="verbose.errors.load"

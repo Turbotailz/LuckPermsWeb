@@ -3,8 +3,6 @@ definePageMeta({
   layout: 'tools'
 })
 
-defineI18nRoute(false)
-
 const { t } = useI18n()
 usePageSeo({
   title: t('editor.description'),

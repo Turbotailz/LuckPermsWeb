@@ -14,6 +14,7 @@ definePageMeta({
 })
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const app = useAppStore()
 const quizOpen = ref(false)
 
@@ -108,7 +109,7 @@ function logDownload(platform: string) {
           size="xl"
           color="neutral"
           variant="outline"
-          to="/wiki/getting-started"
+          :to="localePath('/wiki/getting-started')"
           trailing-icon="i-lucide-arrow-right"
         >
           {{ t('download.install.wiki') }}
@@ -197,7 +198,7 @@ function logDownload(platform: string) {
             <li><TrustedHtml :html="t('download.install.config')" /></li>
             <i18n-t keypath="download.install.setup" tag="li">
               <template #wiki>
-                <ULink to="/wiki/getting-started" v-bind="primaryLink">{{ t('download.install.wiki') }}</ULink>
+                <ULink :to="localePath('/wiki/getting-started')" v-bind="primaryLink">{{ t('download.install.wiki') }}</ULink>
               </template>
             </i18n-t>
           </ol>
@@ -212,7 +213,7 @@ function logDownload(platform: string) {
             <li>{{ t('download.trouble.console') }}</li>
             <i18n-t keypath="download.trouble.read" tag="li">
               <template #wiki>
-                <ULink to="/wiki/install" v-bind="primaryLink">{{ t('download.trouble.wiki') }}</ULink>
+                <ULink :to="localePath('/wiki/install')" v-bind="primaryLink">{{ t('download.trouble.wiki') }}</ULink>
               </template>
             </i18n-t>
             <i18n-t keypath="download.trouble.support" tag="li">
@@ -229,7 +230,7 @@ function logDownload(platform: string) {
       <template #description>
         <i18n-t keypath="download.extensions.description" tag="span">
           <template #wiki>
-            <ULink to="/wiki/guides/extensions" v-bind="primaryLink">{{ t('download.extensions.descriptionWiki') }}</ULink>
+            <ULink :to="localePath('/wiki/guides/extensions')" v-bind="primaryLink">{{ t('download.extensions.descriptionWiki') }}</ULink>
           </template>
         </i18n-t>
       </template>
@@ -259,7 +260,7 @@ function logDownload(platform: string) {
             <template #description>
               <i18n-t keypath="download.extensions.defaultAssignmentsInfo" tag="span">
                 <template #wiki>
-                  <ULink to="/wiki/features/default-groups" v-bind="primaryLink">{{ t('download.extensions.groups') }}</ULink>
+                  <ULink :to="localePath('/wiki/features/default-groups')" v-bind="primaryLink">{{ t('download.extensions.groups') }}</ULink>
                 </template>
               </i18n-t>
             </template>
@@ -297,7 +298,7 @@ function logDownload(platform: string) {
       <template #description>
         <i18n-t keypath="download.placeholders.description" tag="span">
           <template #wiki>
-            <ULink to="/wiki/about/placeholders#placeholders" v-bind="primaryLink">{{ t('download.placeholders.link') }}</ULink>
+            <ULink :to="`${localePath('/wiki/about/placeholders')}#placeholders`" v-bind="primaryLink">{{ t('download.placeholders.link') }}</ULink>
           </template>
         </i18n-t>
       </template>

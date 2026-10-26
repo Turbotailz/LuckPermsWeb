@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
+const { toolPath } = useToolPath()
 const treeStore = useTreeStore()
 const { t } = useI18n()
 
@@ -19,7 +20,7 @@ async function load() {
 onMounted(load)
 watch(() => route.fullPath, load)
 onBeforeUnmount(() => {
-  if (!route.path.startsWith('/treeview/')) {
+  if (!stripLocalePrefix(route.path).startsWith('/treeview/')) {
     treeStore.reset()
   }
 })
@@ -35,7 +36,7 @@ const sessionId = computed(() => sessionIdFromRoute(route))
     :description="t('tree.home.generate')"
     :loading="Boolean(sessionId) && !treeStore.errors.load && !treeStore.errors.unsupported"
     :error="treeStore.errors.load || treeStore.errors.unsupported"
-    :actions="sessionId ? [] : [{ label: t('tools.demo'), to: '/treeview/demo', icon: 'i-lucide-play' }]"
+    :actions="sessionId ? [] : [{ label: t('tools.demo'), to: toolPath('/treeview/demo'), icon: 'i-lucide-play' }]"
   >
     <UAlert
       v-if="treeStore.errors.load"
