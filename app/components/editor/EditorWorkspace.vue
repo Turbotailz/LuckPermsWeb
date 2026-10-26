@@ -5,6 +5,7 @@ import { stripLocalePrefix } from '~/utils/tool-routes'
 
 const route = useRoute()
 const editor = useEditorStore()
+const app = useAppStore()
 const { t } = useI18n()
 const { announce } = useAnnounce()
 const { code, section } = useEditorNavigation()
@@ -131,7 +132,7 @@ defineShortcuts({
   <EditorLandingEmpty v-if="!editor.loaded && !sessionId" />
 
   <ToolEmpty
-    v-else-if="!editor.loaded"
+    v-else-if="!editor.loaded || !app.metadataSettled"
     variant="subtle"
     :title="t('editor.description')"
     :description="t('editor.intro')"
