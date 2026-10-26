@@ -68,18 +68,18 @@ const isEditor = computed(() => route.path === '/editor' || route.path.startsWit
       <ULink
         v-if="!selfHosted && !route.path.startsWith('/sponsor')"
         to="/sponsor"
-        :aria-label="`${t('sponsorBy')} BisectHosting`"
+        :aria-label="`${t('sponsorBy')} BisectHosting. ${t('sponsorCta')}`"
         class="ms-1 hidden items-center gap-2.5 border-s border-default ps-3.5 lg:flex"
       >
         <span class="shrink-0 rounded-md bg-inverted p-1">
           <img :src="bisect" alt="" class="h-4 w-auto">
         </span>
         <span class="hidden flex-col text-xs leading-snug xl:flex">
-          <span class="whitespace-nowrap text-muted">
+          <bdi class="whitespace-nowrap text-muted">
             {{ t('sponsorBy') }}
             <span class="font-semibold text-highlighted">BisectHosting</span>
-          </span>
-          <span class="whitespace-nowrap text-muted">{{ t('sponsorCta') }}</span>
+          </bdi>
+          <bdi class="whitespace-nowrap text-muted">{{ t('sponsorCta') }}</bdi>
         </span>
       </ULink>
     </template>
@@ -93,7 +93,6 @@ const isEditor = computed(() => route.path === '/editor' || route.path.startsWit
         :model-value="language.userLocale"
         :locales="language.supportedLanguages"
         class="hidden w-44 sm:flex"
-        :aria-label="t('links.language')"
         @update:model-value="language.setUserLocale"
       />
       <UButton

@@ -6,6 +6,7 @@ import { wikiRouteRules } from './config/wiki-redirects'
 import { wikiEditUrl, wikiFileUpdatedAt, wikiFileContributors, wikiContentRelative } from './config/wiki-git'
 import { resolveWikiGitDir } from './config/wiki-clone'
 import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
+import { rewriteWikiImageMarkdown } from './config/wiki-markdown'
 import { loadLocalesMeta, localizedPrerenderRoutes } from './config/i18n-locales'
 
 function gitHash() {
@@ -18,6 +19,7 @@ function gitHash() {
 
 const wikiPath = process.env.WIKI_PATH
 const wikiGitDir = resolveWikiGitDir()
+const wikiImgDir = resolve(wikiGitDir || wikiPath || '', 'img')
 const selfHosted = process.env.NUXT_PUBLIC_SELF_HOSTED === 'true'
 const siteUrl = (
   process.env.NUXT_PUBLIC_SITE_URL
@@ -65,7 +67,7 @@ export default defineNuxtConfig({
     ]
   },
   runtimeConfig: {
-    wikiPath: wikiPath || '',
+    wikiPath: wikiGitDir || wikiPath || '',
     wikiBranch: wikiBranchName(),
     wikiRepo: wikiRepoUrl(),
     public: {
@@ -176,8 +178,8 @@ export default defineNuxtConfig({
       autoSubfolderIndex: false,
       routes: prerenderRoutes
     },
-    publicAssets: wikiPath && existsSync(resolve(wikiPath, 'img'))
-      ? [{ baseURL: '/wiki-img', dir: resolve(wikiPath, 'img'), maxAge: 60 * 60 * 24 * 7 }]
+    publicAssets: existsSync(wikiImgDir)
+      ? [{ baseURL: '/wiki-img', dir: wikiImgDir, maxAge: 60 * 60 * 24 * 7 }]
       : []
   },
   site: {
@@ -208,6 +210,12 @@ export default defineNuxtConfig({
     }
   },
   hooks: {
+    'content:file:beforeParse'(ctx) {
+      if (ctx.collection.name !== 'wiki_en' || typeof ctx.file.body !== 'string') {
+        return
+      }
+      ctx.file.body = rewriteWikiImageMarkdown(ctx.file.body)
+    },
     'content:file:afterParse'(ctx) {
       if (ctx.collection.name !== 'wiki_en') {
         return

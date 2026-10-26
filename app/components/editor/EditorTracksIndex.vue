@@ -87,7 +87,6 @@ function hiddenGroupCount(groups: string[]) {
   >
     <EditorVirtualList v-slot="{ item: row }" :items="rows" :estimate-size="48">
       <div
-        role="listitem"
         class="flex h-12 items-center justify-between gap-3 border-b border-default px-4 hover:bg-elevated/50 sm:px-6"
       >
         <NuxtLink

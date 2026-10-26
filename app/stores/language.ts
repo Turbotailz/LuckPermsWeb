@@ -1,15 +1,13 @@
 import { defineStore } from 'pinia'
 import { localeDir } from '~/utils/rtl'
 import { toLocaleSelectItem, type LocaleSelectItem } from '~/utils/locale'
+import { isToolRoute } from '~/utils/tool-routes'
 
 const STORAGE_KEY = 'lp-lang'
 
 export const useLanguageStore = defineStore('language', () => {
-  const { locale, locales, setLocale, t } = useI18n()
-  const localeCookie = useCookie<string | null>(STORAGE_KEY, {
-    sameSite: 'lax',
-    default: () => null
-  })
+  const { locale, locales, setLocale, loadLocaleMessages, getLocaleCookie, setLocaleCookie, t } = useI18n()
+  const route = useRoute()
 
   const userLocale = computed(() => String(locale.value || 'en'))
 
@@ -32,32 +30,98 @@ export const useLanguageStore = defineStore('language', () => {
 
   const htmlDir = computed(() => localeDir(userLocale.value))
 
-  async function setUserLocale(code: string) {
-    if (!supportedLanguages.value.some(language => language.code === code)) {
+  function isSupported(code: string) {
+    return supportedLanguages.value.some(language => language.code === code)
+  }
+
+  function readStoredLocale() {
+    // Tool routes are unprefixed, and i18n overwrites lp-lang with the route
+    // locale before we can read it. The saved preference is the source of truth.
+    if (import.meta.client) {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        return stored
+      }
+    }
+    return getLocaleCookie() || null
+  }
+
+  if (import.meta.client) {
+    watch(locale, (code) => {
+      if (!isToolRoute(route.path)) {
+        localStorage.setItem(STORAGE_KEY, String(code))
+      }
+    })
+  }
+
+  function syncDocument() {
+    if (!import.meta.client) {
       return
     }
-    await setLocale(code as typeof locale.value)
-    localeCookie.value = code
+    document.documentElement.lang = userLocale.value
+    document.documentElement.dir = htmlDir.value
+  }
+
+  /**
+   * Editor, verbose, and tree routes are unprefixed. Applying the locale with
+   * setLocale() would try to navigate to /de/editor, which is not a route.
+   */
+  async function applyLocaleInPlace(code: string) {
+    await loadLocaleMessages(code)
+    locale.value = code
+    setLocaleCookie(code)
+    syncDocument()
+  }
+
+  async function setUserLocale(code: string) {
+    if (!isSupported(code)) {
+      return
+    }
+    if (isToolRoute(route.path)) {
+      await applyLocaleInPlace(code)
+    } else {
+      await setLocale(code)
+    }
     if (import.meta.client) {
       localStorage.setItem(STORAGE_KEY, code)
-      document.documentElement.lang = code
-      document.documentElement.dir = localeDir(code)
+      syncDocument()
     }
   }
 
-  /** Migrate legacy localStorage preference when the i18n cookie is absent. */
+  async function applyStoredLocale() {
+    if (!isToolRoute(route.path)) {
+      return
+    }
+    const stored = readStoredLocale()
+    if (!stored || !isSupported(stored)) {
+      syncDocument()
+      return
+    }
+    if (import.meta.client) {
+      localStorage.setItem(STORAGE_KEY, stored)
+    }
+    if (stored !== locale.value) {
+      await applyLocaleInPlace(stored)
+      return
+    }
+    syncDocument()
+  }
+
+  /** Migrate a legacy localStorage preference when the i18n cookie is absent. */
   async function hydrateFromStorage() {
     if (!import.meta.client) {
       return
     }
-    if (localeCookie.value) {
-      localStorage.setItem(STORAGE_KEY, localeCookie.value)
-      return
+    const cookie = getLocaleCookie()
+    if (cookie) {
+      localStorage.setItem(STORAGE_KEY, cookie)
+    } else {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored && isSupported(stored)) {
+        setLocaleCookie(stored)
+      }
     }
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored && stored !== locale.value && supportedLanguages.value.some(language => language.code === stored)) {
-      await setUserLocale(stored)
-    }
+    await applyStoredLocale()
   }
 
   return {
@@ -67,6 +131,7 @@ export const useLanguageStore = defineStore('language', () => {
     htmlDir,
     t,
     setUserLocale,
+    applyStoredLocale,
     hydrateFromStorage
   }
 })

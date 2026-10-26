@@ -164,8 +164,8 @@ function logDownload(platform: string) {
     <UPageSection :title="t('download.changelog')" :ui="sectionUi">
       <template #body>
         <UPageCard variant="subtle" class="mx-auto max-w-3xl">
-          <UPageList divide>
-            <div
+          <UPageList as="ul" divide>
+            <li
               v-for="entry in app.changeLog"
               :key="entry.version"
               class="flex items-center justify-between gap-4 py-3"
@@ -182,7 +182,7 @@ function logDownload(platform: string) {
                 <span class="ms-2 text-default">{{ entry.title }}</span>
               </span>
               <span class="shrink-0 text-sm text-muted">{{ relativeDate(entry.timestamp, locale) }}</span>
-            </div>
+            </li>
           </UPageList>
         </UPageCard>
       </template>

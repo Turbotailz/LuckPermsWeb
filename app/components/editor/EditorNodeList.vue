@@ -178,9 +178,9 @@ function clearKeyFilter() {
     sticky
     :virtualize="{ estimateSize: 36, overscan: 12 }"
     :empty="t('editor.nodes.empty')"
-    class="h-full min-h-0"
+    class="h-full min-h-64 overflow-auto lg:min-h-0"
     :ui="{
-      base: 'table-fixed min-w-full',
+      base: 'table-fixed min-w-[42rem]',
       th: 'bg-muted/50 px-3 py-2',
       td: 'px-3 py-1.5 text-sm overflow-hidden'
     }"
@@ -209,6 +209,7 @@ function clearKeyFilter() {
           icon="i-lucide-list-filter"
           size="xs"
           :placeholder="t('editor.filter')"
+          :aria-label="t('editor.filter')"
           class="min-w-0 flex-1"
           :ui="{ base: 'font-mono' }"
           @click.stop

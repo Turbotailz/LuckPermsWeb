@@ -30,7 +30,9 @@ defineSlots<{
     }"
     class="h-full min-h-0"
   >
-    <slot :item="item" :index="index" />
+    <div role="listitem">
+      <slot :item="item" :index="index" />
+    </div>
   </UScrollArea>
   <slot v-else name="empty">
     <UEmpty

@@ -49,6 +49,44 @@
   }
 }
 
+/*
+  Brand lime-500 (#94df03) stays the button fill. As text on white it is 1.64:1.
+  Light-mode primary copy uses lime-800 (#3f6212, 7.08:1 on white).
+  Dimmed text and placeholders have to clear 4.5:1 on white and on the dark editor surface.
+*/
+html:not(.dark) {
+  --ui-text-dimmed: #5b6b82;
+}
+
+html:not(.dark) .text-primary {
+  color: var(--color-lime-800);
+}
+
+.dark {
+  --ui-text-dimmed: #94a3b8;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ui-text-dimmed);
+  opacity: 1;
+}
+
+[role="checkbox"],
+[role="switch"],
+[role="spinbutton"] {
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+}
+
+[role="spinbutton"] {
+  color: var(--ui-text);
+}
+
+[role="spinbutton"][data-placeholder] {
+  color: var(--ui-text-dimmed);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

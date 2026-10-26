@@ -82,7 +82,6 @@ function actionsFor(row: GroupRow): DropdownMenuItem[] {
   >
     <EditorVirtualList v-slot="{ item: row }" :items="rows">
       <div
-        role="listitem"
         class="flex h-16 items-center justify-between gap-3 border-b border-default px-4 hover:bg-elevated/50 sm:px-6"
       >
         <NuxtLink

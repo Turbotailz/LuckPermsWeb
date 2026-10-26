@@ -1,0 +1,22 @@
+{
+  "skipToContent": "Zum Inhalt springen",
+  "sponsorBy": "Stolz unterstützt von",
+  "sponsorCta": "Erstelle noch heute deinen eigenen Minecraft-Server!",
+  "home": {
+    "hero": {
+      "eyebrow": "Open Source und für immer kostenlos",
+      "description": "Lege fest, was Spieler auf deinem Minecraft-Server tun dürfen – mit Gruppen, Tracks und Berechtigungen, die von einer einzelnen Welt bis zu einem ganzen Netzwerk skalieren."
+    }
+  },
+  "download": {
+    "hero": {
+      "description": "Hol dir den aktuellen Build für Paper, Velocity, Fabric, Forge, NeoForge, Sponge und mehr."
+    }
+  },
+  "wikiPage": {
+    "lastUpdated": "Zuletzt aktualisiert",
+    "edit": "Diese Seite bearbeiten",
+    "contributors": "Mitwirkende",
+    "contributorProfile": "{name} auf GitHub"
+  }
+}

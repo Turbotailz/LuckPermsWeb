@@ -36,23 +36,23 @@ watch(advanced, (enabled) => {
 </script>
 
 <template>
-  <div v-if="session" class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4">
-    <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden lg:flex-row">
-      <div class="max-h-80 shrink-0 overflow-y-auto lg:max-h-none lg:w-1/4 lg:min-w-64">
+  <div v-if="session" class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 lg:overflow-hidden">
+    <div class="flex flex-col gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:overflow-hidden">
+      <div class="lg:w-1/4 lg:min-w-64 lg:shrink-0 lg:overflow-y-auto">
         <EditorHolderInfo
           v-model:advanced="advanced"
           :session="session"
           :nodes="nodes"
         />
       </div>
-      <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+      <div class="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
         <UCard
           variant="subtle"
-          class="flex min-h-0 flex-1 flex-col overflow-hidden"
+          class="flex min-h-80 flex-col lg:min-h-0 lg:flex-1"
           :ui="{
-            root: 'flex min-h-0 flex-1 flex-col overflow-hidden',
+            root: 'flex min-h-80 flex-col overflow-hidden lg:min-h-0 lg:flex-1',
             header: 'px-4 py-3 sm:px-4',
-            body: 'flex min-h-0 flex-1 flex-col overflow-hidden p-0 sm:p-0'
+            body: 'flex min-h-64 flex-1 flex-col overflow-auto p-0 sm:p-0'
           }"
         >
           <template #header>
@@ -69,7 +69,7 @@ watch(advanced, (enabled) => {
               <EditorNodeBulkBar class="shrink-0" />
             </div>
           </template>
-          <EditorNodeList :nodes="tableNodes" :advanced="advanced" class="min-h-0 flex-1" />
+          <EditorNodeList :nodes="tableNodes" :advanced="advanced" class="min-h-64 flex-1 lg:min-h-0" />
         </UCard>
         <UCard
           variant="subtle"
