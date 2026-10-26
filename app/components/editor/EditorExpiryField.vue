@@ -31,7 +31,11 @@ const date = computed({
       emit('update:modelValue', null)
       return
     }
-    emit('update:modelValue', dateValueToTimestamp(value))
+    // The field is minute granularity, but the placeholder carries the current
+    // seconds. Drop them so 18:30 is stored as 18:30:00, not 18:30:08.
+    const hour = 'hour' in value ? value.hour : 0
+    const minute = 'minute' in value ? value.minute : 0
+    emit('update:modelValue', dateValueToTimestamp(calendarDateTimeFromParts(value, hour, minute)))
   }
 })
 

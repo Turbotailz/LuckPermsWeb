@@ -10,7 +10,7 @@ import type {
   EditorSession,
   EditorTrack
 } from '~/types/editor'
-import { contextsToArray } from '~/utils/editor'
+import { buildNodeKey, contextsToArray } from '~/utils/editor'
 import { canDeletePluginUsers } from '~/utils/plugin-version'
 import { buildSavePayload, expiryFromWire, isProtectedGroup } from '~/utils/save-payload'
 import { isLegacySessionId } from '~/utils/session'
@@ -455,7 +455,7 @@ export const useEditorStore = defineStore('editor', () => {
       if (group.prefix) {
         addNodesInternal(draft, [{
           sessionId: session.id,
-          key: `prefix.${group.weight || 0}.${group.prefix}`,
+          key: buildNodeKey('prefix', { weight: String(group.weight || 0), prefix: group.prefix }),
           value: true,
           isNew: true
         }])
@@ -463,7 +463,7 @@ export const useEditorStore = defineStore('editor', () => {
       if (group.suffix) {
         addNodesInternal(draft, [{
           sessionId: session.id,
-          key: `suffix.${group.weight || 0}.${group.suffix}`,
+          key: buildNodeKey('suffix', { weight: String(group.weight || 0), suffix: group.suffix }),
           value: true,
           isNew: true
         }])
