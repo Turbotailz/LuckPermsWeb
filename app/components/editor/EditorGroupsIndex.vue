@@ -2,6 +2,7 @@
 import type { DropdownMenuItem } from '@nuxt/ui'
 import type { EditorNode } from '~/types/editor'
 import { parseNodeType } from '~/utils/editor'
+import { isProtectedGroup } from '~/utils/save-payload'
 import { editorGroupPath, editorTrackPath } from '~/utils/editor-routes'
 
 interface GroupRow {
@@ -56,7 +57,7 @@ function actionsFor(row: GroupRow): DropdownMenuItem[] {
       to: editorGroupPath(code.value, row.id)
     }
   ]
-  if (row.id !== 'default') {
+  if (!isProtectedGroup(row.id)) {
     items.push({
       label: t('editor.delete'),
       icon: 'i-lucide-trash-2',

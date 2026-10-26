@@ -1,5 +1,6 @@
 import { decode, encode } from 'base64-arraybuffer'
 import { proxy, wrap, type Remote } from 'comlink'
+import { editorSocketProtocol } from '~/utils/editor-protocol'
 
 export interface SocketCallbacks {
   connect: (socket: Remote<SocketApi>) => void
@@ -89,26 +90,12 @@ class CryptoHelper {
   signVerifyAlgorithm: AlgorithmIdentifier | EcdsaParams
 
   constructor(protocolVersion: number) {
-    if (protocolVersion === 1) {
-      this.publicKeyVariable = 'editor-public-key'
-      this.privateKeyVariable = 'editor-private-key'
-      this.importAlgorithm = { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }
-      this.generateAlgorithm = {
-        name: 'RSASSA-PKCS1-v1_5',
-        hash: 'SHA-256',
-        modulusLength: 4096,
-        publicExponent: new Uint8Array([1, 0, 1])
-      }
-      this.signVerifyAlgorithm = { name: 'RSASSA-PKCS1-v1_5' }
-    } else if (protocolVersion === 2) {
-      this.publicKeyVariable = 'editor-public-key-v2'
-      this.privateKeyVariable = 'editor-private-key-v2'
-      this.importAlgorithm = { name: 'ECDSA', namedCurve: 'P-256' }
-      this.generateAlgorithm = { name: 'ECDSA', namedCurve: 'P-256' }
-      this.signVerifyAlgorithm = { name: 'ECDSA', hash: 'SHA-256' }
-    } else {
-      throw new Error(`Unsupported protocol version: ${protocolVersion}`)
-    }
+    const protocol = editorSocketProtocol(protocolVersion)
+    this.publicKeyVariable = protocol.publicKeyVariable
+    this.privateKeyVariable = protocol.privateKeyVariable
+    this.importAlgorithm = protocol.importAlgorithm
+    this.generateAlgorithm = protocol.generateAlgorithm
+    this.signVerifyAlgorithm = protocol.signVerifyAlgorithm
   }
 
   async loadKeys(): Promise<CryptoKeyPairPayload | null> {

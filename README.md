@@ -27,6 +27,14 @@ Without `WIKI_PATH`, the build clones `WIKI_REPO` @ `WIKI_BRANCH` (default `Turb
 - `pnpm generate` — static output for Netlify (`/.output/public`)
 - `pnpm preview` — preview production build
 
+## Cloudflare Pages
+
+Build command `npm run build`, output directory `dist`. Pages sets `CF_PAGES=1`, and the Nuxt config then selects the Nitro `cloudflare-pages` preset, which writes the worker to `dist`. Node is pinned in `.node-version` (22.16.0). `netlify.toml` stays for the separate static `pnpm generate` deploy.
+
+`prebuild` fetches Crowdin catalogs with Node (no pnpm on `PATH` required). Messages that are not valid vue-i18n syntax are replaced with the English string so prerender does not 500.
+
+Optional build environment variable: `NUXT_PUBLIC_SITE_URL=https://luckperms.tailz.dev`, so canonicals use the custom domain. When it is unset, Pages falls back to `CF_PAGES_URL`.
+
 ## Runtime config (self-host)
 
 | Env | Default | Purpose |

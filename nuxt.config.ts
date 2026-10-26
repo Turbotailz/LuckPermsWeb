@@ -31,7 +31,12 @@ const i18nLocales = loadLocalesMeta()
 const publicPaths = selfHosted
   ? ['/', '/editor']
   : ['/', '/download', '/sponsor', '/wiki', '/editor']
-const prerenderRoutes = localizedPrerenderRoutes(i18nLocales, publicPaths)
+// /editor is not a localized route (i18n pages.editor = false). Prerendering
+// /de/editor etc. 404s and fails the Pages build.
+const prerenderRoutes = [
+  ...localizedPrerenderRoutes(i18nLocales, publicPaths.filter(path => path !== '/editor')),
+  ...(publicPaths.includes('/editor') ? ['/editor'] : [])
+]
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -164,6 +169,8 @@ export default defineNuxtConfig({
     ...(selfHosted ? {} : wikiRouteRules())
   },
   nitro: {
+    // Pages sets CF_PAGES=1. Pin the preset so `npm run build` keeps writing `dist`.
+    ...(process.env.CF_PAGES ? { preset: 'cloudflare-pages' as const } : {}),
     prerender: {
       crawlLinks: !selfHosted,
       autoSubfolderIndex: false,
