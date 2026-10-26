@@ -1,9 +1,14 @@
-import { wikiCaseOnlyRedirects } from '../../config/wiki-redirects'
+// Old wiki URLs (and case-only pairs Vue Router cannot redirect) for the default
+// locale and for /:locale/wiki/... links crawled from localized pages.
+import { loadLocalesMeta } from '../../config/i18n-locales'
+import { redirectForWikiPath } from '../../config/wiki-redirects'
+
+const localeCodes = loadLocalesMeta().map(locale => locale.code)
 
 export default defineEventHandler((event) => {
-  const path = getRequestURL(event).pathname.replace(/\/+$/, '') || '/'
-  const to = wikiCaseOnlyRedirects[path]
+  const url = getRequestURL(event)
+  const to = redirectForWikiPath(url.pathname, localeCodes)
   if (to) {
-    return sendRedirect(event, to, 301)
+    return sendRedirect(event, `${to}${url.search}`, 301)
   }
 })

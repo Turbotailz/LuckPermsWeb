@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
 import { flattenContexts, normalizeUserId } from '~/utils/editor'
+import { applyEditsCommand, trustEditorCommand } from '~/utils/editor-protocol'
 import type { EditorSession, EditorTrack } from '~/types/editor'
 import { isLocalEditorSession } from '~/assets/data/editor-samples'
 
@@ -93,8 +94,8 @@ const nonce = computed(() => (editor.modal.object as { nonce?: string } | undefi
 const deleteGroupId = computed(() => (editor.modal.object as { groupId?: string } | undefined)?.groupId)
 const deleteUser = computed(() => editor.modal.object as { userId?: string, name?: string } | undefined)
 
-const applyCommand = computed(() => `/${alias.value} applyedits ${saveKey.value || ''}`)
-const trustCommand = computed(() => `/${alias.value} trusteditor ${nonce.value || ''}`)
+const applyCommand = computed(() => applyEditsCommand(alias.value, saveKey.value || ''))
+const trustCommand = computed(() => trustEditorCommand(alias.value, nonce.value || ''))
 
 const modalTitle = computed(() => {
   switch (editor.modal.type) {

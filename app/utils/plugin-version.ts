@@ -1,4 +1,4 @@
-import { coerce, compare } from 'semver'
+import { coerce, compare, gte } from 'semver'
 import type { AppDownloads } from '~/stores/app'
 
 export type PluginVersionStatus = 'unknown' | 'current' | 'outdated' | 'ahead'
@@ -20,6 +20,19 @@ export function comparePluginVersions(current?: string | null, latest?: string |
     status: (result < 0 ? 'outdated' : result > 0 ? 'ahead' : 'current') as PluginVersionStatus,
     currentVersion,
     latestVersion
+  }
+}
+
+const DELETE_USERS_SINCE = '5.1.105'
+
+export function canDeletePluginUsers(version?: string | null) {
+  if (!version) {
+    return false
+  }
+  try {
+    return gte(version, DELETE_USERS_SINCE)
+  } catch {
+    return false
   }
 }
 

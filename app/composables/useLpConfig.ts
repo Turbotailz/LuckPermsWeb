@@ -1,3 +1,5 @@
+import { BYTEBIN_POST_HEADERS, bytebinGetUrl, bytebinPostUrl, encodeBytebinBody } from '~/utils/bytebin'
+
 export function useLpConfig() {
   const config = useRuntimeConfig().public
 
@@ -26,7 +28,7 @@ export function useLpConfig() {
 
 export function bytebinUrlFor(id: string) {
   const { bytebinUrl } = useLpConfig()
-  return new URL(id, bytebinUrl).toString()
+  return bytebinGetUrl(bytebinUrl, id)
 }
 
 export async function fetchBytebinJson<T>(id: string): Promise<T> {
@@ -39,16 +41,12 @@ export async function fetchBytebinJson<T>(id: string): Promise<T> {
 }
 
 export async function postBytebinGzip(payload: unknown): Promise<{ key: string }> {
-  const { gzip } = await import('pako')
   const { bytebinUrl } = useLpConfig()
-  const url = new URL('post', bytebinUrl).toString()
-  const body = gzip(JSON.stringify(payload))
+  const url = bytebinPostUrl(bytebinUrl)
+  const body = encodeBytebinBody(payload)
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Encoding': 'gzip'
-    },
+    headers: BYTEBIN_POST_HEADERS,
     body
   })
   if (!response.ok) {
