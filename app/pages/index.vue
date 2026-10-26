@@ -4,6 +4,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const app = useAppStore()
 const { selfHosted, siteUrl } = useLpConfig()
 
@@ -66,9 +67,9 @@ const whyCards = computed(() => [
 ])
 
 const toolCards = computed(() => [
-  { title: t('links.editor'), description: t('home.apps.editor'), icon: 'i-lucide-pencil', to: '/editor' },
-  { title: t('links.verbose'), description: t('home.apps.verbose'), icon: 'i-lucide-scroll-text', to: '/verbose' },
-  { title: t('links.tree'), description: t('home.apps.tree'), icon: 'i-lucide-git-fork', to: '/treeview' }
+  { title: t('links.editor'), description: t('home.apps.editor'), icon: 'i-lucide-pencil', to: localePath('/editor') },
+  { title: t('links.verbose'), description: t('home.apps.verbose'), icon: 'i-lucide-scroll-text', to: localePath('/verbose') },
+  { title: t('links.tree'), description: t('home.apps.tree'), icon: 'i-lucide-git-fork', to: localePath('/treeview') }
 ])
 </script>
 
@@ -91,7 +92,7 @@ const toolCards = computed(() => [
       </template>
       <template #links>
         <div v-if="!selfHosted" class="flex flex-wrap items-center gap-3">
-          <UButton size="xl" to="/download" icon="i-lucide-circle-arrow-down">
+          <UButton size="xl" :to="localePath('/download')" icon="i-lucide-circle-arrow-down">
             {{ t('links.download') }}
             <UBadge color="neutral" variant="subtle" class="ms-2">v{{ app.version || '…' }}</UBadge>
           </UButton>
@@ -99,7 +100,7 @@ const toolCards = computed(() => [
             size="xl"
             color="neutral"
             variant="outline"
-            to="/wiki"
+            :to="localePath('/wiki')"
             trailing-icon="i-lucide-arrow-right"
           >
             {{ t('wiki') }}
@@ -150,7 +151,7 @@ const toolCards = computed(() => [
           <i18n-t keypath="home.why.more" tag="p" class="text-center text-muted">
             <template #wiki>
               <ULink
-                to="/wiki/about/why-luckperms"
+                :to="localePath('/wiki/about/why-luckperms')"
                 active-class="text-primary font-medium"
                 inactive-class="text-primary font-medium hover:underline"
               >
@@ -186,7 +187,7 @@ const toolCards = computed(() => [
               :title="t('links.wiki')"
               :description="t('home.wiki')"
               icon="i-lucide-book"
-              to="/wiki"
+              :to="localePath('/wiki')"
               variant="outline"
               spotlight
             />
@@ -212,7 +213,7 @@ const toolCards = computed(() => [
               :title="t('home.partner.name')"
               :description="t('home.partner.description')"
               icon="i-lucide-server"
-              to="/sponsor"
+              :to="localePath('/sponsor')"
               variant="outline"
               spotlight
             />

@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import logo from '~/assets/images/logo.svg'
+import { localizeToolPath } from '~/utils/editor-routes'
 
 const { t } = useI18n()
+const demoTo = computed(() => localizeToolPath('/editor/demo'))
+const docsTo = computed(() => localizeToolPath('/wiki/features/web-editor'))
 </script>
 
 <template>
@@ -27,14 +30,14 @@ const { t } = useI18n()
         <div class="mt-4 flex flex-wrap justify-center gap-2">
           <UButton
             size="xl"
-            to="/editor/demo"
+            :to="demoTo"
             icon="i-lucide-play"
           >
             {{ t('tools.demo') }}
           </UButton>
           <UButton
             size="xl"
-            to="/wiki/features/web-editor"
+            :to="docsTo"
             icon="i-lucide-book-open"
             color="neutral"
             variant="outline"

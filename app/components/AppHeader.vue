@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import bisect from '~/assets/images/bisect.svg'
+import { isEditorPath, isToolRoute, isWikiPath, stripLocalePrefix } from '~/utils/tool-routes'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const { selfHosted } = useLpConfig()
 const language = useLanguageStore()
 const route = useRoute()
 
-const toolsOpen = computed(() =>
-  ['/editor', '/verbose', '/treeview'].some(prefix => route.path.startsWith(prefix))
-)
+const toolsOpen = computed(() => isToolRoute(route.path))
 
 const toolsItem = computed<NavigationMenuItem>(() => ({
   label: t('links.tools.name'),
   icon: 'i-lucide-wrench',
   active: toolsOpen.value,
   children: [
-    { label: t('links.tools.editor'), to: '/editor', icon: 'i-lucide-pencil' },
-    { label: t('links.tools.verbose'), to: '/verbose', icon: 'i-lucide-scroll-text' },
-    { label: t('links.tools.tree'), to: '/treeview', icon: 'i-lucide-git-fork' }
+    { label: t('links.tools.editor'), to: localePath('/editor'), icon: 'i-lucide-pencil' },
+    { label: t('links.tools.verbose'), to: localePath('/verbose'), icon: 'i-lucide-scroll-text' },
+    { label: t('links.tools.tree'), to: localePath('/treeview'), icon: 'i-lucide-git-fork' }
   ]
 }))
 
@@ -28,8 +28,8 @@ const items = computed<NavigationMenuItem[]>(() => {
   }
 
   return [
-    { label: t('links.download'), to: '/download', icon: 'i-lucide-circle-arrow-down' },
-    { label: t('wiki'), to: '/wiki', icon: 'i-lucide-book' },
+    { label: t('links.download'), to: localePath('/download'), icon: 'i-lucide-circle-arrow-down' },
+    { label: t('wiki'), to: localePath('/wiki'), icon: 'i-lucide-book' },
     toolsItem.value
   ]
 })
@@ -43,31 +43,31 @@ const mobileItems = computed<NavigationMenuItem[]>(() => {
     ...items.value,
     { label: 'GitHub', to: 'https://github.com/LuckPerms/LuckPerms', target: '_blank', icon: 'i-simple-icons-github' },
     { label: 'Discord', to: 'https://discord.gg/luckperms', target: '_blank', icon: 'i-simple-icons-discord' },
-    { label: t('sponsorPage.title'), to: '/sponsor', icon: 'i-lucide-heart' }
+    { label: t('sponsorPage.title'), to: localePath('/sponsor'), icon: 'i-lucide-heart' }
   ]
 })
 
-const isWiki = computed(() => route.path === '/wiki' || route.path.startsWith('/wiki/'))
-const isEditor = computed(() => route.path === '/editor' || route.path.startsWith('/editor/'))
+const isWiki = computed(() => isWikiPath(route.path))
+const isEditor = computed(() => isEditorPath(route.path))
 </script>
 
 <template>
   <UHeader
     :title="t('links.home')"
-    to="/"
+    :to="localePath('/')"
     :ui="isEditor ? { container: 'max-w-none lg:px-6' } : undefined"
   >
     <template #left>
       <ULink
-        to="/"
+        :to="localePath('/')"
         class="flex shrink-0 items-center gap-2 text-xl font-bold text-highlighted"
       >
         <BrandLogo size="size-8" />
         LuckPerms
       </ULink>
       <ULink
-        v-if="!selfHosted && !route.path.startsWith('/sponsor')"
-        to="/sponsor"
+        v-if="!selfHosted && stripLocalePrefix(route.path) !== '/sponsor'"
+        :to="localePath('/sponsor')"
         :aria-label="`${t('sponsorBy')} BisectHosting. ${t('sponsorCta')}`"
         class="ms-1 hidden items-center gap-2.5 border-s border-default ps-3.5 lg:flex"
       >
@@ -87,7 +87,7 @@ const isEditor = computed(() => route.path === '/editor' || route.path.startsWit
     <UNavigationMenu :items="items" class="hidden lg:flex" />
 
     <template #right>
-      <UContentSearchButton v-if="!selfHosted && !route.path.startsWith('/editor')" />
+      <UContentSearchButton v-if="!selfHosted && !isEditor" />
       <UColorModeButton />
       <AppLocaleSelect
         :model-value="language.userLocale"

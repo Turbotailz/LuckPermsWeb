@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
-import { editorHomePath } from '~/utils/editor-routes'
+import { editorHomePath, localizeToolPath } from '~/utils/editor-routes'
+import { stripLocalePrefix } from '~/utils/tool-routes'
 
 const route = useRoute()
 const editor = useEditorStore()
@@ -78,7 +79,8 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  if (!route.path.startsWith('/editor/') || route.path === '/editor') {
+  const bare = stripLocalePrefix(route.path)
+  if (!bare.startsWith('/editor/') || bare === '/editor') {
     editor.reset()
   }
 })
@@ -152,7 +154,7 @@ defineShortcuts({
       <template #description>
         <i18n-t keypath="editor.unsupported.info" tag="span">
           <template #download>
-            <ULink to="/download">{{ t('editor.unsupported.download') }}</ULink>
+            <ULink :to="localizeToolPath('/download')">{{ t('editor.unsupported.download') }}</ULink>
           </template>
         </i18n-t>
       </template>

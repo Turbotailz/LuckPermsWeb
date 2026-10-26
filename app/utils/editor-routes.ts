@@ -1,26 +1,47 @@
+import { splitLocalePrefix, withLocalePrefix } from '~/utils/tool-routes'
+
 export type EditorSection = 'home' | 'groups' | 'users' | 'tracks'
 
+let readRouteLocale: () => string | null = () => null
+
+/** Keep in-editor links under the URL's locale prefix (`/de/editor/...`). */
+export function setEditorRouteLocale(reader: () => string | null) {
+  readRouteLocale = reader
+}
+
+function localize(path: string) {
+  try {
+    return withLocalePrefix(path, readRouteLocale())
+  } catch {
+    return path
+  }
+}
+
+export function localizeToolPath(path: string) {
+  return localize(path)
+}
+
 export function editorHomePath(code: string) {
-  return `/editor/${code}`
+  return localize(`/editor/${code}`)
 }
 
 export function editorSectionPath(code: string, section: EditorSection) {
   if (section === 'home') {
     return editorHomePath(code)
   }
-  return `/editor/${code}/${section}`
+  return localize(`/editor/${code}/${section}`)
 }
 
 export function editorGroupPath(code: string, groupId: string) {
-  return `/editor/${code}/groups/${encodeURIComponent(groupId)}`
+  return localize(`/editor/${code}/groups/${encodeURIComponent(groupId)}`)
 }
 
 export function editorUserPath(code: string, userId: string) {
-  return `/editor/${code}/users/${encodeURIComponent(userId)}`
+  return localize(`/editor/${code}/users/${encodeURIComponent(userId)}`)
 }
 
 export function editorTrackPath(code: string, trackId: string) {
-  return `/editor/${code}/tracks/${encodeURIComponent(trackId)}`
+  return localize(`/editor/${code}/tracks/${encodeURIComponent(trackId)}`)
 }
 
 export function editorHolderPath(code: string, type: 'group' | 'user', id: string) {
@@ -28,11 +49,13 @@ export function editorHolderPath(code: string, type: 'group' | 'user', id: strin
 }
 
 export function editorSectionFromPath(path: string): EditorSection {
-  const match = path.match(/^\/editor\/[^/]+\/(groups|users|tracks)(?:\/|$)/)
+  const bare = splitLocalePrefix(path).path
+  const match = bare.match(/^\/editor\/[^/]+\/(groups|users|tracks)(?:\/|$)/)
   return (match?.[1] as EditorSection) || 'home'
 }
 
 export function editorPathSuffix(path: string) {
-  const suffix = path.replace(/^\/editor\/[^/]+/, '')
+  const bare = splitLocalePrefix(path).path
+  const suffix = bare.replace(/^\/editor\/[^/]+/, '')
   return suffix && suffix !== '/' ? suffix : ''
 }

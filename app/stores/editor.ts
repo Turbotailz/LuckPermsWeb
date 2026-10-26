@@ -14,7 +14,7 @@ import { buildNodeKey, contextsToArray } from '~/utils/editor'
 import { canDeletePluginUsers } from '~/utils/plugin-version'
 import { buildSavePayload, expiryFromWire, isProtectedGroup } from '~/utils/save-payload'
 import { isLegacySessionId } from '~/utils/session'
-import { editorPathSuffix } from '~/utils/editor-routes'
+import { editorHomePath, editorPathSuffix } from '~/utils/editor-routes'
 import { fetchBytebinJson, postBytebinGzip } from '~/composables/useLpConfig'
 import { socketConnect, type SocketApi } from '~/socket/ws'
 import editorDemo from '~/assets/data/editor-demo.json'
@@ -712,7 +712,7 @@ export const useEditorStore = defineStore('editor', () => {
           await load(newSessionId)
           if (import.meta.client) {
             const suffix = editorPathSuffix(useRoute().path)
-            await navigateTo(`/editor/${newSessionId}${suffix}`, { replace: true })
+            await navigateTo(`${editorHomePath(newSessionId)}${suffix}`, { replace: true })
           }
           return
         } catch (error) {

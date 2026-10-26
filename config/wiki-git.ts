@@ -67,7 +67,10 @@ function loadWikiGitDates(wikiPath: string): Map<string, string> {
 }
 
 export function wikiRelativeFromRoute(wikiPath: string, routePath: string): string {
-  const slug = routePath.replace(/^\/wiki\/?/, '').replace(/\/$/, '')
+  const slug = routePath
+    .replace(/^\/[a-z]{2,3}(?:-[A-Za-z]{2})?(?=\/wiki(?:\/|$))/, '')
+    .replace(/^\/wiki\/?/, '')
+    .replace(/\/$/, '')
   const candidates = slug
     ? [`en/${slug}.md`, `en/${slug}/index.md`]
     : ['en/index.md']

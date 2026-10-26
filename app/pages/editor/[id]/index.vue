@@ -4,7 +4,6 @@ definePageMeta({
   ssr: false
 })
 
-defineI18nRoute(false)
 </script>
 
 <template>

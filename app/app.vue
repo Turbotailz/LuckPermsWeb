@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { resolveUiLocale } from '~/utils/locale'
+import { isEditorPath, isToolRoute } from '~/utils/tool-routes'
 
 const language = useLanguageStore()
 const { locale } = useI18n()
 const { selfHosted } = useLpConfig()
 const route = useRoute()
-const showSearch = computed(() => !selfHosted && !route.path.startsWith('/editor'))
-const isTools = computed(() =>
-  ['/editor', '/verbose', '/treeview'].some(prefix => route.path === prefix || route.path.startsWith(`${prefix}/`))
-)
+const showSearch = computed(() => !selfHosted && !isEditorPath(route.path))
+const isTools = computed(() => isToolRoute(route.path))
 
 const uiLocale = computed(() => resolveUiLocale(String(locale.value)))
 

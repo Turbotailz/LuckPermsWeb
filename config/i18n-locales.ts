@@ -65,3 +65,46 @@ export function localizedPrerenderRoutes(
   }
   return [...routes]
 }
+
+/** Paths prerendered for every locale, including the editor landing page. */
+export function sitePrerenderPaths(selfHosted: boolean) {
+  return selfHosted
+    ? ['/', '/editor']
+    : ['/', '/download', '/sponsor', '/wiki', '/editor']
+}
+
+export function sitePrerenderRoutes(locales: I18nLocaleMeta[], selfHosted: boolean) {
+  return [
+    ...localizedPrerenderRoutes(locales, sitePrerenderPaths(selfHosted)),
+    '/verbose',
+    '/treeview'
+  ]
+}
+
+/**
+ * Locale-prefixed copies of route rules. `/editor/**` does not match `/de/editor/**`,
+ * so each prefix needs its own rule or Cloudflare renders those URLs as 404s.
+ */
+export function localizedRouteRules(locales: I18nLocaleMeta[], selfHosted: boolean) {
+  const rules: Record<string, { prerender?: boolean, ssr?: boolean }> = {}
+  for (const locale of locales) {
+    if (locale.code === 'en') {
+      continue
+    }
+    const prefix = `/${locale.code}`
+    rules[`${prefix}/editor`] = { prerender: true, ssr: true }
+    rules[`${prefix}/editor/**`] = { ssr: false }
+    rules[`${prefix}/verbose`] = { ssr: false }
+    rules[`${prefix}/verbose/**`] = { ssr: false }
+    rules[`${prefix}/treeview`] = { ssr: false }
+    rules[`${prefix}/treeview/**`] = { ssr: false }
+    if (!selfHosted) {
+      rules[prefix] = { prerender: true }
+      rules[`${prefix}/download`] = { prerender: true }
+      rules[`${prefix}/sponsor`] = { prerender: true }
+      rules[`${prefix}/wiki`] = { prerender: true }
+      rules[`${prefix}/wiki/**`] = { prerender: true }
+    }
+  }
+  return rules
+}
