@@ -1,7 +1,11 @@
-import { produceWithPatches, applyPatches, enablePatches, type Patch } from 'immer'
+import { produceWithPatches, applyPatches, enablePatches, setAutoFreeze, type Patch } from 'immer'
 import type { HistoryEntry } from '~/types/editor'
 
 enablePatches()
+// Immer freezes the produced document. Assigned back onto the Vue ref, that frozen
+// tree becomes readonly, so later in-place updates (known-permission push) throw
+// and the node table stops rendering the edit.
+setAutoFreeze(false)
 
 const HISTORY_CAP = 100
 
