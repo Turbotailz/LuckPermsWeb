@@ -121,38 +121,34 @@ function logDownload(platform: string) {
       </div>
     </UPageHero>
 
-    <UPageSection
-      id="platforms"
-      :title="t('download.typeChoose')"
-      :ui="sectionUi"
-      class="scroll-mt-(--ui-header-height)"
-    >
-      <template #body>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <UPageCard
+    <section id="platforms" class="lp-band-forest scroll-mt-(--ui-header-height)">
+      <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ t('download.typeChoose') }}</h2>
+        <div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <component
+            :is="platform.href ? 'a' : 'div'"
             v-for="platform in platforms"
             :key="platform.key"
-            :title="platform.name"
-            :description="platform.small"
-            :to="platform.href"
-            target="_blank"
-            variant="subtle"
-            @click="logDownload(platform.key)"
+            :href="platform.href || undefined"
+            :target="platform.href ? '_blank' : undefined"
+            :rel="platform.href ? 'noopener noreferrer' : undefined"
+            class="lp-platform"
+            @click="platform.href && logDownload(platform.key)"
           >
-            <template #leading>
-              <UAvatar :src="platformImages[platform.img]" :alt="platform.name" size="md" class="rounded-md bg-muted p-1" />
-            </template>
-          </UPageCard>
+            <img :src="platformImages[platform.img]" :alt="platform.name" class="size-10 rounded-md bg-white/90 p-1" width="40" height="40">
+            <span>
+              <span class="block font-semibold">{{ platform.name }}</span>
+              <span class="mt-0.5 block text-sm opacity-75">{{ platform.small }}</span>
+            </span>
+          </component>
         </div>
-      </template>
-      <template #footer>
-        <div class="text-center">
-          <UButton color="neutral" variant="subtle" icon="i-lucide-circle-help" @click="quizOpen = true">
+        <div class="mt-8">
+          <UButton color="neutral" variant="outline" icon="i-lucide-circle-help" @click="quizOpen = true">
             {{ t('download.typeHelp') }}
           </UButton>
         </div>
-      </template>
-    </UPageSection>
+      </div>
+    </section>
 
     <UPageSection :title="t('download.changelog')" :ui="sectionUi">
       <template #body>

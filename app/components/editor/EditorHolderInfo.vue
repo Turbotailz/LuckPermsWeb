@@ -355,39 +355,54 @@ function deleteEditingMeta() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <div>
-      <UCard variant="subtle" :ui="{ body: 'p-4 sm:p-4' }">
-        <div v-if="session.type === 'user'" class="flex items-center gap-3">
-          <PlayerAvatar :id="session.id" :name="session.displayName" :title="false" size="sm" />
-          <div class="min-w-0">
-            <p class="truncate text-lg font-semibold text-highlighted">{{ session.displayName }}</p>
-            <p class="truncate font-mono text-xs text-muted">{{ session.id }}</p>
-          </div>
+  <div class="lp-group-head">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+      <div v-if="session.type === 'user'" class="flex min-w-0 items-center gap-3">
+        <PlayerAvatar :id="session.id" :name="session.displayName" :title="false" size="sm" />
+        <div class="min-w-0">
+          <p class="truncate text-2xl font-semibold tracking-tight text-highlighted">{{ session.displayName }}</p>
+          <p class="truncate font-mono text-xs text-muted">{{ session.id }}</p>
         </div>
-        <div v-else class="flex items-center justify-between gap-2">
-          <div class="min-w-0">
-            <p class="truncate text-lg font-semibold text-highlighted">{{ groupDisplayTitle }}</p>
-            <p v-if="groupHasDisplayName" class="truncate font-mono text-xs text-muted">
-              {{ session.id }}
-            </p>
-          </div>
-          <div class="flex shrink-0 items-center gap-1">
-            <UBadge v-if="extras('displayname')" color="neutral" variant="subtle" size="xs">
-              {{ t('editor.holder.extras', extras('displayname')) }}
-            </UBadge>
-            <UButton
-              icon="i-lucide-pencil"
-              color="neutral"
-              variant="ghost"
-              size="xs"
-              :title="t('editor.groups.editDisplayName')"
-              :aria-label="t('editor.groups.editDisplayName')"
-              @click="displayNameOpen = true"
-            />
-          </div>
+      </div>
+      <div v-else class="flex min-w-0 items-center gap-2">
+        <div class="min-w-0">
+          <p class="truncate text-2xl font-semibold tracking-tight text-highlighted">{{ groupDisplayTitle }}</p>
+          <p v-if="groupHasDisplayName" class="truncate font-mono text-xs text-muted">
+            {{ session.id }}
+          </p>
         </div>
-      </UCard>
+        <UBadge v-if="extras('displayname')" color="neutral" variant="subtle" size="xs">
+          {{ t('editor.holder.extras', extras('displayname')) }}
+        </UBadge>
+        <UButton
+          icon="i-lucide-pencil"
+          color="neutral"
+          variant="ghost"
+          size="xs"
+          :title="t('editor.groups.editDisplayName')"
+          :aria-label="t('editor.groups.editDisplayName')"
+          @click="displayNameOpen = true"
+        />
+      </div>
+
+      <div v-if="session.type === 'group'" class="lp-chip-row">
+        <span class="text-xs font-semibold tracking-wide text-muted uppercase">{{ t('editor.groups.weight') }}</span>
+        <span class="font-mono text-sm tabular-nums" :class="weightValue ? 'text-highlighted' : 'text-muted'">
+          {{ weightValue || t('editor.groups.none') }}
+        </span>
+        <UBadge v-if="extras('weight')" color="neutral" variant="subtle" size="xs">
+          {{ t('editor.holder.extras', extras('weight')) }}
+        </UBadge>
+        <UButton
+          icon="i-lucide-pencil"
+          color="neutral"
+          variant="ghost"
+          size="xs"
+          :title="t('editor.groups.editWeight')"
+          :aria-label="t('editor.groups.editWeight')"
+          @click="weightOpen = true"
+        />
+      </div>
 
       <UModal v-model:open="displayNameOpen" :title="t('editor.groups.editDisplayName')" :ui="{ content: 'sm:max-w-lg' }">
         <template #body>
@@ -414,7 +429,7 @@ function deleteEditingMeta() {
       </UModal>
     </div>
 
-    <EditorHolderCard :title="t('editor.meta.parents')" icon="i-lucide-git-merge">
+    <EditorHolderCard :title="t('editor.meta.parents')" icon="i-lucide-git-merge" class="basis-full">
       <template v-if="extras('inheritance')" #badge>
         <UBadge color="neutral" variant="subtle" size="xs">
           {{ t('editor.holder.extras', extras('inheritance')) }}
@@ -473,36 +488,6 @@ function deleteEditingMeta() {
         </UBadge>
       </div>
       <p v-else class="text-sm text-muted">{{ t('editor.groups.none') }}</p>
-    </EditorHolderCard>
-
-    <EditorHolderCard
-      v-if="session.type === 'group'"
-      compact
-      :title="t('editor.groups.weight')"
-      icon="i-lucide-scale"
-    >
-      <template v-if="extras('weight')" #badge>
-        <UBadge color="neutral" variant="subtle" size="xs">
-          {{ t('editor.holder.extras', extras('weight')) }}
-        </UBadge>
-      </template>
-      <template #actions>
-        <span
-          class="font-mono text-sm tabular-nums"
-          :class="weightValue ? 'text-highlighted' : 'text-muted'"
-        >
-          {{ weightValue || t('editor.groups.none') }}
-        </span>
-        <UButton
-          icon="i-lucide-pencil"
-          color="neutral"
-          variant="ghost"
-          size="xs"
-          :title="t('editor.groups.editWeight')"
-          :aria-label="t('editor.groups.editWeight')"
-          @click="weightOpen = true"
-        />
-      </template>
     </EditorHolderCard>
 
     <UModal v-model:open="weightOpen" :title="t('editor.groups.editWeight')">

@@ -164,18 +164,23 @@ defineShortcuts({
   <UDashboardGroup v-else class="lp-editor flex-col" storage-key="lp-editor-rem" unit="rem">
     <UDashboardNavbar
       :toggle="section !== 'home'"
+      class="lp-editor-bar"
       :ui="{
+        root: 'lp-editor-bar',
         center: 'flex flex-1 min-w-0 justify-center px-2 sm:px-4',
         right: 'flex items-center shrink-0 gap-1 sm:gap-1.5'
       }"
     >
       <template #leading>
-        <UDashboardSidebarCollapse v-if="section !== 'home'" />
+        <UDashboardSidebarCollapse v-if="section !== 'home'" class="lp-editor-icon" />
       </template>
       <template #title>
-        <NuxtLink :to="homePath" class="truncate">
-          <span class="sm:hidden">{{ t('links.tools.editor') }}</span>
-          <span class="hidden sm:inline">{{ t('editor.title') }}</span>
+        <NuxtLink :to="homePath" class="flex min-w-0 items-center gap-2">
+          <BrandLogo size="size-6" />
+          <span class="truncate">
+            <span class="sm:hidden">{{ t('links.tools.editor') }}</span>
+            <span class="hidden sm:inline">{{ t('editor.title') }}</span>
+          </span>
         </NuxtLink>
       </template>
 
@@ -200,6 +205,7 @@ defineShortcuts({
       </UInput>
 
       <template #right>
+        <span v-if="sessionId" class="hidden max-w-36 truncate font-mono text-xs text-muted lg:inline">{{ sessionId }}</span>
         <UTooltip v-if="editor.socketStatus" :text="t('editor.socketConnected')">
           <UIcon name="i-lucide-network" class="text-primary" />
         </UTooltip>
@@ -226,13 +232,13 @@ defineShortcuts({
       </template>
     </UDashboardNavbar>
 
-    <UDashboardToolbar>
+    <UDashboardToolbar class="lp-editor-tabs" :ui="{ root: 'lp-editor-tabs' }">
       <EditorTabs />
     </UDashboardToolbar>
 
     <div class="flex min-h-0 min-w-0 flex-1 overflow-hidden">
       <EditorSidebar v-if="section !== 'home'" v-model:filter="sectionFilter" />
-      <UDashboardPanel :ui="{ body: 'flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' }">
+      <UDashboardPanel :ui="{ body: 'flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0', footer: 'p-0 sm:p-0 border-0 bg-transparent' }">
         <template #body>
           <div class="flex min-h-0 flex-1 flex-col">
             <EditorSearchResults

@@ -1,43 +1,56 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
 import { editorSectionPath, localizeToolPath, type EditorSection } from '~/utils/editor-routes'
 
 const editor = useEditorStore()
 const { t } = useI18n()
 const { code, section } = useEditorNavigation()
 
-function item(value: EditorSection, icon: string, badge?: number): NavigationMenuItem {
-  return {
-    label: t(`editor.nav.${value}`),
-    icon,
-    to: editorSectionPath(code.value, value),
-    badge,
-    exact: value === 'home',
-    active: section.value === value
+const items = computed(() => [
+  { value: 'home' as EditorSection, label: t('editor.nav.home'), to: editorSectionPath(code.value, 'home') },
+  {
+    value: 'groups' as EditorSection,
+    label: t('editor.nav.groups'),
+    to: editorSectionPath(code.value, 'groups'),
+    badge: editor.sessions.filter(session => session.type === 'group').length
+  },
+  {
+    value: 'users' as EditorSection,
+    label: t('editor.nav.users'),
+    to: editorSectionPath(code.value, 'users'),
+    badge: editor.sessions.filter(session => session.type === 'user').length
+  },
+  {
+    value: 'tracks' as EditorSection,
+    label: t('editor.nav.tracks'),
+    to: editorSectionPath(code.value, 'tracks'),
+    badge: editor.tracks.length
   }
-}
-
-const items = computed<NavigationMenuItem[][]>(() => [
-  [
-    item('home', 'i-lucide-layout-dashboard'),
-    item('groups', 'i-lucide-users', editor.sessions.filter(session => session.type === 'group').length),
-    item('users', 'i-lucide-user', editor.sessions.filter(session => session.type === 'user').length),
-    item('tracks', 'i-lucide-git-branch', editor.tracks.length)
-  ],
-  [
-    {
-      label: t('editor.nav.documentation'),
-      icon: 'i-lucide-book-open',
-      to: localizeToolPath('/wiki/features/web-editor')
-    }
-  ]
 ])
 </script>
 
 <template>
-  <UNavigationMenu
-    :items="items"
-    highlight
-    class="flex-1"
-  />
+  <div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+    <UButton
+      v-for="item in items"
+      :key="item.value"
+      :to="item.to"
+      size="sm"
+      class="lp-editor-tab rounded-full"
+      :class="{ 'lp-editor-tab-active': section === item.value }"
+      color="neutral"
+      :variant="section === item.value ? 'solid' : 'ghost'"
+    >
+      {{ item.label }}
+      <span v-if="item.badge" class="ms-1.5 font-mono text-xs opacity-80">{{ item.badge }}</span>
+    </UButton>
+    <UButton
+      :to="localizeToolPath('/wiki/features/web-editor')"
+      size="sm"
+      color="neutral"
+      variant="ghost"
+      icon="i-lucide-book-open"
+      class="lp-editor-tab ms-auto rounded-full"
+      :label="t('editor.nav.documentation')"
+    />
+  </div>
 </template>

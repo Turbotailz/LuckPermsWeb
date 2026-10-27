@@ -6,15 +6,26 @@ import lockupDark from '~/assets/brand/lockup-on-dark.svg'
 withDefaults(defineProps<{
   size?: string
   variant?: 'mark' | 'lockup'
+  onDark?: boolean
 }>(), {
   size: 'size-8',
-  variant: 'mark'
+  variant: 'mark',
+  onDark: false
 })
 </script>
 
 <template>
   <span v-if="variant === 'lockup'" class="inline-flex items-center">
     <img
+      v-if="onDark"
+      :src="lockupDark"
+      alt="LuckPerms"
+      class="h-8 w-auto"
+      width="168"
+      height="32"
+    >
+    <img
+      v-else
       :src="lockupLight"
       alt="LuckPerms"
       class="h-8 w-auto dark:hidden"
@@ -22,6 +33,7 @@ withDefaults(defineProps<{
       height="32"
     >
     <img
+      v-if="!onDark"
       :src="lockupDark"
       alt="LuckPerms"
       class="hidden h-8 w-auto dark:block"

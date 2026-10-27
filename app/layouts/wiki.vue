@@ -7,7 +7,7 @@ const layoutUi = {
 </script>
 
 <template>
-  <UContainer>
+  <UContainer class="lp-wiki">
     <UPage :ui="layoutUi">
       <template #left>
         <UPageAside>

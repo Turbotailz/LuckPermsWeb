@@ -47,14 +47,14 @@ const columns = computed<FooterColumn[]>(() => {
 </script>
 
 <template>
-  <UFooter class="border-t border-default">
+  <UFooter class="lp-footer border-t border-default">
     <template #top>
       <UContainer>
         <UFooterColumns :columns="columns" :ui="{ linkLabelExternalIcon: 'hidden' }">
           <template #left>
             <div class="flex flex-col items-center gap-3 sm:items-start">
               <ULink :to="localePath('/')" class="flex items-center gap-2 text-lg font-bold text-highlighted">
-                <BrandLogo variant="lockup" />
+                <BrandLogo variant="lockup" on-dark />
               </ULink>
               <p class="max-w-xs text-center text-sm text-muted sm:text-start">
                 {{ t('description') }}

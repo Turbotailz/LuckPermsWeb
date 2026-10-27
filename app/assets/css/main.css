@@ -89,7 +89,10 @@
   --lp-lime-600: #8fcc12;
   --lp-mint: #d9f5b0;
   --lp-lime-50: #f1fbdf;
+  --lp-lime-tint: #f1fbdf;
   --lp-forest: #14261c;
+  --lp-forest-dark: #0e1a13;
+  --font-display: "Bricolage Grotesque", "Figtree", ui-sans-serif, system-ui, sans-serif;
   --lp-forest-950: #0e1a13;
   --lp-forest-800: #1f3829;
   --lp-forest-700: #2b4636;
@@ -507,8 +510,323 @@ html[dir="rtl"] .lp-row-changed {
   box-shadow: inset -3px 0 0 var(--lp-sun);
 }
 
+.lp-savebar-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1rem 1rem;
+  background: transparent;
+  pointer-events: none;
+}
+
 .lp-savebar {
-  background: var(--ui-bg-elevated);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.4rem 0.45rem 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: var(--lp-forest);
+  color: var(--lp-cream);
+  box-shadow: 0 12px 40px rgb(20 38 28 / 0.28);
+  pointer-events: auto;
+}
+
+.lp-savebar :where(button) {
+  color: inherit;
+}
+
+.lp-group-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 1.5rem;
+  padding: 1rem 1.1rem 0.9rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 1rem;
+  background: var(--ui-bg);
+}
+
+@media (min-width: 768px) {
+  .lp-group-head {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lp-group-head > :first-child,
+  .lp-group-head > .basis-full {
+    grid-column: 1 / -1;
+  }
+}
+
+.lp-chip-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.35rem 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--lp-lime-tint);
+}
+
+.dark .lp-chip-row {
+  background: var(--lp-forest-800);
+}
+
+.lp-perm-table,
+.lp-perm-tree,
+.lp-add-node {
+  border: 1px solid var(--ui-border);
+  border-radius: 1rem;
+  background: var(--ui-bg);
+}
+
+.lp-perm-tree {
+  max-height: 100%;
+}
+
+.lp-add-node {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.lp-editor-bar,
+.lp-editor-tabs {
+  background: var(--lp-forest) !important;
+  color: var(--lp-cream);
+  border-color: rgb(255 255 255 / 0.08) !important;
+}
+
+.dark .lp-editor-bar,
+.dark .lp-editor-tabs {
+  background: var(--lp-forest-dark) !important;
+}
+
+.lp-editor-bar :where(.text-highlighted, a, button),
+.lp-editor-tabs :where(a, button) {
+  color: var(--lp-cream);
+}
+
+.lp-editor-tab-active {
+  background: var(--lp-lime) !important;
+  color: var(--lp-forest) !important;
+}
+
+.lp-editor-tab-active :where(span) {
+  color: var(--lp-forest);
+}
+
+.lp-track-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 0.9rem;
+  background: var(--ui-bg);
+}
+
+.lp-track-row:hover {
+  border-color: var(--lp-lime);
+}
+
+.lp-track-index {
+  display: grid;
+  width: 1.6rem;
+  height: 1.6rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--lp-lime);
+  color: var(--lp-forest);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.lp-band-cream {
+  background: var(--lp-cream);
+  color: var(--lp-forest);
+}
+
+.lp-band-cream .text-highlighted,
+.lp-band-cream :where(h2, h3) {
+  color: var(--lp-forest) !important;
+}
+
+.lp-band-cream .text-muted {
+  color: var(--lp-muted) !important;
+}
+
+.lp-band-cream .text-primary {
+  color: var(--lp-leaf) !important;
+}
+
+.lp-band-forest {
+  background: var(--lp-forest);
+  color: var(--lp-cream);
+}
+
+.dark .lp-band-forest {
+  background: var(--lp-forest-dark);
+}
+
+.lp-band-forest :where(h2, p, a, li, span) {
+  color: inherit;
+}
+
+.lp-preview {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--lp-cream);
+  color: var(--lp-forest);
+}
+
+.lp-preview-bar,
+.lp-preview-row,
+.lp-preview-cmd {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lp-preview-bar {
+  padding: 0.7rem 0.9rem;
+  background: var(--lp-forest);
+  color: var(--lp-cream);
+  font-weight: 600;
+}
+
+.lp-preview-row {
+  justify-content: space-between;
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.4rem;
+}
+
+.lp-preview-cmd {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  background: var(--lp-forest-800);
+  color: var(--lp-mint);
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+}
+
+.lp-platform {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.04);
+  color: inherit;
+}
+
+.lp-platform:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.lp-footer {
+  background: var(--lp-forest);
+  color: var(--lp-cream);
+  border-color: transparent !important;
+}
+
+.dark .lp-footer {
+  background: #09140e;
+}
+
+.lp-footer :where(a, p, span, button) {
+  color: inherit;
+}
+
+.lp-footer :where(a:hover) {
+  color: var(--lp-lime);
+}
+
+.lp-wiki-article :where(h1) {
+  font-family: var(--font-display);
+}
+
+.lp-prose :where(h2, h3) {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.lp-prose :where(pre) {
+  border: 0;
+  border-radius: 1rem;
+  background: var(--lp-forest) !important;
+  color: var(--lp-cream);
+}
+
+.lp-prose :where(code):not(pre code) {
+  border-radius: 0.35rem;
+  background: var(--lp-forest);
+  color: var(--lp-mint);
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+}
+
+.dark .lp-prose :where(code):not(pre code) {
+  background: var(--lp-forest-800);
+}
+
+.lp-prose :where(blockquote) {
+  border-inline-start: 3px solid var(--lp-lime);
+  border-radius: 0.8rem;
+  background: var(--lp-lime-tint);
+  padding: 0.8rem 1rem;
+  font-style: normal;
+}
+
+.dark .lp-prose :where(blockquote) {
+  background: var(--lp-forest-800);
+}
+
+.lp-prose :where(table) {
+  display: block;
+  overflow-x: auto;
+  border: 1px solid var(--ui-border);
+  border-radius: 0.8rem;
+}
+
+.lp-prose :where(th) {
+  background: var(--lp-lime-tint);
+  text-align: start;
+}
+
+.dark .lp-prose :where(th) {
+  background: var(--lp-forest-800);
+}
+
+.lp-callout {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  border-inline-start: 3px solid var(--lp-field);
+  background: var(--lp-cream-200);
+}
+
+.lp-callout-note {
+  border-color: var(--lp-field);
+}
+
+.lp-callout-tip {
+  border-color: var(--lp-leaf);
+  background: var(--lp-lime-tint);
+}
+
+.lp-callout-warning {
+  border-color: var(--lp-sun);
+  background: var(--lp-sun-100);
+}
+
+.lp-callout-danger {
+  border-color: var(--lp-coral);
+  background: var(--lp-coral-100);
+}
+
+.dark .lp-callout,
+.dark .lp-callout-tip,
+.dark .lp-callout-warning,
+.dark .lp-callout-danger {
+  background: var(--lp-forest-800);
 }
 
 .lp-wiki-nav a::before {
