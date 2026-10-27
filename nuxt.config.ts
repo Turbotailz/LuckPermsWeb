@@ -64,9 +64,10 @@ export default defineNuxtConfig({
       processCSSVariables: true
     },
     families: [
-      { name: 'Figtree', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal'], subsets: ['latin'] },
-      { name: 'Bricolage Grotesque', provider: 'google', weights: [700, 800], styles: ['normal'], subsets: ['latin'] },
-      { name: 'Fira Code', provider: 'google', weights: [400, 600], styles: ['normal'], subsets: ['latin'] }
+      // unicode-range faces are not preloaded unless preload is set, and a late swap reflows the editor.
+      { name: 'Figtree', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal'], subsets: ['latin'], preload: true },
+      { name: 'Bricolage Grotesque', provider: 'google', weights: [700, 800], styles: ['normal'], subsets: ['latin'], preload: true },
+      { name: 'Fira Code', provider: 'google', weights: [400, 600], styles: ['normal'], subsets: ['latin'], preload: true }
     ]
   },
   runtimeConfig: {
