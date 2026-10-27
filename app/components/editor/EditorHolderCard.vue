@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   title: string
   icon: string
   compact?: boolean
@@ -8,28 +8,24 @@ const props = withDefaults(defineProps<{
 })
 
 const slots = useSlots()
-const cardUi = computed(() => ({
-  header: 'px-4 py-3 sm:px-4',
-  body: props.compact || !slots.default ? 'hidden' : 'p-4 sm:p-4 space-y-3'
-}))
 </script>
 
 <template>
-  <UCard variant="subtle" :ui="cardUi">
-    <template #header>
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex min-w-0 items-center gap-2.5">
-          <EditorCardIcon :name="icon" />
-          <p class="truncate text-sm font-medium text-highlighted">
-            {{ title }}
-          </p>
-        </div>
-        <div class="flex min-w-0 items-center justify-end gap-1.5">
-          <slot name="badge" />
-          <slot name="actions" />
-        </div>
+  <div class="flex flex-col gap-2 border-t border-default/80 pt-3">
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex min-w-0 items-center gap-2">
+        <UIcon :name="icon" class="size-3.5 shrink-0 text-primary" />
+        <p class="truncate text-xs font-semibold tracking-wide text-muted uppercase">
+          {{ title }}
+        </p>
+        <slot name="badge" />
       </div>
-    </template>
-    <slot v-if="!compact" />
-  </UCard>
+      <div class="flex min-w-0 items-center justify-end gap-1.5">
+        <slot name="actions" />
+      </div>
+    </div>
+    <div v-if="!compact && slots.default">
+      <slot />
+    </div>
+  </div>
 </template>

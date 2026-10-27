@@ -17,7 +17,7 @@ usePageSeo({
 const heroUi = {
   root: 'relative overflow-hidden',
   container: 'py-10 sm:py-14 lg:py-16 gap-10 lg:gap-12',
-  title: 'text-4xl sm:text-6xl lg:text-7xl text-pretty tracking-tight font-bold text-highlighted',
+  title: 'text-4xl sm:text-6xl lg:text-7xl text-pretty tracking-tight font-extrabold text-highlighted',
   description: 'mt-6 text-lg sm:text-xl/8 text-muted text-pretty max-w-xl',
   links: 'flex flex-wrap items-center gap-3'
 }
@@ -72,7 +72,6 @@ function logClick() {
         </UButton>
       </template>
       <div class="relative mx-auto flex w-full items-center justify-center gap-5 py-6 lg:justify-end lg:py-0">
-        <div class="absolute size-48 rounded-full bg-primary/20 blur-3xl sm:size-64" />
         <BrandLogo size="size-20 sm:size-24" class="relative" />
         <span class="relative text-3xl font-light text-muted sm:text-4xl">×</span>
         <span class="relative rounded-2xl bg-inverted p-4 sm:p-5">

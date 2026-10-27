@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { ContentTocLink } from '@nuxt/ui'
+import { wikiSections } from '~/utils/wiki-nav'
 
-defineProps<{
+const props = defineProps<{
   title?: string
   description?: string
   toc?: ContentTocLink[]
@@ -13,6 +14,10 @@ defineProps<{
     avatar?: string
   }[]
 }>()
+
+const route = useRoute()
+const localePath = useLocalePath()
+const { t, locale } = useI18n()
 
 const pageUi = {
   root: 'flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(13rem,18rem)]! xl:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]! 2xl:grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)]! lg:gap-8 xl:gap-10',
@@ -27,12 +32,49 @@ const tocUi = {
   link: 'min-w-0',
   linkText: 'truncate'
 }
+
+const barePath = computed(() => {
+  const prefix = `/${locale.value}`
+  const path = route.path
+  if (path === prefix || path.startsWith(`${prefix}/`)) {
+    return path.slice(prefix.length) || '/'
+  }
+  return path
+})
+
+const sectionTitle = computed(() =>
+  wikiSections.find(section => section.paths.some(path => barePath.value === path || barePath.value.startsWith(`${path}/`)))?.title
+)
+
+const updatedLabel = computed(() => {
+  if (!props.updatedAt) {
+    return ''
+  }
+  const date = new Date(props.updatedAt)
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+  return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium' }).format(date)
+})
 </script>
 
 <template>
-  <UPage :ui="pageUi">
-    <UPageHeader :title="title" :description="description" />
-    <UPageBody>
+  <UPage :ui="pageUi" class="lp-wiki-article">
+    <header class="mb-8 border-b border-default pb-6">
+      <nav class="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted" :aria-label="t('wiki')">
+        <ULink :to="localePath('/wiki')" class="font-medium text-primary hover:underline">{{ t('wiki') }}</ULink>
+        <template v-if="sectionTitle && sectionTitle !== title">
+          <span aria-hidden="true">/</span>
+          <span>{{ sectionTitle }}</span>
+        </template>
+        <span aria-hidden="true">/</span>
+        <span class="text-highlighted">{{ title }}</span>
+      </nav>
+      <h1 class="text-4xl font-semibold tracking-tight text-highlighted sm:text-5xl">{{ title }}</h1>
+      <p v-if="description" class="mt-3 max-w-2xl text-lg text-muted">{{ description }}</p>
+      <p v-if="updatedLabel" class="mt-4 font-mono text-xs text-muted">{{ updatedLabel }}</p>
+    </header>
+    <UPageBody class="lp-prose">
       <slot />
     </UPageBody>
 

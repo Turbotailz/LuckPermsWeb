@@ -48,10 +48,16 @@ export function usePageSeo(opts: {
   }
 
   if (!selfHosted) {
+    const variant = path.includes('/wiki')
+      ? 'wiki'
+      : path.includes('/editor')
+        ? 'editor'
+        : 'brand'
     defineOgImage('LuckPerms.takumi', {
       title: opts.title,
       description,
-      eyebrow: opts.eyebrow ?? 'LuckPerms'
+      eyebrow: opts.eyebrow ?? 'LuckPerms',
+      variant
     }, {
       alt: opts.title === 'LuckPerms' ? 'LuckPerms — permissions plugin for Minecraft' : `${opts.title} — LuckPerms`,
       width: 1200,

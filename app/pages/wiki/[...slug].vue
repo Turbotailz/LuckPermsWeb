@@ -56,7 +56,7 @@ const { data: surrounding } = await useAsyncData(
     :edit-url="page.editUrl"
     :contributors="page.contributors"
   >
-    <ContentRenderer :value="page" class="max-w-none" />
-    <UContentSurround v-if="surrounding" :surround="surrounding" />
+    <ContentRenderer :value="page" class="lp-prose max-w-none" />
+    <UContentSurround v-if="surrounding" :surround="surrounding" class="mt-12" />
   </WikiPage>
 </template>

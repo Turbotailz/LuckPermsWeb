@@ -36,56 +36,39 @@ watch(advanced, (enabled) => {
 </script>
 
 <template>
-  <div v-if="session" class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 lg:overflow-hidden">
-    <div class="flex flex-col gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:overflow-hidden">
-      <div class="lg:w-1/4 lg:min-w-64 lg:shrink-0 lg:overflow-y-auto">
-        <EditorHolderInfo
-          v-model:advanced="advanced"
-          :session="session"
-          :nodes="nodes"
-        />
+  <div v-if="session" class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 lg:overflow-hidden lg:p-4">
+    <EditorHolderInfo
+      v-model:advanced="advanced"
+      :session="session"
+      :nodes="nodes"
+      class="shrink-0"
+    />
+    <div class="flex min-h-80 flex-col gap-3 lg:min-h-0 lg:flex-1 lg:flex-row">
+      <div class="lp-perm-table flex min-h-80 min-w-0 flex-1 flex-col overflow-hidden lg:min-h-0">
+        <div class="flex items-center justify-between gap-3 border-b border-default px-3 py-2">
+          <div class="flex min-w-0 items-center gap-2">
+            <p class="truncate text-sm font-semibold text-highlighted">
+              {{ t('editor.permissions') }}
+            </p>
+            <UBadge color="neutral" variant="subtle" size="xs">
+              {{ tableNodes.length }}
+            </UBadge>
+          </div>
+          <EditorNodeBulkBar class="shrink-0" />
+        </div>
+        <EditorNodeList :nodes="tableNodes" :advanced="advanced" class="min-h-64 flex-1 lg:min-h-0" />
       </div>
-      <div class="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
-        <UCard
-          variant="subtle"
-          class="flex min-h-80 flex-col lg:min-h-0 lg:flex-1"
-          :ui="{
-            root: 'flex min-h-80 flex-col overflow-hidden lg:min-h-0 lg:flex-1',
-            header: 'px-4 py-3 sm:px-4',
-            body: 'flex min-h-64 flex-1 flex-col overflow-auto p-0 sm:p-0'
-          }"
-        >
-          <template #header>
-            <div class="flex min-w-0 items-center justify-between gap-3">
-              <div class="flex min-w-0 items-center gap-2.5">
-                <EditorCardIcon name="i-lucide-key-round" />
-                <p class="truncate text-sm font-medium text-highlighted">
-                  {{ t('editor.permissions') }}
-                </p>
-                <UBadge color="neutral" variant="subtle" size="xs">
-                  {{ tableNodes.length }}
-                </UBadge>
-              </div>
-              <EditorNodeBulkBar class="shrink-0" />
-            </div>
-          </template>
-          <EditorNodeList :nodes="tableNodes" :advanced="advanced" class="min-h-64 flex-1 lg:min-h-0" />
-        </UCard>
-        <UCard
-          variant="subtle"
-          :ui="{ header: 'px-4 py-3 sm:px-4', body: 'p-4 sm:p-4' }"
-        >
-          <template #header>
-            <div class="flex items-center gap-2.5">
-              <EditorCardIcon name="i-lucide-plus" />
-              <p class="text-sm font-medium text-highlighted">
-                {{ advanced ? t('editor.nodes.add') : t('editor.holder.addPermission') }}
-              </p>
-            </div>
-          </template>
-          <EditorAddNode :simple="!advanced" />
-        </UCard>
-      </div>
+      <EditorPermissionTree
+        v-if="!advanced"
+        :nodes="nodes"
+        class="hidden w-60 shrink-0 xl:flex"
+      />
+    </div>
+    <div class="lp-add-node shrink-0">
+      <p class="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">
+        {{ advanced ? t('editor.nodes.add') : t('editor.holder.addPermission') }}
+      </p>
+      <EditorAddNode :simple="!advanced" />
     </div>
   </div>
   <UEmpty

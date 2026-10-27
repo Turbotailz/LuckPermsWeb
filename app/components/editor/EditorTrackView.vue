@@ -45,17 +45,14 @@ function remove() {
     </div>
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
       <h2 class="mb-3 shrink-0 text-sm font-semibold text-highlighted">{{ t('editor.tracks.groups') }}</h2>
-      <UScrollArea
-        v-slot="{ item: group, index }"
-        :items="track.groups"
-        :virtualize="{ estimateSize: 36, overscan: 8, skipMeasurement: true }"
-        class="min-h-0 flex-1"
-      >
-        <UButton color="neutral" variant="ghost" block class="h-8 justify-start" :to="editorGroupPath(code, group)">
-          <span class="me-2 text-muted">{{ index + 1 }}.</span>
-          {{ group }}
-        </UButton>
-      </UScrollArea>
+      <ol class="min-h-0 flex-1 space-y-2 overflow-auto">
+        <li v-for="(group, index) in track.groups" :key="group">
+          <NuxtLink :to="editorGroupPath(code, group)" class="lp-track-row">
+            <span class="lp-track-index">{{ index + 1 }}</span>
+            <span class="min-w-0 flex-1 truncate font-semibold">{{ group }}</span>
+          </NuxtLink>
+        </li>
+      </ol>
     </div>
   </div>
   <UEmpty

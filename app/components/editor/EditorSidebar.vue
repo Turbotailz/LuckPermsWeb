@@ -120,15 +120,15 @@ function editTrack(id: string) {
         <template #default="{ item: group }">
           <UButton
             :to="editorGroupPath(code, group.id)"
-            color="neutral"
-            :variant="activeGroupId === group.id ? 'subtle' : 'ghost'"
+            :color="activeGroupId === group.id ? 'primary' : 'neutral'"
+            :variant="activeGroupId === group.id ? 'solid' : 'ghost'"
             size="sm"
             block
             class="h-8 min-w-0 justify-start"
           >
             <span
               class="min-w-0 truncate"
-              :class="{ 'text-primary': group.new, italic: group.modified }"
+              :class="{ 'text-primary': group.new && activeGroupId !== group.id, italic: group.modified }"
             >
               {{ group.displayName }}
             </span>
@@ -146,8 +146,8 @@ function editTrack(id: string) {
         <template #default="{ item: user }">
           <UButton
             :to="editorUserPath(code, user.id)"
-            color="neutral"
-            :variant="activeUserId === user.id ? 'subtle' : 'ghost'"
+            :color="activeUserId === user.id ? 'primary' : 'neutral'"
+            :variant="activeUserId === user.id ? 'solid' : 'ghost'"
             size="sm"
             block
             class="h-8 min-w-0 justify-start"
@@ -168,13 +168,13 @@ function editTrack(id: string) {
           <div class="flex h-8 min-w-0 items-center gap-0.5">
             <UButton
               :to="editorTrackPath(code, track.id)"
-              color="neutral"
-              :variant="activeTrackId === track.id ? 'subtle' : 'ghost'"
+              :color="activeTrackId === track.id ? 'primary' : 'neutral'"
+              :variant="activeTrackId === track.id ? 'solid' : 'ghost'"
               size="sm"
               block
               class="min-w-0 justify-start"
             >
-              <span class="min-w-0 truncate" :class="{ 'text-primary': track.new }">{{ track.id }}</span>
+              <span class="min-w-0 truncate" :class="{ 'text-primary': track.new && activeTrackId !== track.id }">{{ track.id }}</span>
               <span v-if="!collapsed" class="ms-auto shrink-0 text-xs text-muted">{{ track.groups.length }}</span>
             </UButton>
             <UButton

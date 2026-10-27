@@ -26,9 +26,9 @@ usePageSeo({
 })
 
 const heroUi = {
-  root: 'relative overflow-hidden',
+  root: 'lp-hero lp-hero-download relative overflow-hidden',
   container: 'py-10 sm:py-14 lg:py-16 gap-10 lg:gap-12',
-  title: 'text-5xl sm:text-7xl text-pretty tracking-tight font-bold text-highlighted',
+  title: 'text-5xl sm:text-7xl text-pretty tracking-tight font-extrabold text-highlighted',
   description: 'mt-6 text-lg sm:text-xl/8 text-muted text-pretty max-w-xl',
   links: 'flex flex-wrap items-center gap-3'
 }
@@ -63,8 +63,6 @@ const platformImages: Record<string, string> = {
   bungeecord: bungeeImg
 }
 
-const mosaic = ['bukkit', 'velocity', 'fabric', 'forge', 'neoforge', 'sponge'] as const
-
 const platforms = computed(() => [
   { key: 'bukkit', name: 'Bukkit', img: 'bukkit', href: app.downloads.bukkit, small: t('download.bukkit', { version: '1.8.8 or newer' }) },
   { key: 'fabric', name: 'Fabric', img: 'fabric', href: app.downloads.fabric, small: t('download.fabric', { version: '26.3' }) },
@@ -92,7 +90,7 @@ function logDownload(platform: string) {
       :ui="heroUi"
     >
       <template #headline>
-        <UBadge v-if="app.version" color="primary" variant="subtle" size="lg">
+        <UBadge v-if="app.version" color="neutral" variant="subtle" size="lg" class="lp-chip">
           v{{ app.version }}
         </UBadge>
       </template>
@@ -102,65 +100,55 @@ function logDownload(platform: string) {
         </p>
       </template>
       <template #links>
-        <UButton size="xl" to="#platforms" icon="i-lucide-circle-arrow-down">
+        <UButton size="xl" color="neutral" class="lp-hero-cta" to="#platforms" icon="i-lucide-circle-arrow-down">
           {{ t('download.typeChoose') }}
         </UButton>
         <UButton
           size="xl"
           color="neutral"
           variant="outline"
+          class="lp-hero-secondary"
           :to="localePath('/wiki/getting-started')"
           trailing-icon="i-lucide-arrow-right"
         >
           {{ t('download.install.wiki') }}
         </UButton>
       </template>
-      <div class="relative mx-auto flex w-full max-w-md items-center justify-center py-6 lg:py-0">
-        <div class="absolute size-48 rounded-full bg-primary/20 blur-3xl sm:size-64" />
-        <div class="relative grid grid-cols-3 gap-3">
-          <div
-            v-for="key in mosaic"
-            :key="key"
-            class="flex size-16 items-center justify-center rounded-xl bg-muted/80 p-2 ring ring-default sm:size-20"
-          >
-            <img :src="platformImages[key]" :alt="key" class="size-full object-contain">
-          </div>
+      <div class="lp-orbit">
+        <div class="lp-mark-disc size-36 sm:size-44">
+          <BrandLogo size="size-20 sm:size-24" />
         </div>
       </div>
     </UPageHero>
 
-    <UPageSection
-      id="platforms"
-      :title="t('download.typeChoose')"
-      :ui="sectionUi"
-      class="scroll-mt-(--ui-header-height)"
-    >
-      <template #body>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <UPageCard
+    <section id="platforms" class="lp-band-forest scroll-mt-(--ui-header-height)">
+      <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ t('download.typeChoose') }}</h2>
+        <div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <component
+            :is="platform.href ? 'a' : 'div'"
             v-for="platform in platforms"
             :key="platform.key"
-            :title="platform.name"
-            :description="platform.small"
-            :to="platform.href"
-            target="_blank"
-            variant="subtle"
-            @click="logDownload(platform.key)"
+            :href="platform.href || undefined"
+            :target="platform.href ? '_blank' : undefined"
+            :rel="platform.href ? 'noopener noreferrer' : undefined"
+            class="lp-platform"
+            @click="platform.href && logDownload(platform.key)"
           >
-            <template #leading>
-              <UAvatar :src="platformImages[platform.img]" :alt="platform.name" size="md" class="rounded-md bg-muted p-1" />
-            </template>
-          </UPageCard>
+            <img :src="platformImages[platform.img]" :alt="platform.name" class="size-10 rounded-md bg-white/90 p-1" width="40" height="40">
+            <span>
+              <span class="block font-semibold">{{ platform.name }}</span>
+              <span class="mt-0.5 block text-sm opacity-75">{{ platform.small }}</span>
+            </span>
+          </component>
         </div>
-      </template>
-      <template #footer>
-        <div class="text-center">
-          <UButton color="neutral" variant="subtle" icon="i-lucide-circle-help" @click="quizOpen = true">
+        <div class="mt-8">
+          <UButton color="neutral" variant="outline" icon="i-lucide-circle-help" @click="quizOpen = true">
             {{ t('download.typeHelp') }}
           </UButton>
         </div>
-      </template>
-    </UPageSection>
+      </div>
+    </section>
 
     <UPageSection :title="t('download.changelog')" :ui="sectionUi">
       <template #body>

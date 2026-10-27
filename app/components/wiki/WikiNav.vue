@@ -39,9 +39,11 @@ const links = computed<ContentNavigationItem[]>(() => [
 </script>
 
 <template>
-  <UContentNavigation
-    :navigation="links"
-    highlight
-    :ui="{ linkTitle: 'whitespace-normal text-pretty' }"
-  />
+  <div class="lp-wiki-nav">
+    <UContentNavigation
+      :navigation="links"
+      highlight
+      :ui="{ linkTitle: 'whitespace-normal text-pretty' }"
+    />
+  </div>
 </template>

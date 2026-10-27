@@ -38,10 +38,10 @@ const tableMeta = {
   class: {
     tr: (row: TableRow<EditorNode>) => {
       if (row.original.isNew) {
-        return 'bg-primary/10'
+        return 'lp-row-added'
       }
       if (row.original.modified) {
-        return 'bg-warning/10'
+        return 'lp-row-changed'
       }
       return undefined
     }
@@ -176,7 +176,7 @@ function clearKeyFilter() {
     :meta="tableMeta"
     :get-row-id="(row: EditorNode) => row.id"
     sticky
-    :virtualize="{ estimateSize: 36, overscan: 12 }"
+    :virtualize="{ estimateSize: 40, overscan: 12 }"
     :empty="t('editor.nodes.empty')"
     class="h-full min-h-64 overflow-auto lg:min-h-0"
     :ui="{
@@ -237,12 +237,7 @@ function clearKeyFilter() {
     </template>
     <template #value-cell="{ row }">
       <div class="flex justify-center">
-        <USwitch
-          size="xs"
-          :model-value="row.original.value"
-          :aria-label="t('editor.enabled')"
-          @update:model-value="editor.updateNode(row.original.id, 'value', $event)"
-        />
+        <EditorValueBadge :node-id="row.original.id" :value="row.original.value" />
       </div>
     </template>
     <template #expiry-cell="{ row }">

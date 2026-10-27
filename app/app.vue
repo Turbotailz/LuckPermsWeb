@@ -10,12 +10,18 @@ const showSearch = computed(() => !selfHosted && !isEditorPath(route.path))
 const isTools = computed(() => isToolRoute(route.path))
 
 const uiLocale = computed(() => resolveUiLocale(String(locale.value)))
+const colorMode = useColorMode()
 
 useHead({
   htmlAttrs: {
     lang: () => String(locale.value),
     dir: () => language.htmlDir
-  }
+  },
+  meta: [{
+    key: 'theme-color',
+    name: 'theme-color',
+    content: () => colorMode.value === 'light' ? '#FBF7EC' : '#0E1A13'
+  }]
 })
 
 const { data: navigation } = await useAsyncData('wiki-nav', async () => {
