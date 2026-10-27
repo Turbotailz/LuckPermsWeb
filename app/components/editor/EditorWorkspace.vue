@@ -161,7 +161,7 @@ defineShortcuts({
     </UAlert>
   </ToolEmpty>
 
-  <UDashboardGroup v-else class="flex-col" storage-key="lp-editor-rem" unit="rem">
+  <UDashboardGroup v-else class="lp-editor flex-col" storage-key="lp-editor-rem" unit="rem">
     <UDashboardNavbar
       :toggle="section !== 'home'"
       :ui="{

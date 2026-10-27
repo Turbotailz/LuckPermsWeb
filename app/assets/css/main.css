@@ -195,6 +195,13 @@
     font-variation-settings: "opsz" 96, "wght" 800;
   }
 
+  /* Session chrome stays on the body face. A second family was reflowing the editor stat grid. */
+  .lp-editor :is(h1, h2, h3, h4, h5, h6, [data-slot="title"]) {
+    font-family: "Figtree", ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: normal;
+    letter-spacing: 0;
+  }
+
   h1 {
     font-weight: 800;
     letter-spacing: -0.04em;
