@@ -62,8 +62,7 @@ const isEditor = computed(() => isEditorPath(route.path))
         :to="localePath('/')"
         class="flex shrink-0 items-center gap-2 text-xl font-bold text-highlighted"
       >
-        <BrandLogo size="size-8" />
-        LuckPerms
+        <BrandLogo variant="lockup" />
       </ULink>
       <ULink
         v-if="!selfHosted && stripLocalePrefix(route.path) !== '/sponsor'"

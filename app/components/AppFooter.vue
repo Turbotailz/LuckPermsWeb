@@ -5,6 +5,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const { gitHash, selfHosted, siteUrl } = useLpConfig()
 const year = new Date().getFullYear()
+const creditsTo = computed(() => selfHosted ? `${siteUrl}/wiki/about/credits` : localePath('/wiki/about/credits'))
 
 const columns = computed<FooterColumn[]>(() => {
   const tools: FooterColumn = {
@@ -53,8 +54,7 @@ const columns = computed<FooterColumn[]>(() => {
           <template #left>
             <div class="flex flex-col items-center gap-3 sm:items-start">
               <ULink :to="localePath('/')" class="flex items-center gap-2 text-lg font-bold text-highlighted">
-                <BrandLogo size="size-8" />
-                LuckPerms
+                <BrandLogo variant="lockup" />
               </ULink>
               <p class="max-w-xs text-center text-sm text-muted sm:text-start">
                 {{ t('description') }}

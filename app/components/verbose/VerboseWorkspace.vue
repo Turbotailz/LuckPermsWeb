@@ -135,7 +135,7 @@ const metaItems = computed(() => {
           >
             <template #label>
               {{ t('verbose.exclude') }}
-              <UBadge :color="value === 'true' ? 'primary' : value === 'false' ? 'error' : 'neutral'" variant="subtle" class="ms-1 font-mono">
+              <UBadge :color="value === 'true' ? 'primary' : value === 'false' ? 'error' : 'neutral'" variant="subtle" class="ms-1 font-mono" :class="value === 'true' ? 'lp-value-true' : value === 'false' ? 'lp-value-false' : ''">
                 {{ value }}
               </UBadge>
             </template>

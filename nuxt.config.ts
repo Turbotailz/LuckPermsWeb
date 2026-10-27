@@ -56,9 +56,17 @@ export default defineNuxtConfig({
     storageKey: 'lp-color-mode'
   },
   fonts: {
+    defaults: {
+      styles: ['normal'],
+      subsets: ['latin']
+    },
+    experimental: {
+      processCSSVariables: true
+    },
     families: [
-      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
-      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 700] }
+      { name: 'Figtree', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal'], subsets: ['latin'] },
+      { name: 'Bricolage Grotesque', provider: 'google', weights: [700, 800], styles: ['normal'], subsets: ['latin'] },
+      { name: 'Fira Code', provider: 'google', weights: [400, 600], styles: ['normal'], subsets: ['latin'] }
     ]
   },
   runtimeConfig: {
@@ -83,12 +91,13 @@ export default defineNuxtConfig({
       titleTemplate: '%s | LuckPerms',
       htmlAttrs: { lang: 'en-GB' },
       link: [
-        { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/logo.png' },
-        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/site.webmanifest' }
       ],
       meta: [
-        { name: 'theme-color', content: '#94df03' },
+        { name: 'theme-color', content: '#0E1A13' },
         { name: 'description', content: 'LuckPerms is a permissions plugin for Minecraft servers. It allows server admins to control what features players can use by creating groups and assigning permissions.' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { property: 'og:type', content: 'website' },
@@ -205,10 +214,26 @@ export default defineNuxtConfig({
       height: 630
     }
   },
+  mdc: {
+    highlight: {
+      theme: {
+        default: 'github-dark',
+        light: 'github-dark',
+        dark: 'github-dark'
+      }
+    }
+  },
   content: {
     experimental: { nativeSqlite: true },
     build: {
       markdown: {
+        highlight: {
+          theme: {
+            default: 'github-dark',
+            light: 'github-dark',
+            dark: 'github-dark'
+          }
+        },
         toc: {
           depth: 3,
           searchDepth: 3

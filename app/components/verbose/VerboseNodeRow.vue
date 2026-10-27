@@ -32,7 +32,7 @@ const resultColor = computed(() => {
         {{ node.who?.identifier }}
       </span>
       <span class="flex-1 truncate text-left font-mono text-sm">{{ node.permission || (node.key ? `meta: ${node.key}` : '') }}</span>
-      <UBadge :color="resultColor" variant="subtle" class="font-mono">{{ node.result }}</UBadge>
+      <UBadge :color="resultColor" variant="subtle" class="font-mono" :class="node.result === 'true' ? 'lp-value-true' : node.result === 'false' ? 'lp-value-false' : ''">{{ node.result }}</UBadge>
     </UButton>
     <template #content>
       <UCard class="mt-1">

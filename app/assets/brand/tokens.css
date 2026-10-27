@@ -1,0 +1,77 @@
+:root {
+  /* LuckPerms · Four Leaf design tokens (proposal) */
+  --lp-lime: #A6E81E; /* Primary brand colour, the disc */
+  --lp-lime-600: #8FCC12; /* Lime hover / pressed */
+  --lp-mint: #D9F5B0; /* Soft fills, success surfaces */
+  --lp-lime-50: #F1FBDF; /* Lightest lime tint */
+  --lp-forest: #14261C; /* Ink, dark canvas, primary text */
+  --lp-forest-950: #0E1A13; /* Deepest dark background, console */
+  --lp-forest-800: #1F3829; /* Raised dark surfaces */
+  --lp-forest-700: #2B4636; /* Dark borders */
+  --lp-muted: #5C6B60; /* Secondary text on light */
+  --lp-muted-dark: #9FB1A4; /* Secondary text on dark */
+  --lp-leaf: #2F6B12; /* Green text and links on light */
+  --lp-cream: #FBF7EC; /* Light canvas */
+  --lp-cream-200: #EFEBDF; /* Light secondary surfaces */
+  --lp-line: #E8E2D0; /* Light borders and dividers (decorative) */
+  --lp-field: #7A887E; /* Input borders on light (3:1+) */
+  --lp-field-dark: #5E7A69; /* Input borders on dark (3:1+) */
+  --lp-white: #FFFFFF; /* Cards on cream */
+  --lp-coral: #FF6B4A; /* Accent fill, deny/destructive fill, alerts on dark */
+  --lp-coral-100: #FFE1D9; /* Danger surface on light */
+  --lp-coral-700: #9A2E16; /* Danger text on light */
+  --lp-sun: #F5C542; /* Warning fill */
+  --lp-sun-100: #FFF1C7; /* Warning surface on light */
+  --lp-sun-800: #6B4E00; /* Warning text on light */
+  --lp-font-heading: 'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
+  --lp-font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --lp-font-mono: 'Fira Code', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --lp-size-display: 64px;
+  --lp-size-h1: 44px;
+  --lp-size-h2: 32px;
+  --lp-size-h3: 22px;
+  --lp-size-body-lg: 18px;
+  --lp-size-body: 16px;
+  --lp-size-small: 14px;
+  --lp-size-caption: 12px;
+  --lp-radius-sm: 10px;
+  --lp-radius-md: 16px;
+  --lp-radius-lg: 24px;
+  --lp-radius-xl: 32px;
+  --lp-radius-pill: 999px;
+  --lp-space-1: 4px;
+  --lp-space-2: 8px;
+  --lp-space-3: 12px;
+  --lp-space-4: 16px;
+  --lp-space-5: 24px;
+  --lp-space-6: 32px;
+  --lp-space-7: 48px;
+  --lp-space-8: 64px;
+
+  /* semantic: light theme */
+  --lp-bg: var(--lp-cream);
+  --lp-surface: var(--lp-white);
+  --lp-text: var(--lp-forest);
+  --lp-text-muted: var(--lp-muted);
+  --lp-border: var(--lp-line);
+  --lp-field-border: var(--lp-field);
+  --lp-accent: var(--lp-lime);
+  --lp-on-accent: var(--lp-forest);
+  --lp-link: var(--lp-leaf);
+  --lp-danger-bg: var(--lp-coral-100);
+  --lp-danger-text: var(--lp-coral-700);
+}
+
+[data-theme="dark"] {
+  --lp-bg: var(--lp-forest-950);
+  --lp-surface: var(--lp-forest);
+  --lp-text: var(--lp-cream);
+  --lp-text-muted: var(--lp-muted-dark);
+  --lp-border: var(--lp-forest-700);
+  --lp-field-border: var(--lp-field-dark);
+  --lp-accent: var(--lp-lime);
+  --lp-on-accent: var(--lp-forest);
+  --lp-link: var(--lp-lime);
+  --lp-danger-bg: var(--lp-forest-800);
+  --lp-danger-text: var(--lp-coral);
+}

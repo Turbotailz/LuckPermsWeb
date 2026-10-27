@@ -223,13 +223,6 @@ defineShortcuts({
           :ui="{ label: 'hidden sm:inline' }"
           @click="editor.redo()"
         />
-        <UButton
-          :loading="editor.saveStatus === 'saving'"
-          icon="i-lucide-save"
-          @click="editor.saveData()"
-        >
-          {{ editor.socketStatus ? t('editor.apply') : t('editor.save') }}
-        </UButton>
       </template>
     </UDashboardNavbar>
 
@@ -254,7 +247,10 @@ defineShortcuts({
         </template>
 
         <template #footer>
-          <EditorNodeBulkBar v-if="!holderId" class="p-3" />
+          <div class="flex flex-col">
+            <EditorNodeBulkBar v-if="!holderId" class="p-3" />
+            <EditorSaveBar />
+          </div>
         </template>
       </UDashboardPanel>
     </div>

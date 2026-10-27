@@ -49,7 +49,7 @@ const resultColor = computed(() => {
           <UIcon v-if="hasChildren" :name="open ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" />
           <span class="font-mono text-sm">{{ node }}</span>
         </span>
-        <UBadge v-if="result" :color="resultColor" variant="subtle" class="font-mono">{{ result }}</UBadge>
+        <UBadge v-if="result" :color="resultColor" variant="subtle" class="font-mono" :class="result === 'true' ? 'lp-value-true' : result === 'false' ? 'lp-value-false' : ''">{{ result }}</UBadge>
       </UButton>
       <template #content>
         <TreeBranch

@@ -80,26 +80,27 @@ const toolCards = computed(() => [
       title="LuckPerms"
       :description="t('home.hero.description')"
       :ui="{
-        root: 'relative overflow-hidden',
+        root: 'lp-hero relative overflow-hidden',
         container: 'py-10 sm:py-14 lg:py-16 gap-10 lg:gap-12',
-        title: 'text-5xl sm:text-7xl lg:text-8xl text-pretty tracking-tight font-bold text-highlighted',
+        title: 'text-5xl sm:text-7xl lg:text-8xl text-pretty tracking-tight font-extrabold text-highlighted',
         description: 'mt-6 text-lg sm:text-xl/8 text-muted text-pretty max-w-xl',
         links: 'flex flex-col items-start gap-5'
       }"
     >
       <template #headline>
-        <span class="font-semibold text-primary">{{ t('home.hero.eyebrow') }}</span>
+        <span class="text-sm font-semibold">{{ t('home.hero.eyebrow') }}</span>
       </template>
       <template #links>
         <div v-if="!selfHosted" class="flex flex-wrap items-center gap-3">
-          <UButton size="xl" :to="localePath('/download')" icon="i-lucide-circle-arrow-down">
+          <UButton size="xl" color="neutral" class="lp-hero-cta" :to="localePath('/download')" icon="i-lucide-circle-arrow-down">
             {{ t('links.download') }}
-            <UBadge color="neutral" variant="subtle" class="ms-2">v{{ app.version || '…' }}</UBadge>
+            <UBadge color="neutral" variant="subtle" class="lp-version-badge ms-2">v{{ app.version || '…' }}</UBadge>
           </UButton>
           <UButton
             size="xl"
             color="neutral"
             variant="outline"
+            class="lp-hero-secondary"
             :to="localePath('/wiki')"
             trailing-icon="i-lucide-arrow-right"
           >
@@ -113,14 +114,16 @@ const toolCards = computed(() => [
             color="neutral"
             variant="subtle"
             size="md"
+            class="lp-chip"
           >
             {{ platform }}
           </UBadge>
         </div>
       </template>
-      <div class="relative mx-auto flex w-full items-center justify-center py-6 lg:py-0">
-        <div class="absolute size-48 rounded-full bg-primary/20 blur-3xl sm:size-64 lg:size-72" />
-        <BrandLogo size="size-32 sm:size-44 lg:size-56" class="relative" />
+      <div class="relative z-1 mx-auto flex w-full items-center justify-center py-6 lg:py-0">
+        <div class="lp-mark-disc size-44 sm:size-52">
+          <BrandLogo size="size-24 sm:size-28" />
+        </div>
       </div>
     </UPageHero>
 
