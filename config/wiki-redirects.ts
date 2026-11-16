@@ -45,7 +45,11 @@ export const wikiRedirects: Record<string, string> = {
   '/wiki/Credits': '/wiki/about/credits',
   '/wiki/Locale-and-Translations': '/wiki/about/locale',
   '/wiki/Placeholders': '/wiki/about/placeholders',
-  '/wiki/External-connections': '/wiki/about/external-connections'
+  '/wiki/External-connections': '/wiki/about/external-connections',
+  '/wiki/Terms-of-Service': '/wiki/terms-of-service',
+  '/wiki/TERMS-OF-SERVICE': '/wiki/terms-of-service',
+  '/wiki/Privacy-Policy': '/wiki/privacy-policy',
+  '/wiki/PRIVACY-POLICY': '/wiki/privacy-policy'
 }
 
 function isCaseOnlyRedirect(from: string, to: string) {
@@ -59,6 +63,49 @@ export const wikiCaseOnlyRedirects = Object.fromEntries(
 
 const DEFAULT_LOCALE = 'en'
 
+/**
+ * Lowercase form of an old Title-Case URL, when that form is not already the
+ * canonical page (`/wiki/credits` → `/wiki/about/credits`, `/wiki/usage` →
+ * `/wiki/getting-started`).
+ */
+export function wikiAliasRedirects() {
+  const aliases: Record<string, string> = {}
+  const taken = new Set<string>([
+    ...Object.keys(wikiRedirects),
+    ...Object.values(wikiRedirects)
+  ])
+  for (const [from, to] of Object.entries(wikiRedirects)) {
+    const lower = from.toLowerCase()
+    if (lower === from || lower === to || taken.has(lower)) {
+      continue
+    }
+    aliases[lower] = to
+    taken.add(lower)
+  }
+  return aliases
+}
+
+function redirectTarget(wikiPath: string) {
+  const direct = wikiRedirects[wikiPath]
+  if (direct && direct !== wikiPath) {
+    return direct
+  }
+  const aliases = wikiAliasRedirects()
+  if (aliases[wikiPath]) {
+    return aliases[wikiPath]
+  }
+  // Title-Case, uppercase, and mixed case (`/wiki/TeRmS-oF-sErViCe`).
+  const folded = wikiPath.toLowerCase()
+  for (const map of [wikiRedirects, aliases]) {
+    for (const [from, to] of Object.entries(map)) {
+      if (from.toLowerCase() === folded && to !== wikiPath) {
+        return to
+      }
+    }
+  }
+  return null
+}
+
 /** Old wiki URL, including a non-default locale prefix, mapped to the new path. */
 export function redirectForWikiPath(pathname: string, localeCodes: Iterable<string> = []) {
   const codes = new Set(localeCodes)
@@ -71,14 +118,22 @@ export function redirectForWikiPath(pathname: string, localeCodes: Iterable<stri
     prefix = `/${parts[1]}`
     wikiPath = `/${parts.slice(2).join('/')}`
   }
-  const to = wikiRedirects[wikiPath]
-  if (!to || to === wikiPath) {
+  const to = redirectTarget(wikiPath)
+  if (!to) {
     return null
   }
   return `${prefix}${to}`
 }
 
-/** Case-sensitive `_redirects` lines. Route rules cannot express the case-only pairs. */
+/**
+ * Case-sensitive `_redirects` lines. Route rules cannot express the case-only pairs.
+ * Legal pages are listed in the upstream Title-Case and in uppercase, for the
+ * default locale and every locale prefix. Other casings are folded in
+ * `redirectForWikiPath` (Pages cannot express "any case" without one rule per
+ * permutation, which exceeds the 2,000-rule cap).
+ * Lowercase aliases are unprefixed only: a locale copy of each alias would
+ * also exceed that cap. Localized aliases still redirect when Nitro sees them.
+ */
 export function cloudflareRedirectLines(localeCodes: Iterable<string>) {
   const codes = [...new Set(localeCodes)].filter(code => code && code !== 'en')
   const lines: string[] = []
@@ -89,6 +144,9 @@ export function cloudflareRedirectLines(localeCodes: Iterable<string>) {
     for (const code of codes) {
       lines.push(`/${code}${from}  /${code}${to}  301`)
     }
+  }
+  for (const [from, to] of Object.entries(wikiAliasRedirects())) {
+    lines.push(`${from}  ${to}  301`)
   }
   return lines
 }
@@ -126,7 +184,7 @@ export function wikiRouteRules() {
   // Vue Router matches routeRules case-insensitively, so `/wiki/FAQ` → `/wiki/faq`
   // would loop forever and blank the FAQ / Configuration pages.
   return Object.fromEntries(
-    Object.entries(wikiRedirects)
+    Object.entries({ ...wikiRedirects, ...wikiAliasRedirects() })
       .filter(([from, to]) => !isCaseOnlyRedirect(from, to))
       .map(([from, to]) => [
         from,

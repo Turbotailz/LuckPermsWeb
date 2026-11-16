@@ -19,6 +19,14 @@ const wikiSchema = z.object({
 
 const wikiGitDir = resolveWikiGitDir()
 const wikiEn = wikiGitDir ? join(wikiGitDir, 'en') : ''
+const legalDir = join(process.cwd(), 'content/wiki-legal')
+// Until Turbotailz/wiki `v3-structure` contains these pages, ship the vendored
+// copies. Once the clone has them, the wiki files win and this fallback is idle.
+const wikiHasLegal = Boolean(
+  wikiEn
+  && existsSync(join(wikiEn, 'terms-of-service.md'))
+  && existsSync(join(wikiEn, 'privacy-policy.md'))
+)
 
 const wikiSource = wikiEn && existsSync(wikiEn)
   ? {
@@ -32,11 +40,22 @@ const wikiSource = wikiEn && existsSync(wikiEn)
       prefix: '/wiki'
     }
 
+const sources = [
+  wikiSource,
+  ...(!wikiHasLegal && existsSync(legalDir)
+    ? [{
+        cwd: legalDir,
+        include: '*.md' as const,
+        prefix: '/wiki'
+      }]
+    : [])
+]
+
 export default defineContentConfig({
   collections: {
     wiki_en: defineCollection({
       type: 'page',
-      source: wikiSource,
+      source: sources,
       schema: wikiSchema
     })
   }

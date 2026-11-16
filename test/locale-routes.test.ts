@@ -52,6 +52,9 @@ describe('localized routes', () => {
     expect(cloudflareWorkerHandles(routes, '/de/editor')).toBe(false)
     expect(cloudflareWorkerHandles(routes, '/wiki/faq')).toBe(false)
     expect(cloudflareWorkerHandles(routes, '/wiki/not-a-real-page')).toBe(false)
+    expect(cloudflareWorkerHandles(routes, '/sitemap.xml')).toBe(false)
+    expect(cloudflareWorkerHandles(routes, '/__sitemap__/en-GB.xml')).toBe(false)
+    expect(routes.exclude).toContain('/__sitemap__/*')
 
     expect(cloudflareWorkerHandles(routes, '/de/editor/abc123')).toBe(true)
     expect(cloudflareWorkerHandles(routes, '/de/editor/abc123/groups')).toBe(true)
