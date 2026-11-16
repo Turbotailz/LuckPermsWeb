@@ -191,23 +191,28 @@ export default defineNuxtConfig({
       : [],
     hooks: {
       close() {
+        // `nuxt prepare` closes Nitro before `dist/` exists. Pages runs prepare
+        // with CF_PAGES=1, so only touch files the compile step has already written.
         if (process.env.CF_PAGES !== '1') {
           return
         }
-        const redirects = resolve(process.cwd(), 'dist/_redirects')
+        const dist = resolve(process.cwd(), 'dist')
+        if (!existsSync(dist)) {
+          return
+        }
+        const redirects = resolve(dist, '_redirects')
         if (existsSync(redirects)) {
           writeFileSync(redirects, mergeRedirectFile(readFileSync(redirects, 'utf8'), cloudflareRedirectLines(localeCodes)))
         }
-        if (!indexable) {
-          const headers = resolve(process.cwd(), 'dist/_headers')
-          const existing = existsSync(headers) ? readFileSync(headers, 'utf8') : ''
-          writeFileSync(headers, withNoIndexHeader(existing))
+        const headers = resolve(dist, '_headers')
+        if (!indexable && existsSync(headers)) {
+          writeFileSync(headers, withNoIndexHeader(readFileSync(headers, 'utf8')))
         }
         // The sitemap module redirects `/sitemap.xml` to `/sitemap_index.xml` inside
         // the worker. That path is a static exclude, so publish the index at both URLs.
-        const sitemapIndex = resolve(process.cwd(), 'dist/sitemap_index.xml')
+        const sitemapIndex = resolve(dist, 'sitemap_index.xml')
         if (existsSync(sitemapIndex)) {
-          copyFileSync(sitemapIndex, resolve(process.cwd(), 'dist/sitemap.xml'))
+          copyFileSync(sitemapIndex, resolve(dist, 'sitemap.xml'))
         }
       }
     }
