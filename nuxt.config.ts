@@ -56,9 +56,13 @@ export default defineNuxtConfig({
     storageKey: 'lp-color-mode'
   },
   fonts: {
+    // Italic faces are unused and were doubling the font CSS.
+    defaults: {
+      styles: ['normal']
+    },
     families: [
-      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
-      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 700] }
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700], styles: ['normal'] },
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 700], styles: ['normal'] }
     ]
   },
   runtimeConfig: {
@@ -217,6 +221,13 @@ export default defineNuxtConfig({
     }
   },
   hooks: {
+    'build:manifest'(manifest) {
+      for (const item of Object.values(manifest)) {
+        // Async chunks (search, non-active locales, demo data) load on demand.
+        item.dynamicImports = []
+        item.prefetch = false
+      }
+    },
     'content:file:beforeParse'(ctx) {
       if (ctx.collection.name !== 'wiki_en' || typeof ctx.file.body !== 'string') {
         return

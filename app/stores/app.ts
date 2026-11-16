@@ -24,6 +24,7 @@ export const useAppStore = defineStore('app', () => {
   const placeholderExpansions = ref<Record<string, string>>({})
   const discordUserCount = ref<number | null>(null)
   const loaded = ref(false)
+  const metadataSettled = ref(false)
 
   async function fetchAppData() {
     const { apiUrl } = useLpConfig()
@@ -47,8 +48,11 @@ export const useAppStore = defineStore('app', () => {
       placeholderExpansions.value = data.placeholderExpansions || {}
       discordUserCount.value = data.discordUserCount ?? null
       loaded.value = true
+      metadataSettled.value = true
     } catch (error) {
       console.error('Error getting metadata, retrying in 10s', error)
+      // Paint the editor without the version alert rather than blocking on retries.
+      metadataSettled.value = true
       setTimeout(() => {
         fetchAppData()
       }, 10_000)
@@ -65,6 +69,7 @@ export const useAppStore = defineStore('app', () => {
     placeholderExpansions,
     discordUserCount,
     loaded,
+    metadataSettled,
     fetchAppData
   }
 })

@@ -17,7 +17,6 @@ import { isLegacySessionId } from '~/utils/session'
 import { editorHomePath, editorPathSuffix } from '~/utils/editor-routes'
 import { fetchBytebinJson, postBytebinGzip } from '~/composables/useLpConfig'
 import { socketConnect, type SocketApi } from '~/socket/ws'
-import editorDemo from '~/assets/data/editor-demo.json'
 import { editorSample, isLocalEditorSession } from '~/assets/data/editor-samples'
 
 const EMPTY_NODES: EditorNode[] = []
@@ -620,6 +619,7 @@ export const useEditorStore = defineStore('editor', () => {
 
     try {
       if (id === 'demo') {
+        const { default: editorDemo } = await import('~/assets/data/editor-demo.json')
         sessionId.value = id
         applyPayload(editorDemo as EditorPayload)
         loaded.value = true
