@@ -45,7 +45,9 @@ export const wikiNavOrder = [
   '/wiki/reference/upgrade-v4-v5',
   '/wiki/reference/migrating-gm-pex',
   '/wiki/reference/permission-calculation',
-  '/wiki/reference/self-hosting'
+  '/wiki/reference/self-hosting',
+  '/wiki/terms-of-service',
+  '/wiki/privacy-policy'
 ]
 
 export const wikiSections = [
@@ -101,5 +103,9 @@ export const wikiSections = [
     '/wiki/reference/migrating-gm-pex',
     '/wiki/reference/permission-calculation',
     '/wiki/reference/self-hosting'
+  ] },
+  { title: 'Legal', paths: [
+    '/wiki/terms-of-service',
+    '/wiki/privacy-policy'
   ] }
 ]

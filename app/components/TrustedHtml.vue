@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { sanitizeTrustedHtml } from '~/utils/trusted-html'
+
 const props = defineProps<{ html: string }>()
 
-const allowed = computed(() =>
-  props.html
-    .replace(/<(?!\/?(?:b|strong|code|br|em|i)\b)[^>]*>/gi, '')
-)
+const allowed = computed(() => sanitizeTrustedHtml(props.html))
 </script>
 
 <template>

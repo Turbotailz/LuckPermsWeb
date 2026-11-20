@@ -3,8 +3,9 @@ import type { FooterColumn } from '@nuxt/ui'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { gitHash, selfHosted, siteUrl } = useLpConfig()
+const { gitHash, selfHosted, siteUrl, webRepo } = useLpConfig()
 const year = new Date().getFullYear()
+const creditsTo = computed(() => selfHosted ? `${siteUrl}/wiki/about/credits` : localePath('/wiki/about/credits'))
 
 const columns = computed<FooterColumn[]>(() => {
   const tools: FooterColumn = {
@@ -37,7 +38,7 @@ const columns = computed<FooterColumn[]>(() => {
       children: [
         { label: 'GitHub', to: 'https://github.com/LuckPerms/LuckPerms', target: '_blank' },
         { label: 'Discord', to: 'https://discord.gg/luckperms', target: '_blank' },
-        { label: t('footer.credits'), to: selfHosted ? `${siteUrl}/wiki/about/credits` : localePath('/wiki/about/credits') },
+        { label: t('footer.credits'), to: creditsTo.value },
         { label: t('home.why.why'), to: localePath('/wiki/about/why-luckperms') }
       ]
     }
@@ -68,34 +69,42 @@ const columns = computed<FooterColumn[]>(() => {
     <template #left>
       <p class="flex items-center gap-1 text-sm text-muted">
         <UIcon name="i-lucide-git-branch" class="size-4 text-primary" />
-        <ULink to="https://github.com/LuckPerms/LuckPermsWeb" target="_blank">LuckPermsWeb</ULink>
+        <ULink :to="webRepo" target="_blank">LuckPermsWeb</ULink>
         @
-        <ULink :to="`https://github.com/LuckPerms/LuckPermsWeb/commit/${gitHash}`" target="_blank">{{ gitHash }}</ULink>
+        <ULink :to="`${webRepo}/commit/${gitHash}`" target="_blank">{{ gitHash }}</ULink>
       </p>
     </template>
 
     <template #right>
-      <UButton
-        v-if="!selfHosted"
-        icon="i-simple-icons-github"
-        color="neutral"
-        variant="ghost"
-        to="https://github.com/LuckPerms/LuckPerms"
-        target="_blank"
-        aria-label="GitHub"
-      />
-      <UButton
-        v-if="!selfHosted"
-        icon="i-simple-icons-discord"
-        color="neutral"
-        variant="ghost"
-        to="https://discord.gg/luckperms"
-        target="_blank"
-        aria-label="Discord"
-      />
-      <ULink :to="creditsTo" class="text-sm text-muted">
-        {{ t('footer.copyright', { year }) }}
-      </ULink>
+      <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+        <UButton
+          v-if="!selfHosted"
+          icon="i-simple-icons-github"
+          color="neutral"
+          variant="ghost"
+          to="https://github.com/LuckPerms/LuckPerms"
+          target="_blank"
+          aria-label="GitHub"
+        />
+        <UButton
+          v-if="!selfHosted"
+          icon="i-simple-icons-discord"
+          color="neutral"
+          variant="ghost"
+          to="https://discord.gg/luckperms"
+          target="_blank"
+          aria-label="Discord"
+        />
+        <ULink v-if="!selfHosted" :to="localePath('/wiki/terms-of-service')" class="text-sm text-muted">
+          {{ t('footer.terms') }}
+        </ULink>
+        <ULink v-if="!selfHosted" :to="localePath('/wiki/privacy-policy')" class="text-sm text-muted">
+          {{ t('footer.privacy') }}
+        </ULink>
+        <ULink :to="creditsTo" class="text-sm text-muted">
+          {{ t('footer.copyright', { year }) }}
+        </ULink>
+      </div>
     </template>
   </UFooter>
 </template>

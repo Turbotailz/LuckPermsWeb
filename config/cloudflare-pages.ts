@@ -50,6 +50,11 @@ const STATIC_ROOTS = [
   '/logo.svg',
   '/twemoji-pirate-flag.png',
   '/robots.txt',
+  // `/sitemap.xml` is a copy of the index written at the end of the Pages build.
+  // Child sitemaps are prerendered files. Both must stay off the worker.
+  '/sitemap.xml',
+  '/sitemap_index.xml',
+  '/__sitemap__/*',
   '/llms.txt'
 ]
 

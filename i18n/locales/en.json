@@ -505,6 +505,8 @@
     "community": "Community",
     "gettingStarted": "Getting started",
     "credits": "Credits",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
     "copyright": "Copyright © 2017-{year} LuckPerms contributors"
   },
   "notFound": {

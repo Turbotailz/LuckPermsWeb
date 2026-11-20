@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { cloudflareRedirectLines, mergeRedirectFile, wikiRouteRules } from './config/wiki-redirects'
@@ -9,6 +9,7 @@ import { wikiBranchName, wikiRepoUrl } from './config/wiki-source'
 import { rewriteWikiImageMarkdown } from './config/wiki-markdown'
 import { loadLocalesMeta, localizedRouteRules, sitePrerenderRoutes } from './config/i18n-locales'
 import { cloudflarePagesRoutes } from './config/cloudflare-pages'
+import { resolvePlausibleDomain, resolveSiteIndexable, resolveWebRepo, withNoIndexHeader } from './config/site-public'
 
 function gitHash() {
   try {
@@ -29,6 +30,11 @@ const siteUrl = (
   || process.env.DEPLOY_PRIME_URL
   || 'https://luckperms.net'
 ).replace(/\/+$/, '')
+const indexable = resolveSiteIndexable(siteUrl)
+const plausibleDomain = resolvePlausibleDomain(siteUrl)
+const webRepo = resolveWebRepo()
+// Keep @nuxtjs/robots on the same decision as `site.indexable`.
+process.env.NUXT_SITE_INDEXABLE = indexable ? 'true' : 'false'
 
 const i18nLocales = loadLocalesMeta()
 const localeCodes = i18nLocales.map(locale => locale.code)
@@ -39,6 +45,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   modules: [
     '@nuxt/ui',
+    '@nuxtjs/robots',
     '@nuxt/content',
     '@nuxt/fonts',
     '@nuxtjs/i18n',
@@ -76,6 +83,9 @@ export default defineNuxtConfig({
       apiUrl: 'https://metadata.luckperms.net/',
       selfHosted,
       siteUrl,
+      indexable,
+      plausibleDomain,
+      webRepo,
       gitHash: gitHash(),
       wikiRepo: wikiRepoUrl(),
       wikiBranch: wikiBranchName()
@@ -99,10 +109,10 @@ export default defineNuxtConfig({
         { property: 'og:site_name', content: 'LuckPerms' },
         { property: 'og:locale', content: 'en_GB' }
       ],
-      script: selfHosted
+      script: selfHosted || !plausibleDomain
         ? []
         : [
-            { defer: true, 'data-domain': 'luckperms.net', src: 'https://pl.luckperms.net/js/pl.js' },
+            { defer: true, 'data-domain': plausibleDomain, src: 'https://pl.luckperms.net/js/pl.js' },
             { innerHTML: 'window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }' }
           ]
     }
@@ -119,6 +129,7 @@ export default defineNuxtConfig({
       flag: locale.flag
     })) as any,
     defaultLocale: 'en',
+    fallbackLocale: 'en',
     langDir: 'locales',
     strategy: 'prefix_except_default',
     detectBrowserLanguage: {
@@ -155,6 +166,11 @@ export default defineNuxtConfig({
     ...(selfHosted ? {} : wikiRouteRules())
   },
   nitro: {
+    // jsdom is only required while prerendering in Node. Leaving it external
+    // keeps the Pages worker from bundling it.
+    externals: {
+      external: ['jsdom']
+    },
     // Pages sets CF_PAGES=1. Pin the preset so `npm run build` keeps writing `dist`.
     ...(process.env.CF_PAGES ? { preset: 'cloudflare-pages' as const } : {}),
     cloudflare: {
@@ -168,27 +184,54 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: !selfHosted,
       autoSubfolderIndex: false,
-      routes: prerenderRoutes
+      routes: [...prerenderRoutes, '/robots.txt']
     },
     publicAssets: existsSync(wikiImgDir)
       ? [{ baseURL: '/wiki-img', dir: wikiImgDir, maxAge: 60 * 60 * 24 * 7 }]
       : [],
     hooks: {
       close() {
+        // `nuxt prepare` closes Nitro before `dist/` exists. Pages runs prepare
+        // with CF_PAGES=1, so only touch files the compile step has already written.
         if (process.env.CF_PAGES !== '1') {
           return
         }
-        const file = resolve(process.cwd(), 'dist/_redirects')
-        if (!existsSync(file)) {
+        const dist = resolve(process.cwd(), 'dist')
+        if (!existsSync(dist)) {
           return
         }
-        writeFileSync(file, mergeRedirectFile(readFileSync(file, 'utf8'), cloudflareRedirectLines(localeCodes)))
+        const redirects = resolve(dist, '_redirects')
+        if (existsSync(redirects)) {
+          writeFileSync(redirects, mergeRedirectFile(readFileSync(redirects, 'utf8'), cloudflareRedirectLines(localeCodes)))
+        }
+        const headers = resolve(dist, '_headers')
+        if (!indexable && existsSync(headers)) {
+          writeFileSync(headers, withNoIndexHeader(readFileSync(headers, 'utf8')))
+        }
+        // The sitemap module redirects `/sitemap.xml` to `/sitemap_index.xml` inside
+        // the worker. That path is a static exclude, so publish the index at both URLs.
+        const sitemapIndex = resolve(dist, 'sitemap_index.xml')
+        if (existsSync(sitemapIndex)) {
+          copyFileSync(sitemapIndex, resolve(dist, 'sitemap.xml'))
+        }
       }
     }
   },
   site: {
     url: siteUrl,
+    indexable,
     trailingSlash: false
+  },
+  robots: {
+    credits: false,
+    sitemap: ['/sitemap.xml'],
+    groups: [
+      {
+        userAgent: '*',
+        allow: ['/'],
+        disallow: ['/editor/', '/verbose/', '/treeview/']
+      }
+    ]
   },
   sitemap: {
     exclude: [

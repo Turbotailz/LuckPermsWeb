@@ -14,6 +14,8 @@ export function useLpConfig() {
   const siteUrl = String(config.siteUrl || 'https://luckperms.net').replace(/\/$/, '')
   const selfHosted = Boolean(config.selfHosted)
   const gitHash = String(config.gitHash || 'dev')
+  const webRepo = String(config.webRepo || 'https://github.com/Turbotailz/LuckPermsWeb').replace(/\/$/, '')
+  const indexable = config.indexable !== false && config.indexable !== 'false'
 
   return {
     apiUrl,
@@ -22,7 +24,9 @@ export function useLpConfig() {
     bytesocksUrl,
     siteUrl,
     selfHosted,
-    gitHash
+    gitHash,
+    webRepo,
+    indexable
   }
 }
 
